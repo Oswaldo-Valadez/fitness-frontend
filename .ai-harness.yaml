@@ -1,0 +1,87 @@
+version: 1
+project:
+  name: fitness-frontend
+  topology: single-repo
+  primary_language: typescript
+  frameworks:
+    - React
+    - Vite
+
+ownership:
+  requirements: UNKNOWN
+  api_contract: consumed from backend OpenAPI output
+  persistence: null
+  frontend_contract_consumer: src/api/generated
+  legacy_reference: null
+
+paths:
+  source:
+    - src/**
+    - public/**
+  tests:
+    - src/**/*.{test,spec}.{ts,tsx}
+  specs: specs
+  progress: progress
+  generated:
+    - src/api/generated/**
+  editable_generated_runtime: []
+  excluded_search:
+    - .git/**
+    - node_modules/**
+    - vendor/**
+    - dist/**
+    - build/**
+    - coverage/**
+    - .next/**
+    - out/**
+    - tmp/**
+    - temp/**
+    - "*.log"
+    - "*.tsbuildinfo"
+
+commands:
+  install: npm install
+  format_check: null
+  lint: npm run lint
+  typecheck: null
+  unit_tests: null
+  integration_tests: null
+  e2e_tests: null
+  build: npm run build
+  contract_generate: null
+  contract_validate: null
+  client_generate: UNKNOWN
+
+verification_profiles:
+  targeted:
+    - npm run lint
+  full:
+    - npm run lint
+    - npm run build
+
+workflow:
+  feature_states:
+    - pending
+    - in_progress
+    - review
+    - implementation_done
+    - done
+  max_parallel_features: 1
+
+review:
+  severities:
+    - Critical
+    - High
+    - Medium
+    - Low
+    - Informational
+  verdicts:
+    - APPROVED
+    - CHANGES_REQUESTED
+    - BLOCKED
+
+evidence_gaps:
+  - Missing project-specific requirements/spec/ADR files.
+  - No CI workflow files found under .github/workflows.
+  - No explicit frontend unit/integration/e2e test scripts in package.json.
+  - Orval generation command is not defined in repository scripts.
