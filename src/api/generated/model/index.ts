@@ -8,6 +8,8 @@
 
 export * from './addMealItem201';
 export * from './addMealItemBody';
+export * from './adminCreateFoodBody';
+export * from './adminCreateFoodBodyDataType';
 export * from './adminImportFoodsCommit200';
 export * from './adminImportFoodsCommit200Summary';
 export * from './adminImportFoodsCommitBody';
@@ -15,6 +17,8 @@ export * from './adminImportFoodsPreview200';
 export * from './adminImportFoodsPreview200Summary';
 export * from './adminImportFoodsPreviewBody';
 export * from './adminListFoodsParams';
+export * from './adminUpdateFoodBody';
+export * from './adminUpdateFoodBodyDataType';
 export * from './authForgotPasswordBody';
 export * from './authLogin200';
 export * from './authLoginBody';

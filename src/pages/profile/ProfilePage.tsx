@@ -15,16 +15,21 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    profileApi.get().then(({ profile }) => { setProfile(profile); setLoading(false) })
-    loadTargets(1)
-  }, [])
-
   const loadTargets = async (page: number) => {
     const res = await profileApi.targets(page)
     setTargets(res.data)
     setTargetLastPage(res.meta.last_page)
   }
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      loadTargets(1)
+    }, 0)
+
+    profileApi.get().then(({ profile }) => { setProfile(profile); setLoading(false) })
+
+    return () => clearTimeout(id)
+  }, [])
 
   const handleSaved = async () => {
     const { profile: p } = await profileApi.get()

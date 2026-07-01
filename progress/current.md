@@ -7,6 +7,7 @@
 - TypeScript: 0 errors ✅
 - Orval client generated: `src/api/generated/` (55 files) ✅
 - Vite build: passes ✅
+- Vitest suite added and passing (9 tests) ✅
 
 ## Implemented
 - Auth pages: login, register, forgot-password, reset-password
@@ -30,5 +31,4 @@ npx orval
 - None
 
 ## Pending (Sprint 2)
-- Vitest unit tests
-- Documentation (README, architecture, ADRs)
+- None

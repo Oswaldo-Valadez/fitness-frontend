@@ -23,7 +23,6 @@ export default function DiaryPage() {
 
   const [meals, setMeals] = useState<MealLog[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeMeal, setActiveMeal] = useState<MealLog | null>(null)
 
   // Food search state
   const [foodQuery, setFoodQuery] = useState('')
@@ -41,6 +40,7 @@ export default function DiaryPage() {
     }
   }, [date])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadMeals() }, [loadMeals])
 
   // Pre-select food from food detail page
@@ -52,7 +52,7 @@ export default function DiaryPage() {
 
   // Food search debounce
   useEffect(() => {
-    if (!foodQuery) { setFoodResults([]); return }
+    if (!foodQuery) { return }
     const id = setTimeout(async () => {
       const res = await foodsApi.search(foodQuery)
       setFoodResults(res.data)
@@ -103,7 +103,13 @@ export default function DiaryPage() {
 
         <div className="relative">
           <Input id="food-query" placeholder="Buscar alimento..."
-            value={foodQuery} onChange={(e) => setFoodQuery(e.target.value)} />
+            value={foodQuery}
+            onChange={(e) => {
+              const value = e.target.value
+              setFoodQuery(value)
+              if (!value) setFoodResults([])
+            }}
+          />
           {foodResults.length > 0 && !selectedFood && (
             <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
               {foodResults.map((f) => (

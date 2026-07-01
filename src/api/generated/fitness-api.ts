@@ -15,11 +15,13 @@ import type {
 import type {
   AddMealItem201,
   AddMealItemBody,
+  AdminCreateFoodBody,
   AdminImportFoodsCommit200,
   AdminImportFoodsCommitBody,
   AdminImportFoodsPreview200,
   AdminImportFoodsPreviewBody,
   AdminListFoodsParams,
+  AdminUpdateFoodBody,
   AuthForgotPasswordBody,
   AuthLogin200,
   AuthLoginBody,
@@ -102,11 +104,11 @@ const adminListFoods = (
   }
 
 const adminCreateFood = (
-    food: Food, options?: AxiosRequestConfig
+    adminCreateFoodBody: AdminCreateFoodBody, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<Food>> => {
     return axiosInstance.post(
       `/admin/foods`,
-      food,options
+      adminCreateFoodBody,options
     );
   }
 
@@ -120,11 +122,11 @@ const adminGetFood = (
 
 const adminUpdateFood = (
     food: number,
-    food: Food, options?: AxiosRequestConfig
+    adminUpdateFoodBody: AdminUpdateFoodBody, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<Food>> => {
     return axiosInstance.put(
       `/admin/foods/${food}`,
-      food,options
+      adminUpdateFoodBody,options
     );
   }
 

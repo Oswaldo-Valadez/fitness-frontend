@@ -12,3 +12,20 @@ Before editing, read AGENTS.md and .ai-harness.yaml.
 - Use terminating verification commands from .ai-harness.yaml.
 - Run targeted checks during implementation and full profile before completion.
 - Report changed files, tests, verification results, assumptions, blockers, and risks.
+
+## Frontend-specific rules
+
+- This repository is a React SPA consumer. Do not move domain business logic from backend into frontend.
+- Keep auth/session flow aligned with Sanctum cookie mode (`withCredentials`, CSRF bootstrap).
+- Prefer typed API contracts and keep generated client under `src/api/generated` in sync with backend OpenAPI.
+- Do not manually edit generated files in `src/api/generated`; regenerate with Orval instead.
+- Preserve route guard intent:
+	- `RequireAuth` for authenticated areas,
+	- `RequireGuest` for auth pages,
+	- `RequireAdmin` for admin pages.
+
+## Verification baseline
+
+- `npm run lint`
+- `npm run test`
+- `npm run build`

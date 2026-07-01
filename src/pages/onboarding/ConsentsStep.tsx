@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Button from '@/components/ui/Button'
-import type { onboardingApi as OnboardingApiType } from '@/api/profile'
+import { onboardingApi } from '@/api/profile'
 
 const CONSENTS = [
   {
@@ -28,8 +28,7 @@ interface Props {
   api: typeof onboardingApi
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function ConsentsStep({ onAccepted, api }: { onAccepted: () => void; api: any }) {
+export default function ConsentsStep({ onAccepted, api }: Props) {
   const [accepted, setAccepted] = useState<Record<string, boolean>>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')

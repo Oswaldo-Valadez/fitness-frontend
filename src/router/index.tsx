@@ -1,11 +1,13 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from 'react-router-dom'
 import { RequireAuth, RequireGuest, RequireAdmin } from './guards'
 
 // Lazy imports — cada página se carga solo cuando se necesita
 import { lazy, Suspense } from 'react'
+import type { ReactElement } from 'react'
 import PageSpinner from '@/components/ui/PageSpinner'
 
-const wrap = (Component: React.LazyExoticComponent<() => JSX.Element>) => (
+const wrap = (Component: React.LazyExoticComponent<() => ReactElement>) => (
   <Suspense fallback={<PageSpinner />}>
     <Component />
   </Suspense>

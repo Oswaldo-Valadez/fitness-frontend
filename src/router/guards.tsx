@@ -42,7 +42,7 @@ export function RequireAdmin() {
   if (!user) return <Navigate to="/login" replace />
 
   // is_admin no viene en el tipo base — lo leemos como any del objeto real
-  const isAdmin = (user as Record<string, unknown>).is_admin === true
+  const isAdmin = (user as unknown as { is_admin?: boolean }).is_admin === true
   if (!isAdmin) return <Navigate to="/dashboard" replace />
 
   return <Outlet />

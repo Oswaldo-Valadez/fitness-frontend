@@ -24,6 +24,7 @@ export default function DashboardPage() {
     }
   }, [])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(dateParam) }, [dateParam, load])
 
   const goDate = (delta: number) => {
