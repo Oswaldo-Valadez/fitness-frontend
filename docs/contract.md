@@ -6,7 +6,7 @@
 
 ## Consumer
 - Repository: this repository
-- Generated client evidence: src/api/generated/fitness-api.ts and src/api/generated/model/**
+- Generated client evidence: src/api/generated/index.ts, src/api/generated/{tag}/**, and src/api/generated/model/**
 - Generation configuration evidence: orval.config.ts
 
 ## Rules

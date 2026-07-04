@@ -39,11 +39,11 @@ Fuente del contrato:
 
 Generacion:
 ```bash
-npx orval
+npm run gen
 ```
 
 Salida:
-- `src/api/generated/fitness-api.ts`
+- `src/api/generated/index.ts`
 - `src/api/generated/model/*`
 
 ## Calidad y verificacion

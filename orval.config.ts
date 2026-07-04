@@ -6,9 +6,11 @@ export default defineConfig({
       target: '../fitness-backend/storage/api-docs/api-docs.json',
     },
     output: {
-      target: './src/api/generated/fitness-api.ts',
-      schemas: './src/api/generated/model',
       client: 'axios',
+      mode: 'tags-split',
+      workspace: './src/api/generated',
+      target: 'index.ts',
+      schemas: 'model',
       clean: true,
     },
   },

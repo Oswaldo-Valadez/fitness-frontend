@@ -43,20 +43,22 @@ commands:
   install: npm install
   format_check: null
   lint: npm run lint
-  typecheck: null
-  unit_tests: null
+  typecheck: npm run typecheck
+  unit_tests: npm run test
   integration_tests: null
   e2e_tests: null
   build: npm run build
   contract_generate: null
   contract_validate: null
-  client_generate: UNKNOWN
+  client_generate: npm run gen
 
 verification_profiles:
   targeted:
     - npm run lint
+    - npm run test
   full:
     - npm run lint
+    - npm run test
     - npm run build
 
 workflow:
@@ -83,5 +85,3 @@ review:
 evidence_gaps:
   - Missing project-specific requirements/spec/ADR files.
   - No CI workflow files found under .github/workflows.
-  - No explicit frontend unit/integration/e2e test scripts in package.json.
-  - Orval generation command is not defined in repository scripts.
