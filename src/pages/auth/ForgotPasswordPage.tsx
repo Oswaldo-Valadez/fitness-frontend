@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Mail, MailCheck } from 'lucide-react'
 import { authApi } from '@/api/auth'
 import AuthCard from '@/components/ui/AuthCard'
 import Input from '@/components/ui/Input'
@@ -28,10 +29,11 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <AuthCard title="Revisa tu correo">
-        <p className="text-center text-sm text-gray-600">
-          Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.
-        </p>
-        <Link to="/login" className="mt-4 block text-center text-sm text-emerald-600 hover:underline">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <MailCheck className="h-10 w-10 text-accent" aria-hidden="true" />
+          <p className="text-sm text-muted">Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.</p>
+        </div>
+        <Link to="/login" className="block text-center text-sm font-medium text-primary hover:underline">
           Volver al inicio de sesión
         </Link>
       </AuthCard>
@@ -40,14 +42,23 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthCard title="Recuperar contraseña" subtitle="Te enviaremos un enlace por correo">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input id="email" label="Correo electrónico" type="email" autoComplete="email"
-          value={email} onChange={(e) => setEmail(e.target.value)} error={error} required />
-        <Button type="submit" loading={loading} className="w-full">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <Input
+          id="email"
+          label="Correo electrónico"
+          type="email"
+          autoComplete="email"
+          iconLeft={<Mail className="h-4 w-4" />}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={error}
+          required
+        />
+        <Button type="submit" loading={loading} className="w-full" size="lg">
           Enviar enlace
         </Button>
       </form>
-      <Link to="/login" className="block text-center text-sm text-emerald-600 hover:underline">
+      <Link to="/login" className="block text-center text-sm font-medium text-primary hover:underline">
         Volver al inicio de sesión
       </Link>
     </AuthCard>

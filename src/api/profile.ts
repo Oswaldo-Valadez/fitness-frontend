@@ -1,5 +1,5 @@
 import api from '@/api/client'
-import type { UserProfile, NutritionTarget } from '@/types/models'
+import type { NutritionTarget, UserProfile } from '@/types/models'
 
 export interface ConsentPayload {
   type: 'terms' | 'privacy' | 'general_wellness_disclaimer'
@@ -50,9 +50,7 @@ export const profileApi = {
   },
 
   async targets(page = 1) {
-    const { data } = await api.get<{ data: NutritionTarget[]; meta: { last_page: number } }>(
-      `/profile/targets?page=${page}`,
-    )
+    const { data } = await api.get<{ data: NutritionTarget[]; meta: { last_page: number } }>(`/profile/targets?page=${page}`)
     return data
   },
 }

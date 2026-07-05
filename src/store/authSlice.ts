@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { authApi } from '@/api/auth'
 import type { LoginPayload, RegisterPayload } from '@/api/auth'
 import type { User } from '@/types/models'
@@ -45,7 +45,9 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     // fetchMe
     builder
-      .addCase(fetchMe.pending, (state) => { state.status = 'loading' })
+      .addCase(fetchMe.pending, (state) => {
+        state.status = 'loading'
+      })
       .addCase(fetchMe.fulfilled, (state, action) => {
         state.user = action.payload as AuthState['user']
         state.status = 'idle'
@@ -59,23 +61,31 @@ const authSlice = createSlice({
 
     // login
     builder
-      .addCase(login.pending, (state) => { state.status = 'loading' })
+      .addCase(login.pending, (state) => {
+        state.status = 'loading'
+      })
       .addCase(login.fulfilled, (state, action) => {
         state.user = action.payload as AuthState['user']
         state.status = 'idle'
         state.initialized = true
       })
-      .addCase(login.rejected, (state) => { state.status = 'failed' })
+      .addCase(login.rejected, (state) => {
+        state.status = 'failed'
+      })
 
     // register
     builder
-      .addCase(register.pending, (state) => { state.status = 'loading' })
+      .addCase(register.pending, (state) => {
+        state.status = 'loading'
+      })
       .addCase(register.fulfilled, (state, action) => {
         state.user = action.payload as AuthState['user']
         state.status = 'idle'
         state.initialized = true
       })
-      .addCase(register.rejected, (state) => { state.status = 'failed' })
+      .addCase(register.rejected, (state) => {
+        state.status = 'failed'
+      })
 
     // logout
     builder.addCase(logout.fulfilled, (state) => {

@@ -16,6 +16,7 @@ export * from './adminImportFoodsCommitBody';
 export * from './adminImportFoodsPreview200';
 export * from './adminImportFoodsPreview200Summary';
 export * from './adminImportFoodsPreviewBody';
+export * from './adminListFoods200';
 export * from './adminListFoodsParams';
 export * from './adminUpdateFoodBody';
 export * from './adminUpdateFoodBodyDataType';

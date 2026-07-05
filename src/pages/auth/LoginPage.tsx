@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Lock, Mail } from 'lucide-react'
 import { useAppDispatch, useAuth } from '@/store/hooks'
 import { login } from '@/store/authSlice'
 import AuthCard from '@/components/ui/AuthCard'
@@ -29,19 +30,20 @@ export default function LoginPage() {
         for (const [k, v] of Object.entries(data.errors)) flat[k] = v[0]
         setErrors(flat)
       } else {
-        setErrors({ email: 'Credenciales incorrectas.' })
+        setErrors({ password: 'Credenciales incorrectas.' })
       }
     }
   }
 
   return (
-    <AuthCard title="Iniciar sesión" subtitle="Bienvenido de vuelta">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <AuthCard title="Iniciar sesión" subtitle="Bienvenido de vuelta a FitTrack">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <Input
           id="email"
           label="Correo electrónico"
           type="email"
           autoComplete="email"
+          iconLeft={<Mail className="h-4 w-4" />}
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
           error={errors.email}
@@ -52,23 +54,24 @@ export default function LoginPage() {
           label="Contraseña"
           type="password"
           autoComplete="current-password"
+          iconLeft={<Lock className="h-4 w-4" />}
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           error={errors.password}
           required
         />
-        <div className="flex items-center justify-between text-sm">
-          <Link to="/forgot-password" className="text-emerald-600 hover:underline">
+        <div className="flex items-center justify-end text-sm">
+          <Link to="/forgot-password" className="font-medium text-primary hover:underline">
             ¿Olvidaste tu contraseña?
           </Link>
         </div>
-        <Button type="submit" loading={status === 'loading'} className="w-full">
+        <Button type="submit" loading={status === 'loading'} className="w-full" size="lg">
           Entrar
         </Button>
       </form>
-      <p className="text-center text-sm text-gray-500">
+      <p className="text-center text-sm text-muted">
         ¿No tienes cuenta?{' '}
-        <Link to="/register" className="text-emerald-600 hover:underline">
+        <Link to="/register" className="font-medium text-primary hover:underline">
           Regístrate
         </Link>
       </p>

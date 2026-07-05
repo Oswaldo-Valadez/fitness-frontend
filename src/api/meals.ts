@@ -14,8 +14,9 @@ interface AddItemPayload {
 
 export const mealApi = {
   async list(date: string): Promise<MealLog[]> {
-    const { data } = await api.get<{ data: MealLog[] }>(`/meals?date=${date}`)
-    return data.data
+    // Backend returns the array directly (MealLogController::index), not wrapped in { data }.
+    const { data } = await api.get<MealLog[]>(`/meals?date=${date}`)
+    return data
   },
 
   async get(id: number): Promise<MealLog> {
@@ -29,8 +30,8 @@ export const mealApi = {
   },
 
   async update(id: number, payload: Partial<StoreMealPayload>): Promise<MealLog> {
-    const { data } = await api.put<{ meal: MealLog }>(`/meals/${id}`, payload)
-    return data.meal
+    const { data } = await api.put<MealLog>(`/meals/${id}`, payload)
+    return data
   },
 
   async destroy(id: number): Promise<void> {
@@ -43,8 +44,8 @@ export const mealApi = {
   },
 
   async updateItem(mealId: number, itemId: number, quantity_g: number): Promise<MealLogItem> {
-    const { data } = await api.put<{ item: MealLogItem }>(`/meals/${mealId}/items/${itemId}`, { quantity_g })
-    return data.item
+    const { data } = await api.put<MealLogItem>(`/meals/${mealId}/items/${itemId}`, { quantity_g })
+    return data
   },
 
   async destroyItem(mealId: number, itemId: number): Promise<void> {

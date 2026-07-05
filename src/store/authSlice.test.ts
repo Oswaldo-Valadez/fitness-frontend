@@ -49,24 +49,33 @@ describe('authSlice', () => {
   })
 
   it('handles login/register rejected and logout fulfilled', () => {
-    const loginRejected = authReducer(undefined, login.rejected(new Error('bad creds'), 'req-3', {
-      email: 'bad@example.com',
-      password: 'bad',
-    }))
+    const loginRejected = authReducer(
+      undefined,
+      login.rejected(new Error('bad creds'), 'req-3', {
+        email: 'bad@example.com',
+        password: 'bad',
+      }),
+    )
     expect(loginRejected.status).toBe('failed')
 
-    const registerRejected = authReducer(undefined, register.rejected(new Error('invalid'), 'req-4', {
-      name: 'Demo',
-      email: 'demo@example.com',
-      password: 'secret123',
-      password_confirmation: 'secret123',
-    }))
+    const registerRejected = authReducer(
+      undefined,
+      register.rejected(new Error('invalid'), 'req-4', {
+        name: 'Demo',
+        email: 'demo@example.com',
+        password: 'secret123',
+        password_confirmation: 'secret123',
+      }),
+    )
     expect(registerRejected.status).toBe('failed')
 
-    const loggedState = authReducer(undefined, login.fulfilled(demoUser, 'req-5', {
-      email: 'demo@example.com',
-      password: 'secret123',
-    }))
+    const loggedState = authReducer(
+      undefined,
+      login.fulfilled(demoUser, 'req-5', {
+        email: 'demo@example.com',
+        password: 'secret123',
+      }),
+    )
 
     const afterLogout = authReducer(loggedState, logout.fulfilled(undefined, 'req-6'))
     expect(afterLogout.user).toBeNull()

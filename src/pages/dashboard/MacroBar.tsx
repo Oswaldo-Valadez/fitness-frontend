@@ -2,14 +2,19 @@ interface Props {
   label: string
   consumed: number
   target: number
-  color: 'blue' | 'amber' | 'rose' | 'emerald'
+  color: 'protein' | 'carbs' | 'fat'
 }
 
 const COLORS = {
-  blue:    'bg-blue-500',
-  amber:   'bg-amber-500',
-  rose:    'bg-rose-500',
-  emerald: 'bg-emerald-500',
+  protein: 'bg-protein',
+  carbs: 'bg-carbs',
+  fat: 'bg-fat',
+}
+
+const DOT_COLORS = {
+  protein: 'bg-protein',
+  carbs: 'bg-carbs',
+  fat: 'bg-fat',
 }
 
 export default function MacroBar({ label, consumed, target, color }: Props) {
@@ -18,17 +23,17 @@ export default function MacroBar({ label, consumed, target, color }: Props) {
 
   return (
     <div>
-      <div className="mb-1 flex justify-between text-xs text-gray-600">
-        <span>{label}</span>
-        <span className={over ? 'text-red-500 font-medium' : ''}>
+      <div className="mb-1.5 flex items-center justify-between text-xs">
+        <span className="flex items-center gap-1.5 font-medium text-muted">
+          <span className={`h-2 w-2 rounded-full ${DOT_COLORS[color]}`} />
+          {label}
+        </span>
+        <span className={`tabular-nums ${over ? 'font-semibold text-destructive' : 'text-muted'}`}>
           {Math.round(consumed)}g / {Math.round(target)}g
         </span>
       </div>
-      <div className="h-2 rounded-full bg-gray-100">
-        <div
-          className={`h-2 rounded-full transition-all ${over ? 'bg-red-400' : COLORS[color]}`}
-          style={{ width: `${pct}%` }}
-        />
+      <div className="h-2 rounded-full bg-surface-muted">
+        <div className={`h-2 rounded-full transition-all duration-500 ${over ? 'bg-destructive' : COLORS[color]}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   )

@@ -1,12 +1,20 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Apple, ChevronLeft, ChevronRight, Search, Star } from 'lucide-react'
+import { clsx } from 'clsx'
 import { foodsApi } from '@/api/foods'
+import { foodPreferencesApi } from '@/api/foodPreferences'
+import { getFoodMacros } from '@/lib/nutrients'
 import type { Food } from '@/types/models'
 import Input from '@/components/ui/Input'
 import PageSpinner from '@/components/ui/PageSpinner'
 import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import EmptyState from '@/components/ui/EmptyState'
+import { useToast } from '@/components/ui/toast'
 
 export default function FoodsPage() {
+  const { show } = useToast()
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('')
   const [categories, setCategories] = useState<string[]>([])
@@ -14,9 +22,11 @@ export default function FoodsPage() {
   const [page, setPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     foodsApi.categories().then(setCategories)
+    foodPreferencesApi.favorites().then((favs) => setFavoriteIds(new Set(favs.map((f) => f.id))))
   }, [])
 
   const search = useCallback(async (q: string, cat: string, p: number) => {
@@ -30,81 +40,151 @@ export default function FoodsPage() {
     }
   }, [])
 
-  // Búsqueda con debounce de 300ms
   useEffect(() => {
-    const id = setTimeout(() => { search(query, category, 1); setPage(1) }, 300)
+    const id = setTimeout(() => {
+      search(query, category, 1)
+      setPage(1)
+    }, 300)
     return () => clearTimeout(id)
   }, [query, category, search])
 
+  const toggleFavorite = async (food: Food) => {
+    const nowFavorite = await foodPreferencesApi.toggleFavorite(food)
+    setFavoriteIds((prev) => {
+      const next = new Set(prev)
+      if (nowFavorite) next.add(food.id)
+      else next.delete(food.id)
+      return next
+    })
+    show({ variant: 'success', message: nowFavorite ? 'Agregado a favoritos.' : 'Quitado de favoritos.', duration: 2000 })
+  }
+
+  const goToPage = (p: number) => {
+    setPage(p)
+    search(query, category, p)
+  }
+
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold text-gray-900">Catálogo de alimentos</h1>
+      <h1 className="text-2xl font-bold text-foreground">Catálogo de alimentos</h1>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="space-y-3">
         <Input
           id="food-search"
           placeholder="Buscar alimento..."
+          iconLeft={<Search className="h-4 w-4" />}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="flex-1"
         />
-        <select
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          <option value="">Todas las categorías</option>
-          {categories.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
+        {categories.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            <button
+              onClick={() => setCategory('')}
+              className={clsx(
+                'shrink-0 cursor-pointer rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors',
+                category === '' ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted hover:bg-surface-muted',
+              )}
+            >
+              Todas
+            </button>
+            {categories.map((c) => (
+              <button
+                key={c}
+                onClick={() => setCategory(c)}
+                className={clsx(
+                  'shrink-0 cursor-pointer rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors',
+                  category === c ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted hover:bg-surface-muted',
+                )}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {loading ? <PageSpinner /> : (
+      {loading ? (
+        <PageSpinner />
+      ) : (
         <>
           {foods.length === 0 ? (
-            <p className="text-center text-gray-400 py-10">No se encontraron alimentos.</p>
+            <EmptyState icon={Apple} title="No se encontraron alimentos" description="Intenta con otro término de búsqueda o categoría." />
           ) : (
-            <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-              <table className="min-w-full text-sm">
-                <thead className="bg-gray-50 text-left text-xs font-medium uppercase text-gray-500">
-                  <tr>
-                    <th className="px-4 py-3">Alimento</th>
-                    <th className="px-4 py-3 text-right">Kcal/100g</th>
-                    <th className="px-4 py-3 text-right">Proteína</th>
-                    <th className="px-4 py-3 text-right">Carbos</th>
-                    <th className="px-4 py-3 text-right">Grasa</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {foods.map((f) => (
-                    <tr key={f.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <Link to={`/foods/${f.id}`} className="font-medium text-emerald-700 hover:underline">
-                          {f.name}
-                        </Link>
-                        {f.category && <span className="ml-2 text-xs text-gray-400">{f.category}</span>}
-                      </td>
-                      <td className="px-4 py-3 text-right text-gray-700">{Number(f.energy_kcal_per_100g).toFixed(0)}</td>
-                      <td className="px-4 py-3 text-right text-blue-600">{Number(f.protein_g_per_100g).toFixed(1)}g</td>
-                      <td className="px-4 py-3 text-right text-amber-600">{Number(f.carbohydrate_g_per_100g).toFixed(1)}g</td>
-                      <td className="px-4 py-3 text-right text-rose-600">{Number(f.fat_g_per_100g).toFixed(1)}g</td>
+            <>
+              {/* Mobile: card list */}
+              <div className="space-y-2 lg:hidden">
+                {foods.map((f) => (
+                  <Card key={f.id} padding="sm" className="flex items-center gap-3">
+                    <Link to={`/foods/${f.id}`} className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-foreground">{f.name}</p>
+                      <p className="text-xs text-muted">
+                        {f.category && <span>{f.category} · </span>}
+                        {getFoodMacros(f).energy_kcal.toFixed(0)} kcal/100g
+                      </p>
+                    </Link>
+                    <button onClick={() => toggleFavorite(f)} aria-label="Marcar como favorito" className="cursor-pointer p-1.5 text-muted hover:text-warning">
+                      <Star className={clsx('h-4 w-4', favoriteIds.has(f.id) && 'fill-current text-warning')} />
+                    </button>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Desktop: table */}
+              <div className="hidden overflow-hidden rounded-xl border border-border bg-surface shadow-card lg:block">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-surface-muted text-left text-xs font-medium uppercase text-muted">
+                    <tr>
+                      <th className="px-4 py-3" />
+                      <th className="px-4 py-3">Alimento</th>
+                      <th className="px-4 py-3 text-right">Kcal/100g</th>
+                      <th className="px-4 py-3 text-right">Proteína</th>
+                      <th className="px-4 py-3 text-right">Carbos</th>
+                      <th className="px-4 py-3 text-right">Grasa</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {foods.map((f) => {
+                      const macros = getFoodMacros(f)
+                      return (
+                        <tr key={f.id} className="transition-colors hover:bg-surface-muted">
+                          <td className="px-4 py-3">
+                            <button
+                              onClick={() => toggleFavorite(f)}
+                              aria-label="Marcar como favorito"
+                              className="cursor-pointer text-muted hover:text-warning"
+                            >
+                              <Star className={clsx('h-4 w-4', favoriteIds.has(f.id) && 'fill-current text-warning')} />
+                            </button>
+                          </td>
+                          <td className="px-4 py-3">
+                            <Link to={`/foods/${f.id}`} className="font-medium text-primary hover:underline">
+                              {f.name}
+                            </Link>
+                            {f.category && <span className="ml-2 text-xs text-muted">{f.category}</span>}
+                          </td>
+                          <td className="tabular-nums px-4 py-3 text-right text-foreground">{macros.energy_kcal.toFixed(0)}</td>
+                          <td className="tabular-nums px-4 py-3 text-right text-protein">{macros.protein_g.toFixed(1)}g</td>
+                          <td className="tabular-nums px-4 py-3 text-right text-carbs">{macros.carbohydrate_g.toFixed(1)}g</td>
+                          <td className="tabular-nums px-4 py-3 text-right text-fat">{macros.fat_g.toFixed(1)}g</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
 
-          {/* Paginación */}
           {lastPage > 1 && (
-            <div className="flex justify-center gap-2">
-              <Button variant="secondary" disabled={page === 1}
-                onClick={() => { const p = page - 1; setPage(p); search(query, category, p) }}>
-                Anterior
+            <div className="flex items-center justify-center gap-2">
+              <Button variant="secondary" size="sm" disabled={page === 1} onClick={() => goToPage(page - 1)} aria-label="Página anterior">
+                <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="px-3 py-2 text-sm text-gray-600">{page} / {lastPage}</span>
-              <Button variant="secondary" disabled={page === lastPage}
-                onClick={() => { const p = page + 1; setPage(p); search(query, category, p) }}>
-                Siguiente
+              <span className="tabular-nums px-2 text-sm text-muted">
+                {page} / {lastPage}
+              </span>
+              <Button variant="secondary" size="sm" disabled={page === lastPage} onClick={() => goToPage(page + 1)} aria-label="Página siguiente">
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           )}

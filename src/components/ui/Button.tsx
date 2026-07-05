@@ -1,28 +1,49 @@
-import { type ButtonHTMLAttributes } from 'react'
+import { type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { Loader2 } from 'lucide-react'
 import { clsx } from 'clsx'
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger'
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline'
+  size?: 'sm' | 'md' | 'lg' | 'icon'
   loading?: boolean
+  iconLeft?: ReactNode
+  iconRight?: ReactNode
 }
 
-export default function Button({ variant = 'primary', loading, children, className, disabled, ...rest }: Props) {
-  const base = 'inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
-  const variants = {
-    primary:   'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500',
-    secondary: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-emerald-500',
-    danger:    'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-  }
+const VARIANTS = {
+  primary: 'bg-primary text-on-primary hover:bg-primary-hover focus-visible:ring-ring shadow-sm',
+  secondary: 'bg-surface text-foreground border border-border hover:bg-surface-muted focus-visible:ring-ring shadow-sm',
+  danger: 'bg-destructive text-white hover:bg-destructive-hover focus-visible:ring-destructive shadow-sm',
+  ghost: 'text-foreground hover:bg-surface-muted focus-visible:ring-ring',
+  outline: 'bg-transparent text-primary border border-primary/40 hover:bg-primary/10 focus-visible:ring-ring',
+}
 
+const SIZES = {
+  sm: 'h-9 px-3 text-sm gap-1.5',
+  md: 'h-10 px-4 text-sm gap-2',
+  lg: 'h-12 px-6 text-base gap-2',
+  icon: 'h-10 w-10 p-0',
+}
+
+export default function Button({ variant = 'primary', size = 'md', loading, iconLeft, iconRight, children, className, disabled, ...rest }: Props) {
   return (
-    <button className={clsx(base, variants[variant], className)} disabled={disabled || loading} {...rest}>
-      {loading && (
-        <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z" />
-        </svg>
+    <button
+      className={clsx(
+        'inline-flex cursor-pointer items-center justify-center rounded-lg font-medium',
+        'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+        'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
+        'active:scale-[0.98]',
+        VARIANTS[variant],
+        SIZES[size],
+        className,
       )}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      {...rest}
+    >
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : iconLeft}
       {children}
+      {!loading && iconRight}
     </button>
   )
 }

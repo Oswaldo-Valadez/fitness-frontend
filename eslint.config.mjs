@@ -1,13 +1,14 @@
 import prettier from 'eslint-plugin-prettier'
 import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
 import typescriptEslint from '@typescript-eslint/eslint-plugin'
 import typescriptParser from '@typescript-eslint/parser'
 import chaiFriendly from 'eslint-plugin-chai-friendly'
 
 export default [
   {
-    ignores: ['dist', 'node_modules', 'build', 'public'],
+    ignores: ['dist', 'node_modules', 'build', 'public', 'src/api/generated'],
   },
   {
     files: ['**/*.{ts,tsx}'],
@@ -30,7 +31,11 @@ export default [
     plugins: {
       prettier,
       react,
-      reactHooks,
+      // Keyed as 'react-hooks'/'react-refresh' (not the camelCase import name) so that
+      // `react-hooks/*` and `react-refresh/*` disable-comments across the codebase
+      // actually resolve to these plugins' rules.
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
       '@typescript-eslint': typescriptEslint,
       'chai-friendly': chaiFriendly,
     },
@@ -40,14 +45,14 @@ export default [
         {
           useTabs: false,
           semi: false,
-          tabWidth: 4,
+          tabWidth: 2,
           printWidth: 160,
           singleQuote: true,
-          jsxSingleQuote: true,
+          jsxSingleQuote: false,
           trailingComma: 'all',
           bracketSpacing: true,
           bracketSameLine: false,
-          arrowParens: 'avoid',
+          arrowParens: 'always',
           endOfLine: 'auto',
         },
       ],
@@ -60,13 +65,13 @@ export default [
       'no-new': 'warn',
       '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'react/prop-types': 'off',
-      'react/jsx-filename-extension': [
-        'warn',
-        {
-          extensions: ['.js', '.jsx', '.ts', '.tsx'],
-        },
-      ],
+      // Disabled: eslint-plugin-react@7.37.5's jsx-filename-extension rule still calls the
+      // removed ESLint 8 API `context.getFilename()`, which crashes under ESLint 10.4.1.
+      // Re-enable once the plugin ships an ESLint 10-compatible release.
+      'react/jsx-filename-extension': 'off',
       'react/self-closing-comp': 'error',
+      'react-hooks/set-state-in-effect': 'error',
+      'react-refresh/only-export-components': 'warn',
       'array-callback-return': 'off',
       'sort-imports': [
         'error',

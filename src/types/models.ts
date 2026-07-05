@@ -25,6 +25,9 @@ export interface UserProfile {
   fat_percentage: number
 }
 
+// NOTE: `is_calculable` does not exist on the backend model — a target is
+// "calculable" precisely when `target_kcal` is non-null. Compute it at the
+// call site instead of reading a field that was never really there.
 export interface NutritionTarget {
   id: number
   user_id: number
@@ -36,20 +39,31 @@ export interface NutritionTarget {
   fat_grams: string | null
   effective_from: string
   effective_to: string | null
-  is_calculable: boolean
+}
+
+// Nutrition facts are normalized into a `nutrients` array (one row per
+// nutrient code) rather than flat per-100g columns — see src/lib/nutrients.ts
+// for helpers that read amounts out of this array by code.
+export interface FoodNutrient {
+  code: string
+  name: string
+  amount_per_100g: string
+  unit: string
 }
 
 export interface Food {
   id: number
   name: string
   category: string | null
-  barcode: string | null
-  energy_kcal_per_100g: string
-  protein_g_per_100g: string
-  carbohydrate_g_per_100g: string
-  fat_g_per_100g: string
-  fiber_g_per_100g: string | null
-  sodium_mg_per_100g: string | null
+  brand: string | null
+  data_type: 'generic' | 'branded' | 'manual'
+  is_verified: boolean
+  is_demo: boolean
+  serving_size: string | null
+  serving_unit: string | null
+  source: string | null
+  source_version: string | null
+  nutrients: FoodNutrient[]
 }
 
 export interface MealLog {
@@ -59,10 +73,6 @@ export interface MealLog {
   occurred_at: string
   notes: string | null
   items?: MealLogItem[]
-  total_energy_kcal?: number
-  total_protein_g?: number
-  total_carbohydrate_g?: number
-  total_fat_g?: number
 }
 
 export interface MealLogItem {
@@ -92,11 +102,5 @@ export interface PaginatedResponse<T> {
     last_page: number
     per_page: number
     total: number
-  }
-  links: {
-    first: string | null
-    last: string | null
-    prev: string | null
-    next: string | null
   }
 }

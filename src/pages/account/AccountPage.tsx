@@ -1,24 +1,53 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AlertTriangle, Bell, Download, Trash2 } from 'lucide-react'
 import { useAppDispatch } from '@/store/hooks'
 import { clearUser } from '@/store/authSlice'
 import { accountApi } from '@/api/account'
+import { type NotificationPreferences, notificationPreferencesApi } from '@/api/notificationPreferences'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import Card, { CardHeader } from '@/components/ui/Card'
+import Switch from '@/components/ui/Switch'
+import Skeleton from '@/components/ui/Skeleton'
+import { useToast } from '@/components/ui/toast'
 
 export default function AccountPage() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const { show } = useToast()
+
   const [exporting, setExporting] = useState(false)
   const [deletePassword, setDeletePassword] = useState('')
   const [deleteError, setDeleteError] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
+  const [prefs, setPrefs] = useState<NotificationPreferences | null>(null)
+  const [savingPrefs, setSavingPrefs] = useState(false)
+
+  useEffect(() => {
+    notificationPreferencesApi.get().then(setPrefs)
+  }, [])
+
+  const updatePrefs = async (next: NotificationPreferences) => {
+    setPrefs(next)
+    setSavingPrefs(true)
+    try {
+      await notificationPreferencesApi.update(next)
+    } finally {
+      setSavingPrefs(false)
+    }
+  }
+
   const handleExport = async () => {
     setExporting(true)
-    try { await accountApi.exportData() }
-    finally { setExporting(false) }
+    try {
+      await accountApi.exportData()
+      show({ variant: 'success', message: 'Descarga iniciada.' })
+    } finally {
+      setExporting(false)
+    }
   }
 
   const handleDelete = async (e: React.FormEvent) => {
@@ -37,26 +66,60 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900">Mi cuenta</h1>
+    <div className="mx-auto max-w-xl space-y-6">
+      <h1 className="text-2xl font-bold text-foreground">Mi cuenta</h1>
 
-      {/* Exportar datos */}
-      <section className="rounded-2xl bg-white p-6 shadow-sm space-y-3">
-        <h2 className="font-semibold text-gray-800">Exportar mis datos</h2>
-        <p className="text-sm text-gray-500">
-          Descarga toda tu información personal en formato JSON.
-        </p>
+      <Card>
+        <CardHeader
+          title="Exportar mis datos"
+          subtitle="Descarga toda tu información personal en formato JSON."
+          action={<Download className="h-5 w-5 text-primary" />}
+        />
         <Button variant="secondary" loading={exporting} onClick={handleExport}>
           Descargar mis datos
         </Button>
-      </section>
+      </Card>
 
-      {/* Eliminar cuenta */}
-      <section className="rounded-2xl bg-white p-6 shadow-sm space-y-3 border border-red-100">
-        <h2 className="font-semibold text-red-700">Eliminar cuenta</h2>
-        <p className="text-sm text-gray-500">
-          Esta acción es irreversible. Se eliminará toda tu información permanentemente.
-        </p>
+      <Card>
+        <CardHeader title="Notificaciones" subtitle="Controla cómo te avisamos." action={<Bell className="h-5 w-5 text-primary" />} />
+        {!prefs ? (
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            <Switch
+              checked={prefs.mealReminders}
+              onChange={(checked) => updatePrefs({ ...prefs, mealReminders: checked })}
+              label="Recordatorios de comidas"
+              description="Un aviso diario para registrar tus comidas."
+            />
+            {prefs.mealReminders && (
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-sm text-foreground">Hora del recordatorio</span>
+                <input
+                  type="time"
+                  value={prefs.reminderTime}
+                  onChange={(e) => updatePrefs({ ...prefs, reminderTime: e.target.value })}
+                  className="rounded-lg border border-border bg-surface px-2.5 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+            )}
+            <Switch
+              checked={prefs.weeklySummaryEmail}
+              onChange={(checked) => updatePrefs({ ...prefs, weeklySummaryEmail: checked })}
+              label="Resumen semanal por correo"
+              description="Un correo con tu progreso de la semana."
+            />
+          </div>
+        )}
+        {savingPrefs && <p className="mt-2 text-xs text-muted">Guardando…</p>}
+      </Card>
+
+      <Card className="border-destructive/20">
+        <CardHeader title={<span className="text-destructive">Eliminar cuenta</span>} action={<Trash2 className="h-5 w-5 text-destructive" />} />
+        <p className="mb-3 text-sm text-muted">Esta acción es irreversible. Se eliminará toda tu información permanentemente.</p>
 
         {!showDeleteConfirm ? (
           <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
@@ -64,6 +127,10 @@ export default function AccountPage() {
           </Button>
         ) : (
           <form onSubmit={handleDelete} className="space-y-4">
+            <div className="flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+              Confirma tu contraseña para eliminar permanentemente tu cuenta.
+            </div>
             <Input
               id="delete-password"
               label="Confirma tu contraseña actual"
@@ -83,7 +150,7 @@ export default function AccountPage() {
             </div>
           </form>
         )}
-      </section>
+      </Card>
     </div>
   )
 }

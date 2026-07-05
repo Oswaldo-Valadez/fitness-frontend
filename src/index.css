@@ -1,113 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
 
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+/*
+ * Design tokens — semantic color/spacing/radius scale for the whole app.
+ * Palette: calm cyan/teal primary + health-green accent (nutrition tracker).
+ * Dark mode: `.dark` class on <html>, toggled by ThemeToggle and persisted
+ * to localStorage; falls back to system preference on first load.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-primary: #0891b2;
+  --color-primary-hover: #0e7490;
+  --color-on-primary: #ffffff;
+  --color-secondary: #22d3ee;
+  --color-accent: #059669;
+  --color-accent-hover: #047857;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  --color-protein: #2563eb;
+  --color-carbs: #d97706;
+  --color-fat: #e11d48;
+
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f0f8fa;
+  --color-foreground: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-destructive: #dc2626;
+  --color-destructive-hover: #b91c1c;
+  --color-warning: #d97706;
+  --color-ring: #0891b2;
+
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-elevated: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 8px 16px -4px rgba(15, 23, 42, 0.06);
+}
+
+:root.dark {
+  --color-primary: #22d3ee;
+  --color-primary-hover: #67e8f9;
+  --color-on-primary: #062730;
+  --color-secondary: #0891b2;
+  --color-accent: #34d399;
+  --color-accent-hover: #6ee7b7;
+
+  --color-protein: #60a5fa;
+  --color-carbs: #fbbf24;
+  --color-fat: #fb7185;
+
+  --color-background: #0b1120;
+  --color-surface: #131b2e;
+  --color-surface-muted: #182338;
+  --color-foreground: #e2e8f0;
+  --color-muted: #94a3b8;
+  --color-border: #253046;
+  --color-destructive: #f87171;
+  --color-destructive-hover: #fca5a5;
+  --color-warning: #fbbf24;
+  --color-ring: #22d3ee;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 8px 16px -4px rgba(0, 0, 0, 0.4);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+  :root:not(.light):not(.dark) {
+    --color-primary: #22d3ee;
+    --color-primary-hover: #67e8f9;
+    --color-on-primary: #062730;
+    --color-secondary: #0891b2;
+    --color-accent: #34d399;
+    --color-accent-hover: #6ee7b7;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+    --color-protein: #60a5fa;
+    --color-carbs: #fbbf24;
+    --color-fat: #fb7185;
+
+    --color-background: #0b1120;
+    --color-surface: #131b2e;
+    --color-surface-muted: #182338;
+    --color-foreground: #e2e8f0;
+    --color-muted: #94a3b8;
+    --color-border: #253046;
+    --color-destructive: #f87171;
+    --color-destructive-hover: #fca5a5;
+    --color-warning: #fbbf24;
+    --color-ring: #22d3ee;
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-elevated: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 8px 16px -4px rgba(0, 0, 0, 0.4);
   }
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  color-scheme: light dark;
 }
 
 body {
   margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+::selection {
+  background: color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+/* Respect reduced motion preference globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+
+/* Tabular numerals for financial/nutrition data so columns don't jitter */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-scale-in {
+  from { opacity: 0; transform: scale(0.95) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes toast-slide-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-backdrop-in {
+  animation: modal-fade-in 150ms ease-out;
+}
+.modal-panel-in {
+  animation: modal-scale-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast-in {
+  animation: toast-slide-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-in {
+  animation: page-fade-in 220ms ease-out;
 }

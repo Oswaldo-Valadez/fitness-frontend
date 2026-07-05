@@ -5,12 +5,31 @@ interface FoodPayload {
   name: string
   category?: string
   food_source_id: number
-  energy_kcal_per_100g: number
-  protein_g_per_100g: number
-  carbohydrate_g_per_100g: number
-  fat_g_per_100g: number
-  fiber_g_per_100g?: number
-  sodium_mg_per_100g?: number
+  data_type: 'generic' | 'branded' | 'manual'
+  energy_kcal?: number
+  protein_g?: number
+  carbohydrate_g?: number
+  fat_g?: number
+  fiber_g?: number
+  sodium_mg?: number
+}
+
+export interface FoodSource {
+  id: number
+  name: string
+  version: string | null
+  source_url: string | null
+  license_name: string | null
+  license_url: string | null
+}
+
+export interface ImportSummary {
+  total: number
+  valid: number
+  invalid: number
+  inserted: number
+  updated: number
+  skipped: number
 }
 
 export const adminApi = {
@@ -22,40 +41,48 @@ export const adminApi = {
   },
 
   async createFood(payload: FoodPayload): Promise<Food> {
-    const { data } = await api.post<{ food: Food }>('/admin/foods', payload)
-    return data.food
+    // Backend returns the created Food object directly (no wrapper key).
+    const { data } = await api.post<Food>('/admin/foods', payload)
+    return data
   },
 
   async updateFood(id: number, payload: Partial<FoodPayload>): Promise<Food> {
-    const { data } = await api.put<{ food: Food }>(`/admin/foods/${id}`, payload)
-    return data.food
+    const { data } = await api.put<Food>(`/admin/foods/${id}`, payload)
+    return data
   },
 
   async deleteFood(id: number): Promise<void> {
     await api.delete(`/admin/foods/${id}`)
   },
 
-  async importPreview(file: File): Promise<{ rows: unknown[]; errors: unknown[] }> {
+  async importPreview(file: File, sourceId: number): Promise<{ summary: ImportSummary; errors: Record<string, string> }> {
     const form = new FormData()
     form.append('file', file)
+    form.append('source_id', String(sourceId))
     const { data } = await api.post('/admin/foods/import/preview', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return data
   },
 
-  async importCommit(file: File, update = false): Promise<{ imported: number; updated: number; errors: unknown[] }> {
+  async importCommit(
+    file: File,
+    sourceId: number,
+    updateExisting = false,
+  ): Promise<{ message: string; summary: ImportSummary; errors: Record<string, string> }> {
     const form = new FormData()
     form.append('file', file)
-    if (update) form.append('update', '1')
+    form.append('source_id', String(sourceId))
+    if (updateExisting) form.append('update_existing', '1')
     const { data } = await api.post('/admin/foods/import/commit', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return data
   },
 
-  async sources(): Promise<Array<{ id: number; name: string }>> {
-    const { data } = await api.get<{ sources: Array<{ id: number; name: string }> }>('/admin/foods/sources')
-    return data.sources
+  async sources(): Promise<FoodSource[]> {
+    // Backend returns the FoodSource collection directly (no wrapper key).
+    const { data } = await api.get<FoodSource[]>('/admin/food-sources')
+    return data
   },
 }

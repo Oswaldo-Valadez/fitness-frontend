@@ -18,6 +18,7 @@ import type {
   AdminImportFoodsCommitBody,
   AdminImportFoodsPreview200,
   AdminImportFoodsPreviewBody,
+  AdminListFoods200,
   AdminListFoodsParams,
   AdminUpdateFoodBody,
   Food
@@ -29,7 +30,7 @@ import type {
   export const getAdmin = (axiosInstance: AxiosInstance = axios.default) => {
 const adminListFoods = (
     params?: AdminListFoodsParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
+ ): Promise<AxiosResponse<AdminListFoods200>> => {
     return axiosInstance.get(
       `/admin/foods`,{
     ...options,
@@ -100,7 +101,7 @@ const adminListFoodSources = (
     );
   }
 return {adminListFoods,adminCreateFood,adminGetFood,adminUpdateFood,adminDeleteFood,adminImportFoodsPreview,adminImportFoodsCommit,adminListFoodSources}};
-export type AdminListFoodsResult = AxiosResponse<void>
+export type AdminListFoodsResult = AxiosResponse<AdminListFoods200>
 export type AdminCreateFoodResult = AxiosResponse<Food>
 export type AdminGetFoodResult = AxiosResponse<Food>
 export type AdminUpdateFoodResult = AxiosResponse<Food>

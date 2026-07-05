@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams, Link } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Lock, Mail } from 'lucide-react'
 import { authApi } from '@/api/auth'
 import AuthCard from '@/components/ui/AuthCard'
 import Input from '@/components/ui/Input'
@@ -18,8 +19,7 @@ export default function ResetPasswordPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
 
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm({ ...form, [k]: e.target.value })
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,19 +44,44 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthCard title="Nueva contraseña">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input id="email" label="Correo electrónico" type="email"
-          value={form.email} onChange={set('email')} error={errors.email} required />
-        <Input id="password" label="Nueva contraseña" type="password" autoComplete="new-password"
-          value={form.password} onChange={set('password')} error={errors.password} required />
-        <Input id="password_confirmation" label="Confirmar contraseña" type="password" autoComplete="new-password"
-          value={form.password_confirmation} onChange={set('password_confirmation')}
-          error={errors.password_confirmation} required />
-        <Button type="submit" loading={loading} className="w-full">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <Input
+          id="email"
+          label="Correo electrónico"
+          type="email"
+          iconLeft={<Mail className="h-4 w-4" />}
+          value={form.email}
+          onChange={set('email')}
+          error={errors.email}
+          required
+        />
+        <Input
+          id="password"
+          label="Nueva contraseña"
+          type="password"
+          autoComplete="new-password"
+          iconLeft={<Lock className="h-4 w-4" />}
+          value={form.password}
+          onChange={set('password')}
+          error={errors.password}
+          required
+        />
+        <Input
+          id="password_confirmation"
+          label="Confirmar contraseña"
+          type="password"
+          autoComplete="new-password"
+          iconLeft={<Lock className="h-4 w-4" />}
+          value={form.password_confirmation}
+          onChange={set('password_confirmation')}
+          error={errors.password_confirmation}
+          required
+        />
+        <Button type="submit" loading={loading} className="w-full" size="lg">
           Guardar contraseña
         </Button>
       </form>
-      <Link to="/login" className="block text-center text-sm text-emerald-600 hover:underline">
+      <Link to="/login" className="block text-center text-sm font-medium text-primary hover:underline">
         Volver al inicio de sesión
       </Link>
     </AuthCard>

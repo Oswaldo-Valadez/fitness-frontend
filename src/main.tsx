@@ -5,13 +5,19 @@ import { RouterProvider } from 'react-router-dom'
 import { store } from '@/store'
 import { router } from '@/router'
 import AppInit from '@/AppInit'
+import { ToastProvider } from '@/components/ui/toast'
+import { initTheme } from '@/lib/theme'
 import './index.css'
+
+initTheme()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <AppInit />
-      <RouterProvider router={router} />
+      <ToastProvider>
+        <AppInit />
+        <RouterProvider router={router} />
+      </ToastProvider>
     </Provider>
   </StrictMode>,
 )

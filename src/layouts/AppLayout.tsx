@@ -1,19 +1,15 @@
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Activity, Plus } from 'lucide-react'
 import { useAppDispatch, useAuth } from '@/store/hooks'
 import { logout } from '@/store/authSlice'
-import { clsx } from 'clsx'
-
-const NAV = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/diary',     label: 'Diario' },
-  { to: '/foods',     label: 'Alimentos' },
-  { to: '/profile',   label: 'Perfil' },
-  { to: '/account',   label: 'Cuenta' },
-]
+import Sidebar from './Sidebar'
+import BottomNav from './BottomNav'
+import UserMenu from './UserMenu'
 
 export default function AppLayout() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuth()
   const isAdmin = !!(user as Record<string, unknown> | null)?.is_admin
 
@@ -22,50 +18,43 @@ export default function AppLayout() {
     navigate('/login', { replace: true })
   }
 
-  return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      {/* Barra superior */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <span className="text-lg font-bold text-emerald-600">FitnessApp</span>
-          <nav className="hidden md:flex items-center gap-1">
-            {NAV.map(({ to, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  clsx('rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    isActive ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-100')
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
-            {isAdmin && (
-              <NavLink to="/admin/foods"
-                className={({ isActive }) =>
-                  clsx('rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    isActive ? 'bg-amber-50 text-amber-700' : 'text-gray-600 hover:bg-gray-100')
-                }
-              >
-                Admin
-              </NavLink>
-            )}
-          </nav>
-          <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-gray-500 md:block">{user?.name}</span>
-            <button onClick={handleLogout}
-              className="rounded-lg px-3 py-1.5 text-sm text-red-600 border border-red-200 hover:bg-red-50 transition-colors">
-              Salir
-            </button>
-          </div>
-        </div>
-      </header>
+  const showQuickAdd = location.pathname !== '/diary'
 
-      {/* Contenido */}
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
-        <Outlet />
-      </main>
+  return (
+    <div className="flex min-h-dvh w-full bg-background">
+      <Sidebar userName={user?.name ?? ''} userEmail={user?.email ?? ''} isAdmin={isAdmin} onLogout={handleLogout} />
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Top bar — visible on mobile only; desktop nav lives in the sidebar */}
+        <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-4 lg:hidden">
+          <span className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-on-primary">
+              <Activity className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <span className="text-lg font-bold text-foreground">FitTrack</span>
+          </span>
+          <UserMenu userName={user?.name ?? ''} userEmail={user?.email ?? ''} isAdmin={isAdmin} onLogout={handleLogout} />
+        </header>
+
+        <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-10">
+          <div key={location.pathname} className="page-in">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+
+      {showQuickAdd && (
+        <button
+          onClick={() => navigate('/diary')}
+          aria-label="Agregar alimento al diario"
+          title="Agregar alimento"
+          className="fixed right-4 bottom-20 z-30 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-primary text-on-primary shadow-elevated transition-transform hover:scale-105 active:scale-95 lg:bottom-8"
+        >
+          <Plus className="h-6 w-6" aria-hidden="true" />
+        </button>
+      )}
+
+      <BottomNav />
     </div>
   )
 }
