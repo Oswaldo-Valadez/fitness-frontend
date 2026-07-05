@@ -31,7 +31,7 @@ export default function Switch({ checked, onChange, label, description, disabled
         )}
       >
         <span
-          className={clsx('absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform', checked ? 'translate-x-[22px]' : 'translate-x-0.5')}
+          className={clsx('absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform', checked ? 'translate-x-[-20px]' : '')}
         />
       </button>
     </div>
