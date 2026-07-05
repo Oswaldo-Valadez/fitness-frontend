@@ -8,9 +8,9 @@
 import type { ExternalNutrientMapping } from './externalNutrientMapping';
 
 export interface PaginatedNutrientMappings {
-  data?: ExternalNutrientMapping[];
-  current_page?: number;
-  last_page?: number;
-  per_page?: number;
-  total?: number;
+  data: ExternalNutrientMapping[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
 }

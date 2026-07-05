@@ -9,32 +9,32 @@ import type { FoodImportBatchInitiatedBy } from './foodImportBatchInitiatedBy';
 import type { FoodImportBatchStatus } from './foodImportBatchStatus';
 
 export interface FoodImportBatch {
-  id?: number;
-  source?: string;
-  mode?: string;
+  id: number;
+  source: string;
+  mode: string;
   /** @nullable */
-  filename?: string | null;
-  status?: FoodImportBatchStatus;
+  filename: string | null;
+  status: FoodImportBatchStatus;
   /** @nullable */
-  started_at?: string | null;
+  started_at: string | null;
   /** @nullable */
-  finished_at?: string | null;
+  finished_at: string | null;
   /** @nullable */
-  total_rows?: number | null;
+  total_rows: number | null;
   /** @nullable */
-  processed_rows?: number | null;
+  processed_rows: number | null;
   /** @nullable */
-  created_rows?: number | null;
+  created_rows: number | null;
   /** @nullable */
-  updated_rows?: number | null;
+  updated_rows: number | null;
   /** @nullable */
-  skipped_rows?: number | null;
+  skipped_rows: number | null;
   /** @nullable */
-  failed_rows?: number | null;
+  failed_rows: number | null;
   /** @nullable */
-  error_summary?: string | null;
+  error_summary: string | null;
   /** @nullable */
-  initiated_by_user_id?: number | null;
+  initiated_by_user_id: number | null;
   /** @nullable */
-  initiated_by?: FoodImportBatchInitiatedBy;
+  initiated_by: FoodImportBatchInitiatedBy;
 }

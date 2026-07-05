@@ -7,16 +7,16 @@
  */
 
 export interface User {
-  id?: number;
-  name?: string;
-  email?: string;
-  is_admin?: boolean;
+  id: number;
+  name: string;
+  email: string;
+  is_admin: boolean;
   /** @nullable */
-  timezone?: string | null;
+  timezone: string | null;
   /** @nullable */
-  locale?: string | null;
+  locale: string | null;
   /** @nullable */
-  onboarding_completed_at?: string | null;
-  has_active_consents?: boolean;
-  has_profile?: boolean;
+  onboarding_completed_at: string | null;
+  has_active_consents: boolean;
+  has_profile: boolean;
 }

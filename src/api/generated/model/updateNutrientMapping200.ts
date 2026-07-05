@@ -8,5 +8,5 @@
 import type { ExternalNutrientMapping } from './externalNutrientMapping';
 
 export type UpdateNutrientMapping200 = {
-  mapping?: ExternalNutrientMapping;
+  mapping: ExternalNutrientMapping;
 };

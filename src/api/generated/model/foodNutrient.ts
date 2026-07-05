@@ -8,10 +8,10 @@
 
 export interface FoodNutrient {
   /** @nullable */
-  code?: string | null;
+  code: string | null;
   /** @nullable */
-  name?: string | null;
-  amount_per_100g?: number;
+  name: string | null;
+  amount_per_100g: number;
   /** @nullable */
-  unit?: string | null;
+  unit: string | null;
 }

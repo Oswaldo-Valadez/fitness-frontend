@@ -5,36 +5,41 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
+import type { FoodDataType } from './foodDataType';
 import type { FoodNutrient } from './foodNutrient';
 import type { FoodPortion } from './foodPortion';
 
+/**
+ * `is_favorite` is only present on endpoints that compute favorite state (catalog, search, recent items) — absent on my-foods CRUD responses. `portions` is only present on the food detail endpoint, not on list endpoints.
+ */
 export interface Food {
-  id?: number;
-  name?: string;
+  id: number;
+  name: string;
   /** @nullable */
-  category?: string | null;
+  category: string | null;
   /** @nullable */
-  brand?: string | null;
-  data_type?: string;
-  is_verified?: boolean;
-  is_demo?: boolean;
+  brand: string | null;
+  data_type: FoodDataType;
+  is_verified: boolean;
+  is_demo: boolean;
   /** @nullable */
-  serving_size?: number | null;
+  serving_size: number | null;
   /** @nullable */
-  serving_unit?: string | null;
-  /** @nullable */
-  visibility?: string | null;
-  /** @nullable */
-  origin_type?: string | null;
-  /** @nullable */
-  data_quality_status?: string | null;
-  is_own?: boolean;
-  /** @nullable */
+  serving_unit: string | null;
+  visibility: string;
+  origin_type: string;
+  data_quality_status: string;
+  is_own: boolean;
+  /**
+     * Absent on my-foods CRUD responses; present elsewhere.
+     * @nullable
+     */
   is_favorite?: boolean | null;
   /** @nullable */
-  source?: string | null;
+  source: string | null;
   /** @nullable */
-  source_version?: string | null;
-  nutrients?: FoodNutrient[];
+  source_version: string | null;
+  nutrients: FoodNutrient[];
+  /** Only present on the food detail endpoint. */
   portions?: FoodPortion[];
 }

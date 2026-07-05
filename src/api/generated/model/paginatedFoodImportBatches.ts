@@ -8,9 +8,9 @@
 import type { FoodImportBatch } from './foodImportBatch';
 
 export interface PaginatedFoodImportBatches {
-  data?: FoodImportBatch[];
-  current_page?: number;
-  last_page?: number;
-  per_page?: number;
-  total?: number;
+  data: FoodImportBatch[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
 }

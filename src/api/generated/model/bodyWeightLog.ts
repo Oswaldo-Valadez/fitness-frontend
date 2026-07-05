@@ -7,11 +7,11 @@
  */
 
 export interface BodyWeightLog {
-  id?: number;
-  user_id?: number;
-  weight_kg?: number;
-  measured_at?: string;
+  id: number;
+  user_id: number;
+  weight_kg: number;
+  measured_at: string;
   /** @nullable */
-  notes?: string | null;
-  source?: string;
+  notes: string | null;
+  source: string;
 }

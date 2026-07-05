@@ -9,16 +9,16 @@ import type { ExternalNutrientMappingMappingStatus } from './externalNutrientMap
 import type { ExternalNutrientMappingNutrient } from './externalNutrientMappingNutrient';
 
 export interface ExternalNutrientMapping {
-  id?: number;
-  source?: string;
-  external_nutrient_id?: string;
+  id: number;
+  source: string;
+  external_nutrient_id: string;
   /** @nullable */
-  external_name?: string | null;
+  external_name: string | null;
   /** @nullable */
-  external_unit?: string | null;
+  external_unit: string | null;
   /** @nullable */
-  nutrient_id?: number | null;
-  mapping_status?: ExternalNutrientMappingMappingStatus;
+  nutrient_id: number | null;
+  mapping_status: ExternalNutrientMappingMappingStatus;
   /** @nullable */
-  nutrient?: ExternalNutrientMappingNutrient;
+  nutrient: ExternalNutrientMappingNutrient;
 }

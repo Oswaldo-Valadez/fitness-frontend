@@ -8,16 +8,16 @@
 import type { NutrientTotals } from './nutrientTotals';
 
 export interface RecipeIngredient {
-  id?: number;
+  id: number;
   /** @nullable */
-  food_id?: number | null;
-  food_name?: string;
-  quantity_g?: number;
-  input_quantity?: number;
-  input_unit?: string;
+  food_id: number | null;
+  food_name: string;
+  quantity_g: number;
+  input_quantity: number;
+  input_unit: string;
   /** @nullable */
-  portion_description?: string | null;
-  food_is_available?: boolean;
-  per_100g?: NutrientTotals;
-  totals?: NutrientTotals;
+  portion_description: string | null;
+  food_is_available: boolean;
+  per_100g: NutrientTotals;
+  totals: NutrientTotals;
 }

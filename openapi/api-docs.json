@@ -24,6 +24,21 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "export_version",
+                                        "generated_at",
+                                        "user",
+                                        "profile",
+                                        "consents",
+                                        "nutrition_targets",
+                                        "meal_logs",
+                                        "private_foods",
+                                        "food_portions",
+                                        "recipes",
+                                        "meal_templates",
+                                        "body_weight_logs",
+                                        "favorite_foods"
+                                    ],
                                     "properties": {
                                         "export_version": {
                                             "type": "string"
@@ -274,6 +289,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ],
                                     "properties": {
                                         "data": {
                                             "type": "array",
@@ -612,13 +631,18 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "summary",
+                                        "errors"
+                                    ],
                                     "properties": {
                                         "summary": {
-                                            "type": "object"
+                                            "$ref": "#/components/schemas/FoodImportSummary"
                                         },
                                         "errors": {
-                                            "type": "array",
-                                            "items": {
+                                            "description": "Map of CSV line number to error message.",
+                                            "type": "object",
+                                            "additionalProperties": {
                                                 "type": "string"
                                             }
                                         }
@@ -677,12 +701,24 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "message",
+                                        "summary",
+                                        "errors"
+                                    ],
                                     "properties": {
                                         "message": {
                                             "type": "string"
                                         },
                                         "summary": {
-                                            "type": "object"
+                                            "$ref": "#/components/schemas/FoodImportSummary"
+                                        },
+                                        "errors": {
+                                            "description": "Map of CSV line number to error message.",
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
                                         }
                                     },
                                     "type": "object"
@@ -787,6 +823,9 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "preview"
+                                    ],
                                     "properties": {
                                         "preview": {
                                             "$ref": "#/components/schemas/FdcImportSummary"
@@ -881,6 +920,9 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "result"
+                                    ],
                                     "properties": {
                                         "result": {
                                             "$ref": "#/components/schemas/FdcImportSummary"
@@ -986,6 +1028,9 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "batch"
+                                    ],
                                     "properties": {
                                         "batch": {
                                             "$ref": "#/components/schemas/FoodImportBatch"
@@ -1078,6 +1123,9 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "mapping"
+                                    ],
                                     "properties": {
                                         "mapping": {
                                             "$ref": "#/components/schemas/ExternalNutrientMapping"
@@ -1405,6 +1453,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ],
                                     "properties": {
                                         "data": {
                                             "type": "array",
@@ -1451,6 +1503,9 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "food"
+                                    ],
                                     "properties": {
                                         "food": {
                                             "$ref": "#/components/schemas/Food"
@@ -1484,6 +1539,9 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "categories"
+                                    ],
                                     "properties": {
                                         "categories": {
                                             "type": "array",
@@ -1645,6 +1703,9 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "portion"
+                                    ],
                                     "properties": {
                                         "portion": {
                                             "$ref": "#/components/schemas/FoodPortion"
@@ -1734,6 +1795,9 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "portion"
+                                    ],
                                     "properties": {
                                         "portion": {
                                             "$ref": "#/components/schemas/FoodPortion"
@@ -2916,6 +2980,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ],
                                     "properties": {
                                         "data": {
                                             "type": "array",
@@ -3012,6 +3080,9 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "food"
+                                    ],
                                     "properties": {
                                         "food": {
                                             "$ref": "#/components/schemas/Food"
@@ -3119,6 +3190,9 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "food"
+                                    ],
                                     "properties": {
                                         "food": {
                                             "$ref": "#/components/schemas/Food"
@@ -3401,6 +3475,13 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "message",
+                                        "profile",
+                                        "active_target",
+                                        "target_calculable",
+                                        "onboarding_completed_at"
+                                    ],
                                     "properties": {
                                         "message": {
                                             "type": "string"
@@ -3470,6 +3551,13 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "profile",
+                                        "active_target",
+                                        "sex_options",
+                                        "activity_options",
+                                        "goal_options"
+                                    ],
                                     "properties": {
                                         "profile": {
                                             "oneOf": [
@@ -3542,6 +3630,11 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "message",
+                                        "profile",
+                                        "active_target"
+                                    ],
                                     "properties": {
                                         "message": {
                                             "type": "string"
@@ -3613,6 +3706,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ],
                                     "properties": {
                                         "data": {
                                             "type": "array",
@@ -4210,6 +4307,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "message",
+                                        "user"
+                                    ],
                                     "properties": {
                                         "message": {
                                             "type": "string"
@@ -4488,6 +4589,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "required": [
+                                        "message",
+                                        "user"
+                                    ],
                                     "properties": {
                                         "message": {
                                             "type": "string"
@@ -4518,6 +4623,17 @@
     "components": {
         "schemas": {
             "User": {
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "is_admin",
+                    "timezone",
+                    "locale",
+                    "onboarding_completed_at",
+                    "has_active_consents",
+                    "has_profile"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -4555,6 +4671,19 @@
                 "type": "object"
             },
             "UserProfile": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "sex_for_equation",
+                    "birth_date",
+                    "height_cm",
+                    "weight_kg",
+                    "activity_level",
+                    "goal",
+                    "protein_percentage",
+                    "carbohydrate_percentage",
+                    "fat_percentage"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -4677,6 +4806,30 @@
                 "type": "object"
             },
             "NutritionTarget": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "calculation_method_id",
+                    "effective_from",
+                    "effective_to",
+                    "age_years",
+                    "sex_for_equation",
+                    "height_cm",
+                    "weight_kg",
+                    "activity_level",
+                    "goal",
+                    "bmr_kcal",
+                    "activity_factor",
+                    "tdee_kcal",
+                    "goal_adjustment_kcal",
+                    "target_kcal",
+                    "protein_percentage",
+                    "carbohydrate_percentage",
+                    "fat_percentage",
+                    "protein_grams",
+                    "carbohydrate_grams",
+                    "fat_grams"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -4814,6 +4967,12 @@
                 "type": "object"
             },
             "FoodNutrient": {
+                "required": [
+                    "code",
+                    "name",
+                    "amount_per_100g",
+                    "unit"
+                ],
                 "properties": {
                     "code": {
                         "type": "string",
@@ -4834,6 +4993,25 @@
                 "type": "object"
             },
             "Food": {
+                "description": "`is_favorite` is only present on endpoints that compute favorite state (catalog, search, recent items) — absent on my-foods CRUD responses. `portions` is only present on the food detail endpoint, not on list endpoints.",
+                "required": [
+                    "id",
+                    "name",
+                    "category",
+                    "brand",
+                    "data_type",
+                    "is_verified",
+                    "is_demo",
+                    "serving_size",
+                    "serving_unit",
+                    "visibility",
+                    "origin_type",
+                    "data_quality_status",
+                    "is_own",
+                    "source",
+                    "source_version",
+                    "nutrients"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -4850,7 +5028,12 @@
                         "nullable": true
                     },
                     "data_type": {
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "generic",
+                            "branded",
+                            "manual"
+                        ]
                     },
                     "is_verified": {
                         "type": "boolean"
@@ -4867,21 +5050,19 @@
                         "nullable": true
                     },
                     "visibility": {
-                        "type": "string",
-                        "nullable": true
+                        "type": "string"
                     },
                     "origin_type": {
-                        "type": "string",
-                        "nullable": true
+                        "type": "string"
                     },
                     "data_quality_status": {
-                        "type": "string",
-                        "nullable": true
+                        "type": "string"
                     },
                     "is_own": {
                         "type": "boolean"
                     },
                     "is_favorite": {
+                        "description": "Absent on my-foods CRUD responses; present elsewhere.",
                         "type": "boolean",
                         "nullable": true
                     },
@@ -4900,6 +5081,7 @@
                         }
                     },
                     "portions": {
+                        "description": "Only present on the food detail endpoint.",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/FoodPortion"
@@ -4909,6 +5091,27 @@
                 "type": "object"
             },
             "MealLogItem": {
+                "required": [
+                    "id",
+                    "meal_log_id",
+                    "source_kind",
+                    "food_id",
+                    "recipe_id",
+                    "food_name",
+                    "quantity_g",
+                    "portion_description_snapshot",
+                    "energy_kcal",
+                    "protein_g",
+                    "carbohydrate_g",
+                    "fat_g",
+                    "energy_kcal_total",
+                    "protein_g_total",
+                    "carbohydrate_g_total",
+                    "fat_g_total",
+                    "fiber_g_total",
+                    "sodium_mg_total",
+                    "nutrient_status"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -4993,6 +5196,15 @@
                 "type": "object"
             },
             "MealLog": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "meal_type",
+                    "name",
+                    "occurred_at",
+                    "notes",
+                    "items"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5031,6 +5243,17 @@
                 "type": "object"
             },
             "DashboardMealItem": {
+                "required": [
+                    "id",
+                    "food_name",
+                    "quantity_g",
+                    "energy_kcal",
+                    "protein_g",
+                    "carbohydrate_g",
+                    "fat_g",
+                    "fiber_g_total",
+                    "nutrient_status"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5073,6 +5296,15 @@
                 "type": "object"
             },
             "DashboardMeal": {
+                "required": [
+                    "id",
+                    "meal_type",
+                    "name",
+                    "occurred_at",
+                    "notes",
+                    "items",
+                    "totals"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5111,6 +5343,15 @@
                 "type": "object"
             },
             "DashboardSummary": {
+                "required": [
+                    "date",
+                    "timezone",
+                    "target",
+                    "meals",
+                    "totals",
+                    "nutrient_status",
+                    "has_demo_foods"
+                ],
                 "properties": {
                     "date": {
                         "type": "string",
@@ -5146,6 +5387,12 @@
                 "type": "object"
             },
             "PaginationMeta": {
+                "required": [
+                    "current_page",
+                    "last_page",
+                    "per_page",
+                    "total"
+                ],
                 "properties": {
                     "current_page": {
                         "type": "integer"
@@ -5201,7 +5448,46 @@
                 },
                 "type": "object"
             },
+            "FoodImportSummary": {
+                "required": [
+                    "total",
+                    "valid",
+                    "invalid",
+                    "inserted",
+                    "updated",
+                    "skipped"
+                ],
+                "properties": {
+                    "total": {
+                        "type": "integer"
+                    },
+                    "valid": {
+                        "type": "integer"
+                    },
+                    "invalid": {
+                        "type": "integer"
+                    },
+                    "inserted": {
+                        "type": "integer"
+                    },
+                    "updated": {
+                        "type": "integer"
+                    },
+                    "skipped": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
             "FoodSource": {
+                "required": [
+                    "id",
+                    "name",
+                    "version",
+                    "source_url",
+                    "license_name",
+                    "license_url"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5229,6 +5515,24 @@
                 "type": "object"
             },
             "FoodImportBatch": {
+                "required": [
+                    "id",
+                    "source",
+                    "mode",
+                    "filename",
+                    "status",
+                    "started_at",
+                    "finished_at",
+                    "total_rows",
+                    "processed_rows",
+                    "created_rows",
+                    "updated_rows",
+                    "skipped_rows",
+                    "failed_rows",
+                    "error_summary",
+                    "initiated_by_user_id",
+                    "initiated_by"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5303,6 +5607,15 @@
                 "type": "object"
             },
             "FdcStatus": {
+                "required": [
+                    "enabled",
+                    "api_key_configured",
+                    "ready",
+                    "base_url",
+                    "pending_mappings",
+                    "recent_batches",
+                    "notes"
+                ],
                 "properties": {
                     "enabled": {
                         "type": "boolean"
@@ -5335,6 +5648,14 @@
                 "type": "object"
             },
             "FdcImportSummary": {
+                "required": [
+                    "action",
+                    "food_id",
+                    "name",
+                    "mapped",
+                    "pending",
+                    "portions"
+                ],
                 "properties": {
                     "action": {
                         "type": "string"
@@ -5370,6 +5691,16 @@
                 "type": "object"
             },
             "ExternalNutrientMapping": {
+                "required": [
+                    "id",
+                    "source",
+                    "external_nutrient_id",
+                    "external_name",
+                    "external_unit",
+                    "nutrient_id",
+                    "mapping_status",
+                    "nutrient"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5408,6 +5739,16 @@
                 "type": "object"
             },
             "DataAuditEvent": {
+                "required": [
+                    "id",
+                    "actor_user_id",
+                    "event_type",
+                    "subject_type",
+                    "subject_id",
+                    "metadata",
+                    "created_at",
+                    "actor"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5443,6 +5784,13 @@
                 "type": "object"
             },
             "PaginatedFoodImportBatches": {
+                "required": [
+                    "data",
+                    "current_page",
+                    "last_page",
+                    "per_page",
+                    "total"
+                ],
                 "properties": {
                     "data": {
                         "type": "array",
@@ -5466,6 +5814,13 @@
                 "type": "object"
             },
             "PaginatedNutrientMappings": {
+                "required": [
+                    "data",
+                    "current_page",
+                    "last_page",
+                    "per_page",
+                    "total"
+                ],
                 "properties": {
                     "data": {
                         "type": "array",
@@ -5489,6 +5844,13 @@
                 "type": "object"
             },
             "PaginatedAuditEvents": {
+                "required": [
+                    "data",
+                    "current_page",
+                    "last_page",
+                    "per_page",
+                    "total"
+                ],
                 "properties": {
                     "data": {
                         "type": "array",
@@ -5512,6 +5874,21 @@
                 "type": "object"
             },
             "FoodPortion": {
+                "required": [
+                    "id",
+                    "food_id",
+                    "description",
+                    "amount",
+                    "unit_label",
+                    "gram_weight",
+                    "display_label",
+                    "source_type",
+                    "source_reference",
+                    "is_default",
+                    "is_verified",
+                    "is_active",
+                    "is_own"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5652,6 +6029,18 @@
                 "type": "object"
             },
             "RecipeIngredient": {
+                "required": [
+                    "id",
+                    "food_id",
+                    "food_name",
+                    "quantity_g",
+                    "input_quantity",
+                    "input_unit",
+                    "portion_description",
+                    "food_is_available",
+                    "per_100g",
+                    "totals"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5689,6 +6078,26 @@
                 "type": "object"
             },
             "Recipe": {
+                "description": "`instructions` and `ingredients` are only present on the recipe detail endpoint, not on list endpoints.",
+                "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "yield_weight_g",
+                    "default_servings",
+                    "serving_name",
+                    "serving_weight_g",
+                    "is_favorite",
+                    "is_archived",
+                    "calculation_version",
+                    "calculated_at",
+                    "has_incomplete_nutrients",
+                    "nutrient_status",
+                    "totals",
+                    "per_100g",
+                    "per_serving",
+                    "limitations"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5799,6 +6208,17 @@
                 "type": "object"
             },
             "MealTemplateItem": {
+                "required": [
+                    "id",
+                    "source_kind",
+                    "food_id",
+                    "recipe_id",
+                    "display_name_snapshot",
+                    "input_quantity",
+                    "input_unit",
+                    "quantity_g",
+                    "sort_order"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5837,6 +6257,14 @@
                 "type": "object"
             },
             "MealTemplate": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "name",
+                    "default_meal_type",
+                    "is_favorite",
+                    "items"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5869,6 +6297,14 @@
                 "type": "object"
             },
             "BodyWeightLog": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "weight_kg",
+                    "measured_at",
+                    "notes",
+                    "source"
+                ],
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -5895,6 +6331,10 @@
                 "type": "object"
             },
             "WeightTrendPoint": {
+                "required": [
+                    "date",
+                    "weight_kg"
+                ],
                 "properties": {
                     "date": {
                         "type": "string",
@@ -5908,6 +6348,12 @@
                 "type": "object"
             },
             "WeightTrendChange": {
+                "required": [
+                    "basis",
+                    "from_date",
+                    "to_date",
+                    "delta_kg"
+                ],
                 "properties": {
                     "basis": {
                         "type": "string",
@@ -5932,6 +6378,17 @@
                 "type": "object"
             },
             "WeightTrend": {
+                "required": [
+                    "period_days",
+                    "start_date",
+                    "end_date",
+                    "measurement_count",
+                    "daily_selection_policy",
+                    "daily_points",
+                    "moving_average_7d",
+                    "change",
+                    "notice"
+                ],
                 "properties": {
                     "period_days": {
                         "type": "integer"
@@ -5977,6 +6434,17 @@
                 "type": "object"
             },
             "NutritionReportDay": {
+                "description": "`weight_kg` is only present when the report was requested with include_weight=true.",
+                "required": [
+                    "date",
+                    "logged",
+                    "meals_count",
+                    "totals",
+                    "nutrient_status",
+                    "target_kcal",
+                    "target_available",
+                    "energy_vs_target_kcal"
+                ],
                 "properties": {
                     "date": {
                         "type": "string",
@@ -6016,6 +6484,7 @@
                         "nullable": true
                     },
                     "weight_kg": {
+                        "description": "Only present when include_weight=true.",
                         "type": "number",
                         "nullable": true
                     }
@@ -6023,6 +6492,13 @@
                 "type": "object"
             },
             "NutritionReportSummary": {
+                "required": [
+                    "days_total",
+                    "days_logged",
+                    "coverage_pct",
+                    "meals_count",
+                    "daily_averages"
+                ],
                 "properties": {
                     "days_total": {
                         "type": "integer"
@@ -6049,6 +6525,18 @@
                 "type": "object"
             },
             "NutritionReport": {
+                "required": [
+                    "schema_version",
+                    "generated_at",
+                    "timezone",
+                    "start_date",
+                    "end_date",
+                    "units",
+                    "target_source",
+                    "unknown_value_indicator",
+                    "summary",
+                    "days"
+                ],
                 "properties": {
                     "schema_version": {
                         "type": "string"
@@ -6090,6 +6578,12 @@
                 "type": "object"
             },
             "UnifiedSearchResponse": {
+                "description": "`message` is only present on the short-query (below minimum length) response.",
+                "required": [
+                    "foods",
+                    "my_foods",
+                    "recipes"
+                ],
                 "properties": {
                     "message": {
                         "type": "string",
@@ -6117,6 +6611,10 @@
                 "type": "object"
             },
             "RecentItemsResponse": {
+                "required": [
+                    "foods",
+                    "recipes"
+                ],
                 "properties": {
                     "foods": {
                         "type": "array",

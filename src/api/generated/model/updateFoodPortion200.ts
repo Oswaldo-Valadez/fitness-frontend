@@ -8,5 +8,5 @@
 import type { FoodPortion } from './foodPortion';
 
 export type UpdateFoodPortion200 = {
-  portion?: FoodPortion;
+  portion: FoodPortion;
 };

@@ -9,6 +9,6 @@ import type { NutritionTarget } from './nutritionTarget';
 import type { PaginationMeta } from './paginationMeta';
 
 export type GetTargetHistory200 = {
-  data?: NutritionTarget[];
-  meta?: PaginationMeta;
+  data: NutritionTarget[];
+  meta: PaginationMeta;
 };

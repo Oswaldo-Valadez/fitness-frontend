@@ -4,7 +4,7 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'rec
 import { Activity, Flame, Ruler, Weight as WeightIcon } from 'lucide-react'
 import { profileApi } from '@/api/profile'
 import { weightApi } from '@/api/weight'
-import type { NutritionTarget, UserProfile } from '@/types/models'
+import type { NutritionTarget, UserProfile } from '@/api/generated/model'
 import ProfileStep from '@/pages/onboarding/ProfileStep'
 import PageSpinner from '@/components/ui/PageSpinner'
 import Button from '@/components/ui/Button'
@@ -74,9 +74,9 @@ export default function ProfilePage() {
   const bmi = profile ? profile.weight_kg / (profile.height_cm / 100) ** 2 : null
 
   const chartTargets = [...targets]
-    .filter((t) => t.target_kcal)
+    .filter((t) => t.target_kcal !== null)
     .sort((a, b) => a.effective_from.localeCompare(b.effective_from))
-    .map((t) => ({ date: dayjs(t.effective_from).format('D MMM'), kcal: Math.round(Number(t.target_kcal)) }))
+    .map((t) => ({ date: dayjs(t.effective_from).format('D MMM'), kcal: Math.round(t.target_kcal as number) }))
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -107,11 +107,15 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 gap-4">
             <StatCard icon={WeightIcon} label="Peso actual" value={currentWeight ? `${currentWeight} kg` : '—'} tone="primary" />
             <StatCard icon={Ruler} label="IMC" value={bmi ? bmi.toFixed(1) : '—'} hint={bmi ? bmiCategory(bmi) : undefined} tone="accent" />
-            <StatCard icon={Flame} label="Meta calórica" value={activeTarget?.target_kcal ? `${Math.round(Number(activeTarget.target_kcal))} kcal` : '—'} />
+            <StatCard
+              icon={Flame}
+              label="Meta calórica"
+              value={activeTarget?.target_kcal !== null && activeTarget?.target_kcal !== undefined ? `${Math.round(activeTarget.target_kcal)} kcal` : '—'}
+            />
             <StatCard
               icon={Activity}
               label="Gasto energético (TDEE)"
-              value={activeTarget?.tdee_kcal ? `${Math.round(Number(activeTarget.tdee_kcal))} kcal` : '—'}
+              value={activeTarget?.tdee_kcal !== null && activeTarget?.tdee_kcal !== undefined ? `${Math.round(activeTarget.tdee_kcal)} kcal` : '—'}
             />
           </div>
           <WeightTrendCard />
@@ -169,14 +173,14 @@ export default function ProfilePage() {
                     <span>Desde {dayjs(t.effective_from).format('DD/MM/YYYY')}</span>
                     <span>{t.effective_to ? `Hasta ${dayjs(t.effective_to).format('DD/MM/YYYY')}` : '✓ Activo'}</span>
                   </div>
-                  {t.target_kcal ? (
+                  {t.target_kcal !== null ? (
                     <div className="tabular-nums flex flex-wrap gap-x-6 gap-y-1 text-sm">
                       <span>
-                        <strong>{Number(t.target_kcal).toFixed(0)}</strong> kcal
+                        <strong>{t.target_kcal.toFixed(0)}</strong> kcal
                       </span>
-                      <span className="text-protein">P {Number(t.protein_grams).toFixed(0)}g</span>
-                      <span className="text-carbs">C {Number(t.carbohydrate_grams).toFixed(0)}g</span>
-                      <span className="text-fat">G {Number(t.fat_grams).toFixed(0)}g</span>
+                      <span className="text-protein">P {t.protein_grams.toFixed(0)}g</span>
+                      <span className="text-carbs">C {t.carbohydrate_grams.toFixed(0)}g</span>
+                      <span className="text-fat">G {t.fat_grams.toFixed(0)}g</span>
                     </div>
                   ) : (
                     <span className="italic text-muted">No calculable (sexo no indicado)</span>

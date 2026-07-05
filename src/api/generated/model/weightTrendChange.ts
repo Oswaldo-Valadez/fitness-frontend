@@ -8,8 +8,8 @@
 import type { WeightTrendChangeBasis } from './weightTrendChangeBasis';
 
 export interface WeightTrendChange {
-  basis?: WeightTrendChangeBasis;
-  from_date?: string;
-  to_date?: string;
-  delta_kg?: number;
+  basis: WeightTrendChangeBasis;
+  from_date: string;
+  to_date: string;
+  delta_kg: number;
 }

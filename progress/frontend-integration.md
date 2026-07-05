@@ -424,3 +424,111 @@ backend+MySQL CI setup exists (Fase 8), and (2) exercising a real FDC
 import end-to-end, which needs `FDC_ENABLED=true` and a real API key
 (Fase 7) — both out of scope by the plan's own rules, not gaps in this
 phase's work.
+
+## Fase 10B — Frontend type and adapter consolidation
+Status: done
+Mode: consumer contract consolidation. Precondition checked: 10A's spec was
+copied to `openapi/api-docs.json` and byte-for-byte hash-matched against
+`fitness-backend/storage/api-docs/api-docs.json` before starting (10A itself
+wasn't committed yet in the backend repo at session start — flagged, not a
+blocker since the file content was verified identical).
+Decisions:
+- **Backend addendum found while reading generated types** (before touching
+  any frontend code): 10A's required-fields pass only covered *named*
+  `#/components/schemas/X` schemas. Several *inline* response schemas — the
+  ones actually used by the adapters this phase touches — had the identical
+  gap: `POST /auth/login`, `POST /auth/register`, `GET /profile`,
+  `PUT /profile`, `GET /profile/targets`, `GET /account/export`,
+  `GET /foods`, `GET /foods/{id}`, `GET /foods/categories`, `GET /my-foods`,
+  `POST /my-foods`, `PUT /my-foods/{food}`, `POST /foods/{food}/portions`,
+  `PUT /food-portions/{portion}`, and five `/admin/*` endpoints all had
+  `properties` but no `required`. Fixed all of them the same way as 10A
+  (verified against unconditional `return response()->json([...])` bodies,
+  not guessed), per this phase's explicit instruction: "no soluciones un
+  schema incorrecto con casts; vuelve al owner contract."
+- **Real runtime bug found via the same read**: `ProfileController::targetHistory`
+  (`GET /profile/targets`) returned Laravel's native flat paginator while
+  documenting `{data, meta}` like every other public list endpoint — fixed
+  in 10A's session but documented here since it directly unblocked
+  `profile.ts`'s migration.
+- **Second real bug found**: `FoodController`/`MyFoodController`'s CSV
+  import preview/commit responses declared `summary: type: object` (no
+  shape) and `errors: type: array` when the runtime `errors` is actually a
+  PHP associative array keyed by CSV line number (serializes as a JSON
+  object, not an array). Added a `FoodImportSummary` schema (6 required
+  integer fields) and fixed `errors` to `type: object` with
+  `additionalProperties: string`. This is what let `admin.ts` drop its
+  untyped `summary`/`errors` handling entirely.
+- **Third precision fix**: `Food.data_type` was `type: string` with no
+  `enum`, so Orval generated a bare `string` instead of a literal union —
+  fixed by adding `enum: ['generic', 'branded', 'manual']` (matches
+  `FoodCsvImporter::ALLOWED_DATA_TYPES` and the migration comment).
+- Migrated `src/api/auth.ts`, `src/api/profile.ts`, `src/api/account.ts`,
+  `src/api/admin.ts` from hand-written `api.get/post/put/delete` calls to
+  the generated `getAuth()`/`getProfile()`/`getAccount()`/`getAdmin()`
+  functions and their generated request/response types. Kept
+  `accountApi.exportData()` on the raw axios instance with an explicit
+  `responseType: 'blob'`, per the plan's documented exception (the
+  generated client always decodes JSON via the mutator).
+- Removed all `as unknown as LaravelPage<...>` casts from
+  `src/api/adminAdvanced.ts` — now that `PaginatedFoodImportBatches`/
+  `PaginatedNutrientMappings`/`PaginatedAuditEvents` have `required[]`
+  matching Laravel's native paginator shape exactly, the generated types
+  are usable directly with no cast, and the hand-rolled `LaravelPage<T>`
+  interface was deleted as dead code.
+- Fixed the one `api: any` in the codebase (`ProfileStep.tsx`) — typed as
+  `{ saveProfile: (payload: ProfilePayload) => Promise<unknown> }`, the
+  minimal structural shape the component actually calls (it never reads
+  the resolved value), satisfied by both `onboardingApi.saveProfile` and
+  `profileApi.update`.
+- Retired `src/types/models.ts` entirely — its last two consumers
+  (`src/api/foods.ts`'s `PaginatedResponse`, `guards.test.tsx`'s `User`)
+  migrated to generated equivalents (`ListFoods200`'s inline shape,
+  `@/api/generated/model`'s `User`). Confirmed zero remaining imports
+  before deleting.
+- **Unknown-nutrients-as-zero fix (Task E)**: `src/lib/nutrients.ts`'s
+  `nutrientAmount()` returned `0` for energy/protein/carbohydrate/fat when
+  the food had no such nutrient row — only fiber/sodium used the
+  null-preserving `nutrientAmountOrNull()`. Removed `nutrientAmount()`
+  entirely; `getFoodMacros()` now returns `number | null` for all six
+  fields. Propagated to every consumer: `FoodsPage.tsx` (list card + table,
+  now via `NutrientValue`), `RecipeEditorPage.tsx` (ingredient search row),
+  `MyFoodsPage.tsx`, `AdminFoodsPage.tsx`, admin `FoodFormModal.tsx` (form
+  pre-fill now leaves the field blank instead of "0" when unknown),
+  `DiaryPage.tsx` (quantity preview and search row). `FoodDetailPage.tsx`
+  got the most substantial change: per-serving protein/carbs/fat/kcal are
+  now `number | null`, the macro-kcal pie chart is only rendered when at
+  least one macro is known (never built from `null * factor = NaN`), and
+  every displayed value goes through `NutrientValue` so unknown reads
+  "Sin dato" instead of "0.00 g". `MyFoodFormModal.tsx` already did this
+  correctly for all six fields (used `nutrientAmountOrNull` directly) —
+  confirmed as the reference pattern, not changed.
+- `ProfilePage.tsx` also migrated off `@/types/models` and dropped its
+  `Number(t.target_kcal)`/`Number(t.protein_grams)` etc. workarounds now
+  that `NutritionTarget`'s fields are real numbers end-to-end — these
+  casts were silently masking the exact decimal-as-string bug 10A fixed at
+  the source; the arithmetic (`profile.weight_kg / (profile.height_cm/100)**2`
+  for BMI) was already written assuming real numbers, meaning it would
+  have produced wrong results in production before the 10A/10B fixes.
+Changed: app/Http/Controllers/{Auth/AuthenticatedSessionController,Auth/RegisteredUserController,
+Api/AccountController,Api/ProfileController,Api/OnboardingController,Api/FoodController,
+Api/MyFoodController,Api/FoodPortionController,Api/Admin/FoodAdminController,
+Api/Admin/FoodDataCentralAdminController}.php and app/OpenApi/OpenApiSpec.php
+(backend, required[] additions + FoodImportSummary schema + data_type enum),
+src/api/{auth,profile,account,admin,adminAdvanced,foods}.ts, src/lib/nutrients.ts
+(+nutrients.test.ts, new), src/store/authSlice.ts, src/pages/onboarding/ProfileStep.tsx,
+src/pages/profile/ProfilePage.tsx, src/pages/foods/{FoodsPage,FoodDetailPage}.tsx,
+src/pages/library/MyFoodsPage.tsx, src/pages/admin/{AdminFoodsPage,FoodFormModal}.tsx,
+src/pages/recipes/RecipeEditorPage.tsx, src/pages/diary/DiaryPage.tsx,
+src/router/guards.test.tsx, src/test/handlers/dashboard.ts (+fiber_g_total fixture field),
+deleted src/types/models.ts.
+Passed: backend — vendor/bin/pint --test, php artisan test --no-coverage
+(200 tests, 679 assertions), php artisan l5-swagger:generate. Frontend —
+npm run gen, npm run lint (clean, 1 pre-existing warning), npm run typecheck
+(clean), npm run test -- --run (37 tests, +5 new), npm run build.
+`contract:check` on both repos shows a diff — expected/not a regression,
+same uncommitted-work reason as every prior phase.
+Remaining: none for 10B's scope. Per the plan's explicit "no ejecutar las
+tres en una sola sesión" rule, 10C (full-stack acceptance across both
+repos, E2E flows, harness/progress updates) is intentionally not started
+in this session.

@@ -8,6 +8,6 @@
 import type { User } from './user';
 
 export type AuthRegister201 = {
-  message?: string;
-  user?: User;
+  message: string;
+  user: User;
 };

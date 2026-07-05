@@ -8,11 +8,11 @@
 import type { FoodImportBatch } from './foodImportBatch';
 
 export interface FdcStatus {
-  enabled?: boolean;
-  api_key_configured?: boolean;
-  ready?: boolean;
-  base_url?: string;
-  pending_mappings?: number;
-  recent_batches?: FoodImportBatch[];
-  notes?: string[];
+  enabled: boolean;
+  api_key_configured: boolean;
+  ready: boolean;
+  base_url: string;
+  pending_mappings: number;
+  recent_batches: FoodImportBatch[];
+  notes: string[];
 }

@@ -9,13 +9,13 @@ import type { WeightTrendChange } from './weightTrendChange';
 import type { WeightTrendPoint } from './weightTrendPoint';
 
 export interface WeightTrend {
-  period_days?: number;
-  start_date?: string;
-  end_date?: string;
-  measurement_count?: number;
-  daily_selection_policy?: string;
-  daily_points?: WeightTrendPoint[];
-  moving_average_7d?: WeightTrendPoint[];
-  change?: WeightTrendChange | null;
-  notice?: string;
+  period_days: number;
+  start_date: string;
+  end_date: string;
+  measurement_count: number;
+  daily_selection_policy: string;
+  daily_points: WeightTrendPoint[];
+  moving_average_7d: WeightTrendPoint[];
+  change: WeightTrendChange | null;
+  notice: string;
 }

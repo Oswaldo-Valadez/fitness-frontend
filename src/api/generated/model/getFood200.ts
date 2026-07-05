@@ -8,5 +8,5 @@
 import type { Food } from './food';
 
 export type GetFood200 = {
-  food?: Food;
+  food: Food;
 };

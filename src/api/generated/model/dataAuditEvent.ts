@@ -9,17 +9,17 @@ import type { DataAuditEventActor } from './dataAuditEventActor';
 import type { DataAuditEventMetadata } from './dataAuditEventMetadata';
 
 export interface DataAuditEvent {
-  id?: number;
+  id: number;
   /** @nullable */
-  actor_user_id?: number | null;
-  event_type?: string;
+  actor_user_id: number | null;
+  event_type: string;
   /** @nullable */
-  subject_type?: string | null;
+  subject_type: string | null;
   /** @nullable */
-  subject_id?: number | null;
+  subject_id: number | null;
   /** @nullable */
-  metadata?: DataAuditEventMetadata;
-  created_at?: string;
+  metadata: DataAuditEventMetadata;
+  created_at: string;
   /** @nullable */
-  actor?: DataAuditEventActor;
+  actor: DataAuditEventActor;
 }

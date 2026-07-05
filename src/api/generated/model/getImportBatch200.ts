@@ -8,5 +8,5 @@
 import type { FoodImportBatch } from './foodImportBatch';
 
 export type GetImportBatch200 = {
-  batch?: FoodImportBatch;
+  batch: FoodImportBatch;
 };

@@ -1,22 +1,20 @@
 import { getFoods } from '@/api/generated/foods/foods'
-import type { CreateFoodPortionBody, Food, RecentItemsResponse, UnifiedSearchResponse, UpdateFoodPortionBody } from '@/api/generated/model'
-import type { PaginatedResponse } from '@/types/models'
+import type { CreateFoodPortionBody, RecentItemsResponse, UnifiedSearchResponse, UpdateFoodPortionBody } from '@/api/generated/model'
 
 export const foodsApi = {
   /** Paginated catalog browse (Fase 5 "Biblioteca › Alimentos"). */
-  async search(query: string, category?: string, page = 1): Promise<PaginatedResponse<Food>> {
-    const { data, meta } = await getFoods().listFoods({ q: query || undefined, category, page })
-    return { data: data ?? [], meta: meta as PaginatedResponse<Food>['meta'] }
+  async search(query: string, category?: string, page = 1) {
+    return getFoods().listFoods({ q: query || undefined, category, page })
   },
 
   async categories(): Promise<string[]> {
     const { categories } = await getFoods().getFoodCategories()
-    return categories ?? []
+    return categories
   },
 
-  async get(id: number): Promise<Food> {
+  async get(id: number) {
     const { food } = await getFoods().getFood(id)
-    return food as Food
+    return food
   },
 
   async favorite(foodId: number): Promise<void> {

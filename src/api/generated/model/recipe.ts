@@ -9,28 +9,31 @@ import type { NutrientStatus } from './nutrientStatus';
 import type { NutrientTotals } from './nutrientTotals';
 import type { RecipeIngredient } from './recipeIngredient';
 
+/**
+ * `instructions` and `ingredients` are only present on the recipe detail endpoint, not on list endpoints.
+ */
 export interface Recipe {
-  id?: number;
-  name?: string;
+  id: number;
+  name: string;
   /** @nullable */
-  description?: string | null;
+  description: string | null;
   /** @nullable */
   instructions?: string | null;
-  yield_weight_g?: number;
-  default_servings?: number;
+  yield_weight_g: number;
+  default_servings: number;
   /** @nullable */
-  serving_name?: string | null;
-  serving_weight_g?: number;
-  is_favorite?: boolean;
-  is_archived?: boolean;
-  calculation_version?: number;
+  serving_name: string | null;
+  serving_weight_g: number;
+  is_favorite: boolean;
+  is_archived: boolean;
+  calculation_version: number;
   /** @nullable */
-  calculated_at?: string | null;
-  has_incomplete_nutrients?: boolean;
-  nutrient_status?: NutrientStatus | null;
-  totals?: NutrientTotals;
-  per_100g?: NutrientTotals;
-  per_serving?: NutrientTotals;
-  limitations?: string[];
+  calculated_at: string | null;
+  has_incomplete_nutrients: boolean;
+  nutrient_status: NutrientStatus | null;
+  totals: NutrientTotals;
+  per_100g: NutrientTotals;
+  per_serving: NutrientTotals;
+  limitations: string[];
   ingredients?: RecipeIngredient[];
 }

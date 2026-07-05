@@ -8,18 +8,18 @@
 import type { NutrientStatus } from './nutrientStatus';
 
 export interface DashboardMealItem {
-  id?: number;
-  food_name?: string;
-  quantity_g?: number;
+  id: number;
+  food_name: string;
+  quantity_g: number;
   /** @nullable */
-  energy_kcal?: number | null;
+  energy_kcal: number | null;
   /** @nullable */
-  protein_g?: number | null;
+  protein_g: number | null;
   /** @nullable */
-  carbohydrate_g?: number | null;
+  carbohydrate_g: number | null;
   /** @nullable */
-  fat_g?: number | null;
+  fat_g: number | null;
   /** @nullable */
-  fiber_g_total?: number | null;
-  nutrient_status?: NutrientStatus | null;
+  fiber_g_total: number | null;
+  nutrient_status: NutrientStatus | null;
 }

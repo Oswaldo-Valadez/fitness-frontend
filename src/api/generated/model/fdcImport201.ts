@@ -8,5 +8,5 @@
 import type { FdcImportSummary } from './fdcImportSummary';
 
 export type FdcImport201 = {
-  result?: FdcImportSummary;
+  result: FdcImportSummary;
 };

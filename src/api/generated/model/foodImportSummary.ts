@@ -6,4 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type AdminImportFoodsCommit200Summary = { [key: string]: unknown };
+export interface FoodImportSummary {
+  total: number;
+  valid: number;
+  invalid: number;
+  inserted: number;
+  updated: number;
+  skipped: number;
+}

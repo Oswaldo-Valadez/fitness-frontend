@@ -6,4 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type AdminImportFoodsPreview200Summary = { [key: string]: unknown };
+export type FoodDataType = typeof FoodDataType[keyof typeof FoodDataType];
+
+
+export const FoodDataType = {
+  generic: 'generic',
+  branded: 'branded',
+  manual: 'manual',
+} as const;

@@ -7,14 +7,14 @@
  */
 
 export interface FoodSource {
-  id?: number;
-  name?: string;
+  id: number;
+  name: string;
   /** @nullable */
-  version?: string | null;
+  version: string | null;
   /** @nullable */
-  source_url?: string | null;
+  source_url: string | null;
   /** @nullable */
-  license_name?: string | null;
+  license_name: string | null;
   /** @nullable */
-  license_url?: string | null;
+  license_url: string | null;
 }

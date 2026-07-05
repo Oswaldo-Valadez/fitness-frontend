@@ -3,7 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { RequireAdmin, RequireAuth, RequireGuest } from './guards'
 import { useAuth } from '@/store/hooks'
-import type { User } from '@/types/models'
+import type { User } from '@/api/generated/model'
 
 vi.mock('@/store/hooks', () => ({
   useAuth: vi.fn(),

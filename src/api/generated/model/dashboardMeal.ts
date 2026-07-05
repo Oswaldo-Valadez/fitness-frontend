@@ -10,13 +10,13 @@ import type { DashboardMealMealType } from './dashboardMealMealType';
 import type { NutrientTotals } from './nutrientTotals';
 
 export interface DashboardMeal {
-  id?: number;
-  meal_type?: DashboardMealMealType;
+  id: number;
+  meal_type: DashboardMealMealType;
   /** @nullable */
-  name?: string | null;
-  occurred_at?: string;
+  name: string | null;
+  occurred_at: string;
   /** @nullable */
-  notes?: string | null;
-  items?: DashboardMealItem[];
-  totals?: NutrientTotals;
+  notes: string | null;
+  items: DashboardMealItem[];
+  totals: NutrientTotals;
 }

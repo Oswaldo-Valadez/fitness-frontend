@@ -8,15 +8,15 @@
 import type { MealTemplateItemSourceKind } from './mealTemplateItemSourceKind';
 
 export interface MealTemplateItem {
-  id?: number;
-  source_kind?: MealTemplateItemSourceKind;
+  id: number;
+  source_kind: MealTemplateItemSourceKind;
   /** @nullable */
-  food_id?: number | null;
+  food_id: number | null;
   /** @nullable */
-  recipe_id?: number | null;
-  display_name_snapshot?: string;
-  input_quantity?: number;
-  input_unit?: string;
-  quantity_g?: number;
-  sort_order?: number;
+  recipe_id: number | null;
+  display_name_snapshot: string;
+  input_quantity: number;
+  input_unit: string;
+  quantity_g: number;
+  sort_order: number;
 }

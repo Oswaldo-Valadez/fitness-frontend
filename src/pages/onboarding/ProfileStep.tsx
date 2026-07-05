@@ -9,8 +9,7 @@ import type { ProfilePayload } from '@/api/profile'
 
 interface Props {
   onSaved: () => void
-
-  api: any
+  api: { saveProfile: (payload: ProfilePayload) => Promise<unknown> }
   initialValues?: Partial<ProfilePayload>
   submitLabel?: string
 }

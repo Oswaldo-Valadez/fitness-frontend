@@ -5,9 +5,11 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import type { AdminImportFoodsPreview200Summary } from './adminImportFoodsPreview200Summary';
+import type { AdminImportFoodsPreview200Errors } from './adminImportFoodsPreview200Errors';
+import type { FoodImportSummary } from './foodImportSummary';
 
 export type AdminImportFoodsPreview200 = {
-  summary?: AdminImportFoodsPreview200Summary;
-  errors?: string[];
+  summary: FoodImportSummary;
+  /** Map of CSV line number to error message. */
+  errors: AdminImportFoodsPreview200Errors;
 };

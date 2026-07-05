@@ -8,18 +8,18 @@
 import type { FoodPortionSourceType } from './foodPortionSourceType';
 
 export interface FoodPortion {
-  id?: number;
-  food_id?: number;
-  description?: string;
-  amount?: number;
-  unit_label?: string;
-  gram_weight?: number;
-  display_label?: string;
-  source_type?: FoodPortionSourceType;
+  id: number;
+  food_id: number;
+  description: string;
+  amount: number;
+  unit_label: string;
+  gram_weight: number;
+  display_label: string;
+  source_type: FoodPortionSourceType;
   /** @nullable */
-  source_reference?: string | null;
-  is_default?: boolean;
-  is_verified?: boolean;
-  is_active?: boolean;
-  is_own?: boolean;
+  source_reference: string | null;
+  is_default: boolean;
+  is_verified: boolean;
+  is_active: boolean;
+  is_own: boolean;
 }

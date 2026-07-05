@@ -12,9 +12,9 @@ import type { NutritionTarget } from './nutritionTarget';
 import type { UserProfile } from './userProfile';
 
 export type GetProfile200 = {
-  profile?: UserProfile | null;
-  active_target?: NutritionTarget | null;
-  sex_options?: GetProfile200SexOptionsItem[];
-  activity_options?: GetProfile200ActivityOptionsItem[];
-  goal_options?: GetProfile200GoalOptionsItem[];
+  profile: UserProfile | null;
+  active_target: NutritionTarget | null;
+  sex_options: GetProfile200SexOptionsItem[];
+  activity_options: GetProfile200ActivityOptionsItem[];
+  goal_options: GetProfile200GoalOptionsItem[];
 };

@@ -9,6 +9,6 @@ import type { Food } from './food';
 import type { PaginationMeta } from './paginationMeta';
 
 export type ListMyFoods200 = {
-  data?: Food[];
-  meta?: PaginationMeta;
+  data: Food[];
+  meta: PaginationMeta;
 };

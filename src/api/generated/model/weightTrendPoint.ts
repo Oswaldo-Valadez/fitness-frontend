@@ -7,6 +7,6 @@
  */
 
 export interface WeightTrendPoint {
-  date?: string;
-  weight_kg?: number;
+  date: string;
+  weight_kg: number;
 }

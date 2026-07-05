@@ -1,28 +1,11 @@
-import api, { initCsrf } from '@/api/client'
-import type { User } from '@/types/models'
+import { initCsrf } from '@/api/client'
+import { getAuth } from '@/api/generated/auth/auth'
+import type { AuthForgotPasswordBody, AuthLoginBody, AuthRegisterBody, AuthResetPasswordBody } from '@/api/generated/model'
 
-export interface LoginPayload {
-  email: string
-  password: string
-}
-
-export interface RegisterPayload {
-  name: string
-  email: string
-  password: string
-  password_confirmation: string
-}
-
-export interface ForgotPasswordPayload {
-  email: string
-}
-
-export interface ResetPasswordPayload {
-  token: string
-  email: string
-  password: string
-  password_confirmation: string
-}
+export type LoginPayload = AuthLoginBody
+export type RegisterPayload = AuthRegisterBody
+export type ForgotPasswordPayload = AuthForgotPasswordBody
+export type ResetPasswordPayload = AuthResetPasswordBody
 
 export const authApi = {
   async getCsrf() {
@@ -31,35 +14,29 @@ export const authApi = {
 
   async login(payload: LoginPayload) {
     await initCsrf()
-    const { data } = await api.post<{ user: User; message: string }>('/auth/login', payload)
-    return data
+    return getAuth().authLogin(payload)
   },
 
   async register(payload: RegisterPayload) {
     await initCsrf()
-    const { data } = await api.post<{ user: User; message: string }>('/auth/register', payload)
-    return data
+    return getAuth().authRegister(payload)
   },
 
   async logout() {
-    const { data } = await api.post<{ message: string }>('/auth/logout')
-    return data
+    return getAuth().authLogout()
   },
 
   async forgotPassword(payload: ForgotPasswordPayload) {
     await initCsrf()
-    const { data } = await api.post<{ message: string }>('/auth/forgot-password', payload)
-    return data
+    return getAuth().authForgotPassword(payload)
   },
 
   async resetPassword(payload: ResetPasswordPayload) {
     await initCsrf()
-    const { data } = await api.post<{ message: string }>('/auth/reset-password', payload)
-    return data
+    return getAuth().authResetPassword(payload)
   },
 
   async me() {
-    const { data } = await api.get<User>('/user')
-    return data
+    return getAuth().getAuthUser()
   },
 }

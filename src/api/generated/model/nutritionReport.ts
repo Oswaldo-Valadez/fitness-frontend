@@ -10,14 +10,14 @@ import type { NutritionReportSummary } from './nutritionReportSummary';
 import type { NutritionReportUnits } from './nutritionReportUnits';
 
 export interface NutritionReport {
-  schema_version?: string;
-  generated_at?: string;
-  timezone?: string;
-  start_date?: string;
-  end_date?: string;
-  units?: NutritionReportUnits;
-  target_source?: string;
-  unknown_value_indicator?: string;
-  summary?: NutritionReportSummary;
-  days?: NutritionReportDay[];
+  schema_version: string;
+  generated_at: string;
+  timezone: string;
+  start_date: string;
+  end_date: string;
+  units: NutritionReportUnits;
+  target_source: string;
+  unknown_value_indicator: string;
+  summary: NutritionReportSummary;
+  days: NutritionReportDay[];
 }

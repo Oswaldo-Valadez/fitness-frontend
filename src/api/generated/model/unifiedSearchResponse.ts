@@ -8,10 +8,13 @@
 import type { Food } from './food';
 import type { Recipe } from './recipe';
 
+/**
+ * `message` is only present on the short-query (below minimum length) response.
+ */
 export interface UnifiedSearchResponse {
   /** @nullable */
   message?: string | null;
-  foods?: Food[];
-  my_foods?: Food[];
-  recipes?: Recipe[];
+  foods: Food[];
+  my_foods: Food[];
+  recipes: Recipe[];
 }

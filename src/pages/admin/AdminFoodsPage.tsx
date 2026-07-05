@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CheckCircle2, FileSpreadsheet, Pencil, Plus, Search, Trash2, UploadCloud } from 'lucide-react'
-import { type FoodSource, type ImportSummary, adminApi } from '@/api/admin'
-import type { Food } from '@/types/models'
+import { type Food, type FoodSource, type ImportSummary, adminApi } from '@/api/admin'
 import { getFoodMacros } from '@/lib/nutrients'
+import NutrientValue from '@/components/nutrition/NutrientValue'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Button from '@/components/ui/Button'
@@ -269,7 +269,9 @@ export default function AdminFoodsPage() {
                   <tr key={f.id} className="hover:bg-surface-muted">
                     <td className="px-4 py-3 font-medium text-foreground">{f.name}</td>
                     <td className="px-4 py-3 text-muted">{f.category ?? '—'}</td>
-                    <td className="tabular-nums px-4 py-3 text-right text-foreground">{getFoodMacros(f).energy_kcal.toFixed(0)}</td>
+                    <td className="px-4 py-3 text-right text-foreground">
+                      <NutrientValue value={getFoodMacros(f).energy_kcal} />
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
                         <button

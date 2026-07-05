@@ -11,15 +11,15 @@ import type { UserProfileSexForEquation } from './userProfileSexForEquation';
 
 export interface UserProfile {
   /** @nullable */
-  id?: number | null;
-  user_id?: number;
-  sex_for_equation?: UserProfileSexForEquation;
-  birth_date?: string;
-  height_cm?: number;
-  weight_kg?: number;
-  activity_level?: UserProfileActivityLevel;
-  goal?: UserProfileGoal;
-  protein_percentage?: number;
-  carbohydrate_percentage?: number;
-  fat_percentage?: number;
+  id: number | null;
+  user_id: number;
+  sex_for_equation: UserProfileSexForEquation;
+  birth_date: string;
+  height_cm: number;
+  weight_kg: number;
+  activity_level: UserProfileActivityLevel;
+  goal: UserProfileGoal;
+  protein_percentage: number;
+  carbohydrate_percentage: number;
+  fat_percentage: number;
 }

@@ -9,7 +9,7 @@ import type { NutritionTarget } from './nutritionTarget';
 import type { UserProfile } from './userProfile';
 
 export type UpdateProfile200 = {
-  message?: string;
-  profile?: UserProfile;
-  active_target?: NutritionTarget | null;
+  message: string;
+  profile: UserProfile;
+  active_target: NutritionTarget | null;
 };

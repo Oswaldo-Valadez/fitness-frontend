@@ -27,34 +27,33 @@ function findNutrient(food: FoodWithNutrients, code: string) {
   return food.nutrients?.find((n) => n.code === code)
 }
 
-/** Amount per 100g for a nutrient code, or 0 if the food has no such nutrient. */
-export function nutrientAmount(food: FoodWithNutrients, code: string): number {
-  const nutrient = findNutrient(food, code)
-  return nutrient ? Number(nutrient.amount_per_100g) : 0
-}
-
-/** Like nutrientAmount, but null (instead of 0) when absent — for optional facts like fiber/sodium. */
+/** Amount per 100g for a nutrient code, or null if the food has no such nutrient — never coerced to 0. */
 export function nutrientAmountOrNull(food: FoodWithNutrients, code: string): number | null {
   const nutrient = findNutrient(food, code)
   return nutrient ? Number(nutrient.amount_per_100g) : null
 }
 
 export interface FoodMacros {
-  energy_kcal: number
-  protein_g: number
-  carbohydrate_g: number
-  fat_g: number
+  energy_kcal: number | null
+  protein_g: number | null
+  carbohydrate_g: number | null
+  fat_g: number | null
   fiber_g: number | null
   sodium_mg: number | null
 }
 
-/** Convenience bundle of the six standard macros/micros for a food, per 100g. */
+/**
+ * Convenience bundle of the six standard macros/micros for a food, per 100g.
+ * Every field can be `null` when the underlying nutrient is unknown — none
+ * of them are coerced to 0, matching the same policy already applied to
+ * dashboard/reports totals.
+ */
 export function getFoodMacros(food: FoodWithNutrients): FoodMacros {
   return {
-    energy_kcal: nutrientAmount(food, NUTRIENT_CODES.energy),
-    protein_g: nutrientAmount(food, NUTRIENT_CODES.protein),
-    carbohydrate_g: nutrientAmount(food, NUTRIENT_CODES.carbohydrate),
-    fat_g: nutrientAmount(food, NUTRIENT_CODES.fat),
+    energy_kcal: nutrientAmountOrNull(food, NUTRIENT_CODES.energy),
+    protein_g: nutrientAmountOrNull(food, NUTRIENT_CODES.protein),
+    carbohydrate_g: nutrientAmountOrNull(food, NUTRIENT_CODES.carbohydrate),
+    fat_g: nutrientAmountOrNull(food, NUTRIENT_CODES.fat),
     fiber_g: nutrientAmountOrNull(food, NUTRIENT_CODES.fiber),
     sodium_mg: nutrientAmountOrNull(food, NUTRIENT_CODES.sodium),
   }

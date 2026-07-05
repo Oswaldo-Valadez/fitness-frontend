@@ -7,11 +7,11 @@
  */
 
 export interface FdcImportSummary {
-  action?: string;
+  action: string;
   /** @nullable */
-  food_id?: number | null;
-  name?: string;
-  mapped?: number;
-  pending?: number;
-  portions?: number;
+  food_id: number | null;
+  name: string;
+  mapped: number;
+  pending: number;
+  portions: number;
 }

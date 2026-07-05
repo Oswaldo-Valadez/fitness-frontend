@@ -2,7 +2,7 @@ import { type PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/tool
 import type { ConsentRequiredDetail } from '@/api/apiEvents'
 import { authApi } from '@/api/auth'
 import type { LoginPayload, RegisterPayload } from '@/api/auth'
-import type { User } from '@/types/models'
+import type { User } from '@/api/generated/model'
 
 interface AuthState {
   user: User | null

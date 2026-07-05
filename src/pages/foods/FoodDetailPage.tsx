@@ -6,18 +6,19 @@ import { clsx } from 'clsx'
 import { foodsApi } from '@/api/foods'
 import { getFoodMacros } from '@/lib/nutrients'
 import type { Food, FoodPortion } from '@/api/generated/model'
+import NutrientValue from '@/components/nutrition/NutrientValue'
 import PageSpinner from '@/components/ui/PageSpinner'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import { useToast } from '@/components/ui/toast'
 
-const ROW = (label: string, value: string, accentClass?: string) => (
+const ROW = (label: string, value: React.ReactNode, accentClass?: string) => (
   <div className="flex justify-between border-b border-border py-2 text-sm last:border-0">
     <span className={clsx('text-muted', accentClass && `flex items-center gap-1.5`)}>
       {accentClass && <span className={clsx('h-2 w-2 rounded-full', accentClass)} />}
       {label}
     </span>
-    <span className="tabular-nums font-medium text-foreground">{value}</span>
+    <span className="font-medium text-foreground">{value}</span>
   </div>
 )
 
@@ -46,18 +47,22 @@ export default function FoodDetailPage() {
   const effectiveGrams = selectedPortion ? (selectedPortion.gram_weight ?? 0) * portionCount : grams
   const factor = effectiveGrams / 100
   const macros = getFoodMacros(food)
-  const protein = macros.protein_g * factor
-  const carbs = macros.carbohydrate_g * factor
-  const fat = macros.fat_g * factor
-  const kcal = macros.energy_kcal * factor
+  const protein = macros.protein_g !== null ? macros.protein_g * factor : null
+  const carbs = macros.carbohydrate_g !== null ? macros.carbohydrate_g * factor : null
+  const fat = macros.fat_g !== null ? macros.fat_g * factor : null
+  const kcal = macros.energy_kcal !== null ? macros.energy_kcal * factor : null
   const fiber = macros.fiber_g !== null ? macros.fiber_g * factor : null
   const sodium = macros.sodium_mg !== null ? macros.sodium_mg * factor : null
 
-  const macroKcal = [
-    { name: 'Proteína', value: protein * 4, color: 'var(--color-protein)' },
-    { name: 'Carbohidratos', value: carbs * 4, color: 'var(--color-carbs)' },
-    { name: 'Grasa', value: fat * 9, color: 'var(--color-fat)' },
-  ].filter((m) => m.value > 0)
+  // Never build a pie slice from an unknown macro — an incomplete chart is
+  // more misleading than no chart at all.
+  const macroKcal = (
+    [
+      protein !== null ? { name: 'Proteína', value: protein * 4, color: 'var(--color-protein)' } : null,
+      carbs !== null ? { name: 'Carbohidratos', value: carbs * 4, color: 'var(--color-carbs)' } : null,
+      fat !== null ? { name: 'Grasa', value: fat * 9, color: 'var(--color-fat)' } : null,
+    ] as const
+  ).filter((m): m is { name: string; value: number; color: string } => m !== null && m.value > 0)
 
   const toggleFavorite = async () => {
     const next = !food.is_favorite
@@ -104,26 +109,30 @@ export default function FoodDetailPage() {
         {food.category && <span className="text-xs text-muted">{food.category}</span>}
 
         <div className="mt-4 flex items-center gap-4">
-          <div className="h-24 w-24 shrink-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={macroKcal} dataKey="value" innerRadius={28} outerRadius={44} startAngle={90} endAngle={-270}>
-                  {macroKcal.map((m) => (
-                    <Cell key={m.name} fill={m.color} stroke="none" />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          {macroKcal.length > 0 && (
+            <div className="h-24 w-24 shrink-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={macroKcal} dataKey="value" innerRadius={28} outerRadius={44} startAngle={90} endAngle={-270}>
+                    {macroKcal.map((m) => (
+                      <Cell key={m.name} fill={m.color} stroke="none" />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
           <div className="flex-1 space-y-1.5 text-xs">
             <p className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-protein" /> Proteína {Math.round(protein * 4)} kcal
+              <span className="h-2 w-2 rounded-full bg-protein" /> Proteína{' '}
+              <NutrientValue value={protein !== null ? Math.round(protein * 4) : null} unit=" kcal" />
             </p>
             <p className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-carbs" /> Carbohidratos {Math.round(carbs * 4)} kcal
+              <span className="h-2 w-2 rounded-full bg-carbs" /> Carbohidratos{' '}
+              <NutrientValue value={carbs !== null ? Math.round(carbs * 4) : null} unit=" kcal" />
             </p>
             <p className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-fat" /> Grasa {Math.round(fat * 9)} kcal
+              <span className="h-2 w-2 rounded-full bg-fat" /> Grasa <NutrientValue value={fat !== null ? Math.round(fat * 9) : null} unit=" kcal" />
             </p>
           </div>
         </div>
@@ -223,19 +232,21 @@ export default function FoodDetailPage() {
               </button>
             </div>
           )}
-          <p className="tabular-nums text-lg font-bold text-foreground">{Math.round(kcal)} kcal</p>
+          <p className="text-lg font-bold text-foreground">
+            <NutrientValue value={kcal !== null ? Math.round(kcal) : null} unit=" kcal" />
+          </p>
         </div>
 
         <div className="mt-4">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
             Información nutricional · {selectedPortion ? `${portionCount} ${selectedPortion.unit_label}` : `${grams}g`}
           </p>
-          {ROW('Energía', `${kcal.toFixed(1)} kcal`)}
-          {ROW('Proteína', `${protein.toFixed(2)} g`, 'bg-protein')}
-          {ROW('Carbohidratos', `${carbs.toFixed(2)} g`, 'bg-carbs')}
-          {ROW('Grasa total', `${fat.toFixed(2)} g`, 'bg-fat')}
-          {fiber !== null && ROW('Fibra', `${fiber.toFixed(2)} g`)}
-          {sodium !== null && ROW('Sodio', `${sodium.toFixed(1)} mg`)}
+          {ROW('Energía', <NutrientValue value={kcal} decimals={1} unit=" kcal" />)}
+          {ROW('Proteína', <NutrientValue value={protein} decimals={2} unit=" g" />, 'bg-protein')}
+          {ROW('Carbohidratos', <NutrientValue value={carbs} decimals={2} unit=" g" />, 'bg-carbs')}
+          {ROW('Grasa total', <NutrientValue value={fat} decimals={2} unit=" g" />, 'bg-fat')}
+          {fiber !== null && ROW('Fibra', <NutrientValue value={fiber} decimals={2} unit=" g" />)}
+          {sodium !== null && ROW('Sodio', <NutrientValue value={sodium} decimals={1} unit=" mg" />)}
         </div>
 
         <Button className="mt-6 w-full" size="lg" onClick={goToDiary}>

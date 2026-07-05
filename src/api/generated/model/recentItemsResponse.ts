@@ -9,6 +9,6 @@ import type { Food } from './food';
 import type { Recipe } from './recipe';
 
 export interface RecentItemsResponse {
-  foods?: Food[];
-  recipes?: Recipe[];
+  foods: Food[];
+  recipes: Recipe[];
 }

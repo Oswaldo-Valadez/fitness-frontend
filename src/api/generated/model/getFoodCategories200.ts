@@ -7,5 +7,5 @@
  */
 
 export type GetFoodCategories200 = {
-  categories?: string[];
+  categories: string[];
 };

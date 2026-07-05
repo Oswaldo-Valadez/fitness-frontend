@@ -8,9 +8,9 @@
 import type { DataAuditEvent } from './dataAuditEvent';
 
 export interface PaginatedAuditEvents {
-  data?: DataAuditEvent[];
-  current_page?: number;
-  last_page?: number;
-  per_page?: number;
-  total?: number;
+  data: DataAuditEvent[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
 }

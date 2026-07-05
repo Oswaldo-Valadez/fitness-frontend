@@ -14,7 +14,7 @@ import { useToast } from '@/components/ui/toast'
 
 interface IngredientRow {
   key: string
-  food: Food
+  food: { id?: number; name: string }
   quantity: number
   portionId: number | null
 }
@@ -53,7 +53,7 @@ export default function RecipeEditorPage() {
       setIngredients(
         (recipe.ingredients ?? []).map((ing, i) => ({
           key: `existing-${i}`,
-          food: { id: ing.food_id ?? undefined, name: ing.food_name, nutrients: [] } as Food,
+          food: { id: ing.food_id ?? undefined, name: ing.food_name },
           quantity: ing.input_quantity ?? ing.quantity_g ?? 0,
           portionId: null,
         })),
@@ -253,7 +253,9 @@ export default function RecipeEditorPage() {
                     <span className="flex items-center gap-1.5 text-foreground">
                       <Plus className="h-3.5 w-3.5 text-primary" /> {f.name}
                     </span>
-                    <span className="tabular-nums text-xs text-muted">{getFoodMacros(f).energy_kcal.toFixed(0)} kcal/100g</span>
+                    <span className="text-xs text-muted">
+                      <NutrientValue value={getFoodMacros(f).energy_kcal} unit=" kcal/100g" />
+                    </span>
                   </button>
                 </li>
               ))}

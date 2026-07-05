@@ -8,9 +8,9 @@
 import type { NutrientTotals } from './nutrientTotals';
 
 export interface NutritionReportSummary {
-  days_total?: number;
-  days_logged?: number;
-  coverage_pct?: number;
-  meals_count?: number;
-  daily_averages?: NutrientTotals | null;
+  days_total: number;
+  days_logged: number;
+  coverage_pct: number;
+  meals_count: number;
+  daily_averages: NutrientTotals | null;
 }

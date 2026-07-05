@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { type FoodSource, adminApi } from '@/api/admin'
-import type { Food } from '@/types/models'
+import { type Food, type FoodSource, adminApi } from '@/api/admin'
 import { getFoodMacros } from '@/lib/nutrients'
 import Modal from '@/components/ui/Modal'
 import Input from '@/components/ui/Input'
@@ -58,10 +57,10 @@ export default function FoodFormModal({ open, onClose, onSaved, food }: Props) {
         category: food.category ?? '',
         food_source_id: '',
         data_type: food.data_type,
-        energy_kcal: String(macros.energy_kcal),
-        protein_g: String(macros.protein_g),
-        carbohydrate_g: String(macros.carbohydrate_g),
-        fat_g: String(macros.fat_g),
+        energy_kcal: macros.energy_kcal !== null ? String(macros.energy_kcal) : '',
+        protein_g: macros.protein_g !== null ? String(macros.protein_g) : '',
+        carbohydrate_g: macros.carbohydrate_g !== null ? String(macros.carbohydrate_g) : '',
+        fat_g: macros.fat_g !== null ? String(macros.fat_g) : '',
         fiber_g: macros.fiber_g !== null ? String(macros.fiber_g) : '',
         sodium_mg: macros.sodium_mg !== null ? String(macros.sodium_mg) : '',
       }

@@ -10,6 +10,7 @@ import { templatesApi } from '@/api/templates'
 import type { Food, FoodPortion, MealLog, MealLogItem, MealLogMealType, RecentItemsResponse, Recipe, UnifiedSearchResponse } from '@/api/generated/model'
 import { MEAL_LABELS, MEAL_TYPES } from '@/lib/mealTypes'
 import { getFoodMacros } from '@/lib/nutrients'
+import NutrientValue from '@/components/nutrition/NutrientValue'
 import PageSpinner from '@/components/ui/PageSpinner'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
@@ -214,7 +215,8 @@ export default function DiaryPage() {
   ].slice(0, 8)
 
   const effectiveGrams = selectedFood ? (selectedPortion ? (selectedPortion.gram_weight ?? 0) * quantity : quantity) : 0
-  const previewKcal = selectedFood ? (getFoodMacros(selectedFood).energy_kcal * effectiveGrams) / 100 : null
+  const selectedFoodEnergyKcal = selectedFood ? getFoodMacros(selectedFood).energy_kcal : null
+  const previewKcal = selectedFood && selectedFoodEnergyKcal !== null ? (selectedFoodEnergyKcal * effectiveGrams) / 100 : null
 
   return (
     <div className="space-y-6">
@@ -392,7 +394,11 @@ export default function DiaryPage() {
                   +
                 </button>
               </div>
-              {previewKcal !== null && <div className="tabular-nums pb-2.5 text-sm text-muted">= {previewKcal.toFixed(0)} kcal</div>}
+              {selectedFood && (
+                <div className="pb-2.5 text-sm text-muted">
+                  = <NutrientValue value={previewKcal !== null ? Math.round(previewKcal) : null} unit=" kcal" />
+                </div>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -503,7 +509,9 @@ function ResultRow({ food, onPick }: { food: Food; onPick: () => void }) {
           {food.is_favorite && <Star className="h-3 w-3 shrink-0 fill-current text-warning" />}
           {food.name}
         </span>
-        <span className="tabular-nums text-xs text-muted">{getFoodMacros(food).energy_kcal.toFixed(0)} kcal/100g</span>
+        <span className="text-xs text-muted">
+          <NutrientValue value={getFoodMacros(food).energy_kcal} unit=" kcal/100g" />
+        </span>
       </button>
     </li>
   )

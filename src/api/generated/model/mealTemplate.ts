@@ -9,10 +9,10 @@ import type { MealTemplateDefaultMealType } from './mealTemplateDefaultMealType'
 import type { MealTemplateItem } from './mealTemplateItem';
 
 export interface MealTemplate {
-  id?: number;
-  user_id?: number;
-  name?: string;
-  default_meal_type?: MealTemplateDefaultMealType;
-  is_favorite?: boolean;
-  items?: MealTemplateItem[];
+  id: number;
+  user_id: number;
+  name: string;
+  default_meal_type: MealTemplateDefaultMealType;
+  is_favorite: boolean;
+  items: MealTemplateItem[];
 }

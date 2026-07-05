@@ -9,10 +9,10 @@ import type { NutritionTarget } from './nutritionTarget';
 import type { UserProfile } from './userProfile';
 
 export type OnboardingStoreProfile201 = {
-  message?: string;
-  profile?: UserProfile;
-  active_target?: NutritionTarget | null;
-  target_calculable?: boolean;
+  message: string;
+  profile: UserProfile;
+  active_target: NutritionTarget | null;
+  target_calculable: boolean;
   /** @nullable */
-  onboarding_completed_at?: string | null;
+  onboarding_completed_at: string | null;
 };

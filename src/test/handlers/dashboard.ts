@@ -45,6 +45,7 @@ export const dashboardSummaryFixture: DashboardSummary = {
           protein_g: 3.6,
           carbohydrate_g: 18,
           fat_g: 2.1,
+          fiber_g_total: 2.4,
           nutrient_status: { energy_kcal: 'complete' },
         },
         {
@@ -55,6 +56,7 @@ export const dashboardSummaryFixture: DashboardSummary = {
           protein_g: null,
           carbohydrate_g: null,
           fat_g: null,
+          fiber_g_total: null,
           nutrient_status: { energy_kcal: 'partial' },
         },
       ],

@@ -9,36 +9,36 @@ import type { MealLogItemSourceKind } from './mealLogItemSourceKind';
 import type { NutrientStatus } from './nutrientStatus';
 
 export interface MealLogItem {
-  id?: number;
-  meal_log_id?: number;
-  source_kind?: MealLogItemSourceKind;
+  id: number;
+  meal_log_id: number;
+  source_kind: MealLogItemSourceKind;
   /** @nullable */
-  food_id?: number | null;
+  food_id: number | null;
   /** @nullable */
-  recipe_id?: number | null;
-  food_name?: string;
-  quantity_g?: number;
+  recipe_id: number | null;
+  food_name: string;
+  quantity_g: number;
   /** @nullable */
-  portion_description_snapshot?: string | null;
+  portion_description_snapshot: string | null;
   /** @nullable */
-  energy_kcal?: number | null;
+  energy_kcal: number | null;
   /** @nullable */
-  protein_g?: number | null;
+  protein_g: number | null;
   /** @nullable */
-  carbohydrate_g?: number | null;
+  carbohydrate_g: number | null;
   /** @nullable */
-  fat_g?: number | null;
+  fat_g: number | null;
   /** @nullable */
-  energy_kcal_total?: number | null;
+  energy_kcal_total: number | null;
   /** @nullable */
-  protein_g_total?: number | null;
+  protein_g_total: number | null;
   /** @nullable */
-  carbohydrate_g_total?: number | null;
+  carbohydrate_g_total: number | null;
   /** @nullable */
-  fat_g_total?: number | null;
+  fat_g_total: number | null;
   /** @nullable */
-  fiber_g_total?: number | null;
+  fiber_g_total: number | null;
   /** @nullable */
-  sodium_mg_total?: number | null;
-  nutrient_status?: NutrientStatus | null;
+  sodium_mg_total: number | null;
+  nutrient_status: NutrientStatus | null;
 }

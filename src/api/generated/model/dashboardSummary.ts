@@ -11,11 +11,11 @@ import type { NutrientTotals } from './nutrientTotals';
 import type { NutritionTarget } from './nutritionTarget';
 
 export interface DashboardSummary {
-  date?: string;
-  timezone?: string;
-  target?: NutritionTarget | null;
-  meals?: DashboardMeal[];
-  totals?: NutrientTotals;
-  nutrient_status?: NutrientStatus;
-  has_demo_foods?: boolean;
+  date: string;
+  timezone: string;
+  target: NutritionTarget | null;
+  meals: DashboardMeal[];
+  totals: NutrientTotals;
+  nutrient_status: NutrientStatus;
+  has_demo_foods: boolean;
 }

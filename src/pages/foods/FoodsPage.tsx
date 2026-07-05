@@ -5,6 +5,7 @@ import { clsx } from 'clsx'
 import { foodsApi } from '@/api/foods'
 import { getFoodMacros } from '@/lib/nutrients'
 import type { Food } from '@/api/generated/model'
+import NutrientValue from '@/components/nutrition/NutrientValue'
 import Input from '@/components/ui/Input'
 import PageSpinner from '@/components/ui/PageSpinner'
 import Button from '@/components/ui/Button'
@@ -118,7 +119,7 @@ export default function FoodsPage() {
                       <p className="truncate font-medium text-foreground">{f.name}</p>
                       <p className="text-xs text-muted">
                         {f.category && <span>{f.category} · </span>}
-                        {getFoodMacros(f).energy_kcal.toFixed(0)} kcal/100g
+                        <NutrientValue value={getFoodMacros(f).energy_kcal} unit=" kcal/100g" />
                       </p>
                     </Link>
                     <button onClick={() => toggleFavorite(f)} aria-label="Marcar como favorito" className="cursor-pointer p-1.5 text-muted hover:text-warning">
@@ -161,10 +162,18 @@ export default function FoodsPage() {
                             </Link>
                             {f.category && <span className="ml-2 text-xs text-muted">{f.category}</span>}
                           </td>
-                          <td className="tabular-nums px-4 py-3 text-right text-foreground">{macros.energy_kcal.toFixed(0)}</td>
-                          <td className="tabular-nums px-4 py-3 text-right text-protein">{macros.protein_g.toFixed(1)}g</td>
-                          <td className="tabular-nums px-4 py-3 text-right text-carbs">{macros.carbohydrate_g.toFixed(1)}g</td>
-                          <td className="tabular-nums px-4 py-3 text-right text-fat">{macros.fat_g.toFixed(1)}g</td>
+                          <td className="px-4 py-3 text-right text-foreground">
+                            <NutrientValue value={macros.energy_kcal} />
+                          </td>
+                          <td className="px-4 py-3 text-right text-protein">
+                            <NutrientValue value={macros.protein_g} decimals={1} unit="g" />
+                          </td>
+                          <td className="px-4 py-3 text-right text-carbs">
+                            <NutrientValue value={macros.carbohydrate_g} decimals={1} unit="g" />
+                          </td>
+                          <td className="px-4 py-3 text-right text-fat">
+                            <NutrientValue value={macros.fat_g} decimals={1} unit="g" />
+                          </td>
                         </tr>
                       )
                     })}

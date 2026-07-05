@@ -9,13 +9,13 @@ import type { MealLogItem } from './mealLogItem';
 import type { MealLogMealType } from './mealLogMealType';
 
 export interface MealLog {
-  id?: number;
-  user_id?: number;
-  meal_type?: MealLogMealType;
+  id: number;
+  user_id: number;
+  meal_type: MealLogMealType;
   /** @nullable */
-  name?: string | null;
-  occurred_at?: string;
+  name: string | null;
+  occurred_at: string;
   /** @nullable */
-  notes?: string | null;
-  items?: MealLogItem[];
+  notes: string | null;
+  items: MealLogItem[];
 }

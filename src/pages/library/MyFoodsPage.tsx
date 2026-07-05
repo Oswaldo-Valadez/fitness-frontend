@@ -3,6 +3,7 @@ import { Apple, Pencil, Plus, Trash2 } from 'lucide-react'
 import { myFoodsApi } from '@/api/myFoods'
 import type { Food } from '@/api/generated/model'
 import { getFoodMacros } from '@/lib/nutrients'
+import NutrientValue from '@/components/nutrition/NutrientValue'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
@@ -94,7 +95,7 @@ export default function MyFoodsPage() {
                   </div>
                   <p className="text-xs text-muted">
                     {f.category && <span>{f.category} · </span>}
-                    {macros.energy_kcal.toFixed(0)} kcal/100g
+                    <NutrientValue value={macros.energy_kcal} unit=" kcal/100g" />
                   </p>
                 </div>
                 <button

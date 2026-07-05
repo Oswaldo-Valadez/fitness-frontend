@@ -8,17 +8,23 @@
 import type { NutrientStatus } from './nutrientStatus';
 import type { NutrientTotals } from './nutrientTotals';
 
+/**
+ * `weight_kg` is only present when the report was requested with include_weight=true.
+ */
 export interface NutritionReportDay {
-  date?: string;
-  logged?: boolean;
-  meals_count?: number;
-  totals?: NutrientTotals | null;
-  nutrient_status?: NutrientStatus | null;
+  date: string;
+  logged: boolean;
+  meals_count: number;
+  totals: NutrientTotals | null;
+  nutrient_status: NutrientStatus | null;
   /** @nullable */
-  target_kcal?: number | null;
-  target_available?: boolean;
+  target_kcal: number | null;
+  target_available: boolean;
   /** @nullable */
-  energy_vs_target_kcal?: number | null;
-  /** @nullable */
+  energy_vs_target_kcal: number | null;
+  /**
+     * Only present when include_weight=true.
+     * @nullable
+     */
   weight_kg?: number | null;
 }
