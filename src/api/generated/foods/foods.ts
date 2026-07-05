@@ -5,48 +5,122 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import * as axios from 'axios';
 import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
-
-import type {
+  CreateFoodPortion201,
+  CreateFoodPortionBody,
   GetFood200,
   GetFoodCategories200,
   ListFoods200,
-  ListFoodsParams
+  ListFoodsParams,
+  MessageResponse,
+  RecentItemsResponse,
+  UnifiedSearchParams,
+  UnifiedSearchResponse,
+  UpdateFoodPortion200,
+  UpdateFoodPortionBody
 } from '../model';
 
+import { customInstance } from '../../mutator';
 
 
 
-  export const getFoods = (axiosInstance: AxiosInstance = axios.default) => {
+  export const getFoods = () => {
 const listFoods = (
-    params?: ListFoodsParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<ListFoods200>> => {
-    return axiosInstance.get(
-      `/foods`,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-const getFood = (
-    food: number, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetFood200>> => {
-    return axiosInstance.get(
-      `/foods/${food}`,options
-    );
-  }
-const getFoodCategories = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetFoodCategories200>> => {
-    return axiosInstance.get(
-      `/foods/categories`,options
-    );
-  }
-return {listFoods,getFood,getFoodCategories}};
-export type ListFoodsResult = AxiosResponse<ListFoods200>
-export type GetFoodResult = AxiosResponse<GetFood200>
-export type GetFoodCategoriesResult = AxiosResponse<GetFoodCategories200>
+    params?: ListFoodsParams,
+ ) => {
+      return customInstance<ListFoods200>(
+      {url: `/foods`, method: 'GET',
+        params
+    },
+      );
+    }
+  const getFood = (
+    food: number,
+ ) => {
+      return customInstance<GetFood200>(
+      {url: `/foods/${food}`, method: 'GET'
+    },
+      );
+    }
+  const getFoodCategories = (
+
+ ) => {
+      return customInstance<GetFoodCategories200>(
+      {url: `/foods/categories`, method: 'GET'
+    },
+      );
+    }
+  const favoriteFood = (
+    food: number,
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/foods/${food}/favorite`, method: 'POST'
+    },
+      );
+    }
+  const unfavoriteFood = (
+    food: number,
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/foods/${food}/favorite`, method: 'DELETE'
+    },
+      );
+    }
+  const createFoodPortion = (
+    food: number,
+    createFoodPortionBody: CreateFoodPortionBody,
+ ) => {
+      return customInstance<CreateFoodPortion201>(
+      {url: `/foods/${food}/portions`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createFoodPortionBody
+    },
+      );
+    }
+  const updateFoodPortion = (
+    portion: number,
+    updateFoodPortionBody: UpdateFoodPortionBody,
+ ) => {
+      return customInstance<UpdateFoodPortion200>(
+      {url: `/food-portions/${portion}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateFoodPortionBody
+    },
+      );
+    }
+  const deleteFoodPortion = (
+    portion: number,
+ ) => {
+      return customInstance<void>(
+      {url: `/food-portions/${portion}`, method: 'DELETE'
+    },
+      );
+    }
+  const listRecentItems = (
+
+ ) => {
+      return customInstance<RecentItemsResponse>(
+      {url: `/recent-items`, method: 'GET'
+    },
+      );
+    }
+  const unifiedSearch = (
+    params: UnifiedSearchParams,
+ ) => {
+      return customInstance<UnifiedSearchResponse>(
+      {url: `/search`, method: 'GET',
+        params
+    },
+      );
+    }
+  return {listFoods,getFood,getFoodCategories,favoriteFood,unfavoriteFood,createFoodPortion,updateFoodPortion,deleteFoodPortion,listRecentItems,unifiedSearch}};
+export type ListFoodsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFoods>['listFoods']>>>
+export type GetFoodResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFoods>['getFood']>>>
+export type GetFoodCategoriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFoods>['getFoodCategories']>>>
+export type FavoriteFoodResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFoods>['favoriteFood']>>>
+export type UnfavoriteFoodResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFoods>['unfavoriteFood']>>>
+export type CreateFoodPortionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFoods>['createFoodPortion']>>>
+export type UpdateFoodPortionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFoods>['updateFoodPortion']>>>
+export type DeleteFoodPortionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFoods>['deleteFoodPortion']>>>
+export type ListRecentItemsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFoods>['listRecentItems']>>>
+export type UnifiedSearchResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFoods>['unifiedSearch']>>>

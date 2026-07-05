@@ -12,8 +12,12 @@ export function RequireAuth() {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // Si completó onboarding → ok; si no, redirige al onboarding
-  if (!user.onboarding_completed_at && location.pathname !== '/onboarding') {
+  // Onboarding solo se considera incompleto si falta el timestamp o el
+  // perfil físico. Un consentimiento revocado NO reenvía aquí — eso se
+  // maneja de forma reactiva (banner + reaceptación) para no bloquear
+  // lecturas; ver ConsentBanner y AppInit.
+  const onboardingIncomplete = !user.onboarding_completed_at || !user.has_profile
+  if (onboardingIncomplete && location.pathname !== '/onboarding') {
     return <Navigate to="/onboarding" replace />
   }
 
@@ -41,9 +45,7 @@ export function RequireAdmin() {
 
   if (!user) return <Navigate to="/login" replace />
 
-  // is_admin no viene en el tipo base — lo leemos como any del objeto real
-  const isAdmin = (user as unknown as { is_admin?: boolean }).is_admin === true
-  if (!isAdmin) return <Navigate to="/dashboard" replace />
+  if (!user.is_admin) return <Navigate to="/dashboard" replace />
 
   return <Outlet />
 }

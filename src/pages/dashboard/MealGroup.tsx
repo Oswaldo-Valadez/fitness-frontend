@@ -1,17 +1,51 @@
-import { Plus, Trash2 } from 'lucide-react'
-import type { MealLog, MealLogItem } from '@/types/models'
+import { Copy, Plus, Save, Trash2 } from 'lucide-react'
 import { MEAL_ICONS, MEAL_LABELS, type MealType } from '@/lib/mealTypes'
+import type { NutrientStatusValue } from '@/lib/nutrientStatus'
+import NutrientValue from '@/components/nutrition/NutrientValue'
+
+export interface MealGroupItem {
+  id?: number
+  food_name?: string
+  quantity_g?: number
+  energy_kcal?: number | null
+  nutrient_status?: { energy_kcal?: NutrientStatusValue | null } | null
+}
+
+export interface MealGroupMeal {
+  id?: number
+  items?: MealGroupItem[]
+  /** When the caller already has an honest (null-safe) aggregate, pass it
+   * instead of letting this component re-sum items client-side. */
+  totals?: { energy_kcal?: number | null } | null
+}
 
 interface Props {
   mealType: MealType
-  meal: MealLog | null
+  meal: MealGroupMeal | null
   onAddMeal: () => void
-  onDeleteItem?: (item: MealLogItem) => void
+  onDeleteItem?: (item: MealGroupItem) => void
+  /** Both are only offered once the meal actually has items. */
+  onSaveAsTemplate?: () => void
+  onCopyToDate?: () => void
 }
 
-export default function MealGroup({ mealType, meal, onAddMeal, onDeleteItem }: Props) {
+/** Sums only items with a known energy value — never treats unknown as 0. */
+function summarizeEnergy(items: MealGroupItem[]): { value: number | null; status: NutrientStatusValue } {
+  if (items.length === 0) return { value: 0, status: 'complete' }
+
+  const known = items.filter((item) => item.energy_kcal !== null)
+  if (known.length === 0) return { value: null, status: 'unknown' }
+
+  const sum = known.reduce((acc, item) => acc + (item.energy_kcal ?? 0), 0)
+  return { value: sum, status: known.length < items.length ? 'partial' : 'complete' }
+}
+
+export default function MealGroup({ mealType, meal, onAddMeal, onDeleteItem, onSaveAsTemplate, onCopyToDate }: Props) {
   const Icon = MEAL_ICONS[mealType]
   const items = meal?.items ?? []
+  const fallback = summarizeEnergy(items)
+  const totalValue = meal?.totals ? (meal.totals.energy_kcal ?? null) : fallback.value
+  const totalStatus = meal?.totals ? undefined : fallback.status
 
   return (
     <div className="rounded-2xl border border-border bg-surface p-5 shadow-card">
@@ -23,7 +57,31 @@ export default function MealGroup({ mealType, meal, onAddMeal, onDeleteItem }: P
           {MEAL_LABELS[mealType]}
         </h3>
         {meal && (
-          <span className="tabular-nums text-sm font-medium text-muted">{Math.round(items.reduce((sum, item) => sum + Number(item.energy_kcal), 0))} kcal</span>
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-medium text-muted">
+              <NutrientValue value={totalValue} status={totalStatus} unit=" kcal" />
+            </span>
+            {items.length > 0 && onCopyToDate && (
+              <button
+                onClick={onCopyToDate}
+                aria-label="Copiar a otra fecha"
+                title="Copiar a otra fecha"
+                className="cursor-pointer rounded p-1 text-muted hover:text-primary"
+              >
+                <Copy className="h-3.5 w-3.5" />
+              </button>
+            )}
+            {items.length > 0 && onSaveAsTemplate && (
+              <button
+                onClick={onSaveAsTemplate}
+                aria-label="Guardar como plantilla"
+                title="Guardar como plantilla"
+                className="cursor-pointer rounded p-1 text-muted hover:text-primary"
+              >
+                <Save className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
         )}
       </div>
 
@@ -41,7 +99,9 @@ export default function MealGroup({ mealType, meal, onAddMeal, onDeleteItem }: P
               <span className="min-w-0 flex-1 truncate text-foreground">
                 {item.food_name} <span className="text-muted">{item.quantity_g}g</span>
               </span>
-              <span className="tabular-nums shrink-0 text-muted">{Math.round(Number(item.energy_kcal))} kcal</span>
+              <span className="shrink-0 text-muted">
+                <NutrientValue value={item.energy_kcal} status={item.nutrient_status?.energy_kcal} unit=" kcal" />
+              </span>
               {onDeleteItem && (
                 <button
                   onClick={() => onDeleteItem(item)}

@@ -5,14 +5,40 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
+import type { MealLogItemSourceKind } from './mealLogItemSourceKind';
+import type { NutrientStatus } from './nutrientStatus';
 
 export interface MealLogItem {
   id?: number;
   meal_log_id?: number;
+  source_kind?: MealLogItemSourceKind;
+  /** @nullable */
+  food_id?: number | null;
+  /** @nullable */
+  recipe_id?: number | null;
   food_name?: string;
   quantity_g?: number;
-  energy_kcal?: number;
-  protein_g?: number;
-  carbohydrate_g?: number;
-  fat_g?: number;
+  /** @nullable */
+  portion_description_snapshot?: string | null;
+  /** @nullable */
+  energy_kcal?: number | null;
+  /** @nullable */
+  protein_g?: number | null;
+  /** @nullable */
+  carbohydrate_g?: number | null;
+  /** @nullable */
+  fat_g?: number | null;
+  /** @nullable */
+  energy_kcal_total?: number | null;
+  /** @nullable */
+  protein_g_total?: number | null;
+  /** @nullable */
+  carbohydrate_g_total?: number | null;
+  /** @nullable */
+  fat_g_total?: number | null;
+  /** @nullable */
+  fiber_g_total?: number | null;
+  /** @nullable */
+  sodium_mg_total?: number | null;
+  nutrient_status?: NutrientStatus | null;
 }

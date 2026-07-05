@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom'
 import { Apple, ChevronLeft, ChevronRight, Search, Star } from 'lucide-react'
 import { clsx } from 'clsx'
 import { foodsApi } from '@/api/foods'
-import { foodPreferencesApi } from '@/api/foodPreferences'
 import { getFoodMacros } from '@/lib/nutrients'
-import type { Food } from '@/types/models'
+import type { Food } from '@/api/generated/model'
 import Input from '@/components/ui/Input'
 import PageSpinner from '@/components/ui/PageSpinner'
 import Button from '@/components/ui/Button'
@@ -22,11 +21,9 @@ export default function FoodsPage() {
   const [page, setPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     foodsApi.categories().then(setCategories)
-    foodPreferencesApi.favorites().then((favs) => setFavoriteIds(new Set(favs.map((f) => f.id))))
   }, [])
 
   const search = useCallback(async (q: string, cat: string, p: number) => {
@@ -49,14 +46,16 @@ export default function FoodsPage() {
   }, [query, category, search])
 
   const toggleFavorite = async (food: Food) => {
-    const nowFavorite = await foodPreferencesApi.toggleFavorite(food)
-    setFavoriteIds((prev) => {
-      const next = new Set(prev)
-      if (nowFavorite) next.add(food.id)
-      else next.delete(food.id)
-      return next
-    })
-    show({ variant: 'success', message: nowFavorite ? 'Agregado a favoritos.' : 'Quitado de favoritos.', duration: 2000 })
+    const nowFavorite = !food.is_favorite
+    setFoods((prev) => prev.map((f) => (f.id === food.id ? { ...f, is_favorite: nowFavorite } : f)))
+    try {
+      if (nowFavorite) await foodsApi.favorite(food.id as number)
+      else await foodsApi.unfavorite(food.id as number)
+      show({ variant: 'success', message: nowFavorite ? 'Agregado a favoritos.' : 'Quitado de favoritos.', duration: 2000 })
+    } catch {
+      // revert optimistic update on failure
+      setFoods((prev) => prev.map((f) => (f.id === food.id ? { ...f, is_favorite: !nowFavorite } : f)))
+    }
   }
 
   const goToPage = (p: number) => {
@@ -123,7 +122,7 @@ export default function FoodsPage() {
                       </p>
                     </Link>
                     <button onClick={() => toggleFavorite(f)} aria-label="Marcar como favorito" className="cursor-pointer p-1.5 text-muted hover:text-warning">
-                      <Star className={clsx('h-4 w-4', favoriteIds.has(f.id) && 'fill-current text-warning')} />
+                      <Star className={clsx('h-4 w-4', f.is_favorite && 'fill-current text-warning')} />
                     </button>
                   </Card>
                 ))}
@@ -153,7 +152,7 @@ export default function FoodsPage() {
                               aria-label="Marcar como favorito"
                               className="cursor-pointer text-muted hover:text-warning"
                             >
-                              <Star className={clsx('h-4 w-4', favoriteIds.has(f.id) && 'fill-current text-warning')} />
+                              <Star className={clsx('h-4 w-4', f.is_favorite && 'fill-current text-warning')} />
                             </button>
                           </td>
                           <td className="px-4 py-3">

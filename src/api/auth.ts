@@ -59,13 +59,7 @@ export const authApi = {
   },
 
   async me() {
-    const { data } = await api.get<
-      User & {
-        has_profile: boolean
-        has_active_consents: boolean
-        onboarding_completed_at: string | null
-      }
-    >('/user')
+    const { data } = await api.get<User>('/user')
     return data
   },
 }

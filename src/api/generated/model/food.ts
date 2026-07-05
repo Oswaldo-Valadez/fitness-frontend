@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { FoodNutrient } from './foodNutrient';
+import type { FoodPortion } from './foodPortion';
 
 export interface Food {
   id?: number;
@@ -22,8 +23,18 @@ export interface Food {
   /** @nullable */
   serving_unit?: string | null;
   /** @nullable */
+  visibility?: string | null;
+  /** @nullable */
+  origin_type?: string | null;
+  /** @nullable */
+  data_quality_status?: string | null;
+  is_own?: boolean;
+  /** @nullable */
+  is_favorite?: boolean | null;
+  /** @nullable */
   source?: string | null;
   /** @nullable */
   source_version?: string | null;
   nutrients?: FoodNutrient[];
+  portions?: FoodPortion[];
 }

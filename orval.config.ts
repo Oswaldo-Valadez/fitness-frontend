@@ -3,7 +3,7 @@ import { defineConfig } from 'orval'
 export default defineConfig({
   fitnessApi: {
     input: {
-      target: '../fitness-backend/storage/api-docs/api-docs.json',
+      target: './openapi/api-docs.json',
     },
     output: {
       client: 'axios',
@@ -12,6 +12,12 @@ export default defineConfig({
       target: 'index.ts',
       schemas: 'model',
       clean: true,
+      override: {
+        mutator: {
+          path: '../mutator.ts',
+          name: 'customInstance',
+        },
+      },
     },
   },
 })

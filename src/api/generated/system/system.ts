@@ -5,26 +5,25 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import * as axios from 'axios';
 import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
+  HealthCheck200
+} from '../model';
+
+import { customInstance } from '../../mutator';
 
 
 
-
-  export const getSystem = (axiosInstance: AxiosInstance = axios.default) => {
+  export const getSystem = () => {
 /**
  * @summary Health check
  */
 const healthCheck = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    return axiosInstance.get(
-      `/health`,options
-    );
-  }
-return {healthCheck}};
-export type HealthCheckResult = AxiosResponse<void>
+
+ ) => {
+      return customInstance<HealthCheck200>(
+      {url: `/health`, method: 'GET'
+    },
+      );
+    }
+  return {healthCheck}};
+export type HealthCheckResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getSystem>['healthCheck']>>>

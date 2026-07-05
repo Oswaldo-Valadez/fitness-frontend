@@ -1,4 +1,4 @@
-import { Apple, BookOpen, LayoutDashboard, Settings, ShieldCheck, User } from 'lucide-react'
+import { BarChart3, BookOpen, LayoutDashboard, Library, ShieldCheck, User } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export interface NavItem {
@@ -7,13 +7,17 @@ export interface NavItem {
   icon: LucideIcon
 }
 
-/** Primary navigation — kept to 5 items so it also works as a mobile bottom nav. */
+/**
+ * Primary navigation — kept to 5 items so it also works as a mobile bottom
+ * nav. Account/settings is intentionally not here: it's reachable from
+ * UserMenu (mobile) and the Sidebar footer (desktop) instead.
+ */
 export const PRIMARY_NAV: NavItem[] = [
   { to: '/dashboard', label: 'Panel', icon: LayoutDashboard },
   { to: '/diary', label: 'Diario', icon: BookOpen },
-  { to: '/foods', label: 'Alimentos', icon: Apple },
+  { to: '/library', label: 'Biblioteca', icon: Library },
+  { to: '/reports', label: 'Reportes', icon: BarChart3 },
   { to: '/profile', label: 'Perfil', icon: User },
-  { to: '/account', label: 'Cuenta', icon: Settings },
 ]
 
 export const ADMIN_NAV: NavItem = { to: '/admin/foods', label: 'Admin', icon: ShieldCheck }

@@ -4,11 +4,12 @@ export interface User {
   id: number
   name: string
   email: string
+  is_admin: boolean
   timezone: string
   locale: string
   onboarding_completed_at: string | null
-  has_profile?: boolean
-  has_active_consents?: boolean
+  has_profile: boolean
+  has_active_consents: boolean
 }
 
 export interface UserProfile {
@@ -64,35 +65,6 @@ export interface Food {
   source: string | null
   source_version: string | null
   nutrients: FoodNutrient[]
-}
-
-export interface MealLog {
-  id: number
-  user_id: number
-  meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack'
-  occurred_at: string
-  notes: string | null
-  items?: MealLogItem[]
-}
-
-export interface MealLogItem {
-  id: number
-  meal_log_id: number
-  food_id: number
-  food_name: string
-  quantity_g: number
-  energy_kcal: string
-  protein_g: string
-  carbohydrate_g: string
-  fat_g: string
-}
-
-export interface Consent {
-  id: number
-  type: 'terms' | 'privacy' | 'general_wellness_disclaimer'
-  document_version: string
-  accepted_at: string
-  revoked_at: string | null
 }
 
 export interface PaginatedResponse<T> {

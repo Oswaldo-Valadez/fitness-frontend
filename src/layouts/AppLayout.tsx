@@ -2,6 +2,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Activity, Plus } from 'lucide-react'
 import { useAppDispatch, useAuth } from '@/store/hooks'
 import { logout } from '@/store/authSlice'
+import ConsentBanner from './ConsentBanner'
 import Sidebar from './Sidebar'
 import BottomNav from './BottomNav'
 import UserMenu from './UserMenu'
@@ -11,7 +12,7 @@ export default function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuth()
-  const isAdmin = !!(user as Record<string, unknown> | null)?.is_admin
+  const isAdmin = user?.is_admin === true
 
   const handleLogout = async () => {
     await dispatch(logout())
@@ -35,6 +36,8 @@ export default function AppLayout() {
           </span>
           <UserMenu userName={user?.name ?? ''} userEmail={user?.email ?? ''} isAdmin={isAdmin} onLogout={handleLogout} />
         </header>
+
+        <ConsentBanner />
 
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-10">
           <div key={location.pathname} className="page-in">

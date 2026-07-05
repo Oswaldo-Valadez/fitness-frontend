@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import authReducer, { clearUser, fetchMe, login, logout, register } from './authSlice'
+import authReducer, { clearConsentRequired, clearUser, fetchMe, login, logout, register, setConsentRequired } from './authSlice'
 
 const demoUser = {
   id: 1,
   name: 'Demo User',
   email: 'demo@example.com',
+  is_admin: false,
   timezone: 'America/Mexico_City',
   locale: 'es_MX',
   onboarding_completed_at: '2026-01-01T12:00:00Z',
@@ -20,6 +21,7 @@ describe('authSlice', () => {
       user: null,
       status: 'idle',
       initialized: false,
+      consentRequired: null,
     })
   })
 
@@ -28,6 +30,7 @@ describe('authSlice', () => {
       user: demoUser,
       status: 'idle' as const,
       initialized: false,
+      consentRequired: null,
     }
 
     const state = authReducer(previous, clearUser())
@@ -80,5 +83,15 @@ describe('authSlice', () => {
     const afterLogout = authReducer(loggedState, logout.fulfilled(undefined, 'req-6'))
     expect(afterLogout.user).toBeNull()
     expect(afterLogout.initialized).toBe(true)
+  })
+
+  it('handles setConsentRequired and clearConsentRequired', () => {
+    const detail = { message: 'Debes aceptar los consentimientos vigentes.', returnPath: '/diary' }
+
+    const withConsent = authReducer(undefined, setConsentRequired(detail))
+    expect(withConsent.consentRequired).toEqual(detail)
+
+    const cleared = authReducer(withConsent, clearConsentRequired())
+    expect(cleared.consentRequired).toBeNull()
   })
 })

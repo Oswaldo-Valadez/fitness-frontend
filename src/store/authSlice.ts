@@ -1,18 +1,21 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { type PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import type { ConsentRequiredDetail } from '@/api/apiEvents'
 import { authApi } from '@/api/auth'
 import type { LoginPayload, RegisterPayload } from '@/api/auth'
 import type { User } from '@/types/models'
 
 interface AuthState {
-  user: (User & { has_profile: boolean; has_active_consents: boolean }) | null
+  user: User | null
   status: 'idle' | 'loading' | 'failed'
   initialized: boolean
+  consentRequired: ConsentRequiredDetail | null
 }
 
 const initialState: AuthState = {
   user: null,
   status: 'idle',
   initialized: false,
+  consentRequired: null,
 }
 
 export const fetchMe = createAsyncThunk('auth/fetchMe', async () => {
@@ -41,6 +44,12 @@ const authSlice = createSlice({
       state.user = null
       state.initialized = true
     },
+    setConsentRequired(state, action: PayloadAction<ConsentRequiredDetail>) {
+      state.consentRequired = action.payload
+    },
+    clearConsentRequired(state) {
+      state.consentRequired = null
+    },
   },
   extraReducers: (builder) => {
     // fetchMe
@@ -49,7 +58,7 @@ const authSlice = createSlice({
         state.status = 'loading'
       })
       .addCase(fetchMe.fulfilled, (state, action) => {
-        state.user = action.payload as AuthState['user']
+        state.user = action.payload
         state.status = 'idle'
         state.initialized = true
       })
@@ -65,7 +74,7 @@ const authSlice = createSlice({
         state.status = 'loading'
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.user = action.payload as AuthState['user']
+        state.user = action.payload
         state.status = 'idle'
         state.initialized = true
       })
@@ -79,7 +88,7 @@ const authSlice = createSlice({
         state.status = 'loading'
       })
       .addCase(register.fulfilled, (state, action) => {
-        state.user = action.payload as AuthState['user']
+        state.user = action.payload
         state.status = 'idle'
         state.initialized = true
       })
@@ -95,5 +104,5 @@ const authSlice = createSlice({
   },
 })
 
-export const { clearUser } = authSlice.actions
+export const { clearUser, setConsentRequired, clearConsentRequired } = authSlice.actions
 export default authSlice.reducer

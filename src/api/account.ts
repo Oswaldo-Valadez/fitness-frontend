@@ -1,5 +1,4 @@
 import api from '@/api/client'
-import type { Consent } from '@/types/models'
 
 export const accountApi = {
   async exportData(): Promise<void> {
@@ -13,11 +12,9 @@ export const accountApi = {
     URL.revokeObjectURL(url)
   },
 
-  async getConsents(): Promise<Consent[]> {
-    const { data } = await api.get<{ consents: Consent[] }>('/user')
-    return data.consents ?? []
-  },
-
+  // No endpoint lists individual consents (`/user` only exposes the
+  // aggregate `has_active_consents` boolean) — do not invent one.
+  // Revocation flows through `/account/consents/{id}/revoke` below.
   async revokeConsent(consentId: number): Promise<void> {
     await api.post(`/account/consents/${consentId}/revoke`)
   },

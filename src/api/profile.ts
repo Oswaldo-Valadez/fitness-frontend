@@ -1,9 +1,15 @@
 import api from '@/api/client'
 import type { NutritionTarget, UserProfile } from '@/types/models'
 
-export interface ConsentPayload {
-  type: 'terms' | 'privacy' | 'general_wellness_disclaimer'
-  document_version: string
+/**
+ * The backend does not accept a `consents` array — it validates three
+ * top-level booleans and looks up document versions itself server-side
+ * (config('nutrition.consent_versions')).
+ */
+export interface ConsentsPayload {
+  terms: boolean
+  privacy: boolean
+  general_wellness_disclaimer: boolean
 }
 
 export interface ProfilePayload {
@@ -19,16 +25,18 @@ export interface ProfilePayload {
 }
 
 export const onboardingApi = {
-  async acceptConsents(consents: ConsentPayload[]) {
-    const { data } = await api.post<{ message: string }>('/onboarding/consents', { consents })
+  async acceptConsents(payload: ConsentsPayload) {
+    const { data } = await api.post<{ message: string }>('/onboarding/consents', payload)
     return data
   },
 
   async saveProfile(payload: ProfilePayload) {
     const { data } = await api.post<{
+      message: string
       profile: UserProfile
-      target: NutritionTarget | null
+      active_target: NutritionTarget | null
       target_calculable: boolean
+      onboarding_completed_at: string | null
     }>('/onboarding/profile', payload)
     return data
   },
@@ -36,15 +44,15 @@ export const onboardingApi = {
 
 export const profileApi = {
   async get() {
-    const { data } = await api.get<{ profile: UserProfile | null }>('/profile')
+    const { data } = await api.get<{ profile: UserProfile | null; active_target: NutritionTarget | null }>('/profile')
     return data
   },
 
   async update(payload: ProfilePayload) {
     const { data } = await api.put<{
+      message: string
       profile: UserProfile
-      target: NutritionTarget | null
-      target_calculable: boolean
+      active_target: NutritionTarget | null
     }>('/profile', payload)
     return data
   },

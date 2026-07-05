@@ -1,15 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, Bell, Download, Trash2 } from 'lucide-react'
+import { AlertTriangle, Download, Trash2 } from 'lucide-react'
 import { useAppDispatch } from '@/store/hooks'
 import { clearUser } from '@/store/authSlice'
 import { accountApi } from '@/api/account'
-import { type NotificationPreferences, notificationPreferencesApi } from '@/api/notificationPreferences'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Card, { CardHeader } from '@/components/ui/Card'
-import Switch from '@/components/ui/Switch'
-import Skeleton from '@/components/ui/Skeleton'
 import { useToast } from '@/components/ui/toast'
 
 export default function AccountPage() {
@@ -22,23 +19,6 @@ export default function AccountPage() {
   const [deleteError, setDeleteError] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-
-  const [prefs, setPrefs] = useState<NotificationPreferences | null>(null)
-  const [savingPrefs, setSavingPrefs] = useState(false)
-
-  useEffect(() => {
-    notificationPreferencesApi.get().then(setPrefs)
-  }, [])
-
-  const updatePrefs = async (next: NotificationPreferences) => {
-    setPrefs(next)
-    setSavingPrefs(true)
-    try {
-      await notificationPreferencesApi.update(next)
-    } finally {
-      setSavingPrefs(false)
-    }
-  }
 
   const handleExport = async () => {
     setExporting(true)
@@ -78,43 +58,6 @@ export default function AccountPage() {
         <Button variant="secondary" loading={exporting} onClick={handleExport}>
           Descargar mis datos
         </Button>
-      </Card>
-
-      <Card>
-        <CardHeader title="Notificaciones" subtitle="Controla cómo te avisamos." action={<Bell className="h-5 w-5 text-primary" />} />
-        {!prefs ? (
-          <div className="space-y-3">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        ) : (
-          <div className="divide-y divide-border">
-            <Switch
-              checked={prefs.mealReminders}
-              onChange={(checked) => updatePrefs({ ...prefs, mealReminders: checked })}
-              label="Recordatorios de comidas"
-              description="Un aviso diario para registrar tus comidas."
-            />
-            {prefs.mealReminders && (
-              <div className="flex items-center justify-between py-2.5">
-                <span className="text-sm text-foreground">Hora del recordatorio</span>
-                <input
-                  type="time"
-                  value={prefs.reminderTime}
-                  onChange={(e) => updatePrefs({ ...prefs, reminderTime: e.target.value })}
-                  className="rounded-lg border border-border bg-surface px-2.5 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-            )}
-            <Switch
-              checked={prefs.weeklySummaryEmail}
-              onChange={(checked) => updatePrefs({ ...prefs, weeklySummaryEmail: checked })}
-              label="Resumen semanal por correo"
-              description="Un correo con tu progreso de la semana."
-            />
-          </div>
-        )}
-        {savingPrefs && <p className="mt-2 text-xs text-muted">Guardando…</p>}
       </Card>
 
       <Card className="border-destructive/20">

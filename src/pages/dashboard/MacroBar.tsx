@@ -1,6 +1,10 @@
+import NutrientValue from '@/components/nutrition/NutrientValue'
+import { type NutrientStatusValue, resolveNutrientStatus } from '@/lib/nutrientStatus'
+
 interface Props {
   label: string
-  consumed: number
+  consumed: number | null
+  status?: NutrientStatusValue
   target: number
   color: 'protein' | 'carbs' | 'fat'
 }
@@ -17,9 +21,11 @@ const DOT_COLORS = {
   fat: 'bg-fat',
 }
 
-export default function MacroBar({ label, consumed, target, color }: Props) {
-  const pct = target > 0 ? Math.min((consumed / target) * 100, 100) : 0
-  const over = target > 0 && consumed > target
+export default function MacroBar({ label, consumed, status, target, color }: Props) {
+  const resolvedStatus = resolveNutrientStatus(consumed, status)
+  const known = resolvedStatus !== 'unknown' && consumed !== null
+  const pct = known && target > 0 ? Math.min((consumed / target) * 100, 100) : 0
+  const over = known && target > 0 && consumed > target
 
   return (
     <div>
@@ -29,7 +35,7 @@ export default function MacroBar({ label, consumed, target, color }: Props) {
           {label}
         </span>
         <span className={`tabular-nums ${over ? 'font-semibold text-destructive' : 'text-muted'}`}>
-          {Math.round(consumed)}g / {Math.round(target)}g
+          <NutrientValue value={consumed} status={status} unit="g" /> / {Math.round(target)}g
         </span>
       </div>
       <div className="h-2 rounded-full bg-surface-muted">

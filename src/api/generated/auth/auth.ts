@@ -5,13 +5,6 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import * as axios from 'axios';
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
-
 import type {
   AuthForgotPasswordBody,
   AuthLogin200,
@@ -20,76 +13,101 @@ import type {
   AuthRegisterBody,
   AuthResetPasswordBody,
   MessageResponse,
+  UpdatePasswordBody,
   User
 } from '../model';
 
+import { customInstance } from '../../mutator';
 
 
 
-  export const getAuth = (axiosInstance: AxiosInstance = axios.default) => {
+  export const getAuth = () => {
 const getAuthUser = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<User>> => {
-    return axiosInstance.get(
-      `/user`,options
-    );
-  }
-/**
+
+ ) => {
+      return customInstance<User>(
+      {url: `/user`, method: 'GET'
+    },
+      );
+    }
+  /**
  * @summary Handle an incoming authentication request.
  */
 const authLogin = (
-    authLoginBody: AuthLoginBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AuthLogin200>> => {
-    return axiosInstance.post(
-      `/auth/login`,
-      authLoginBody,options
-    );
-  }
-/**
+    authLoginBody: AuthLoginBody,
+ ) => {
+      return customInstance<AuthLogin200>(
+      {url: `/auth/login`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: authLoginBody
+    },
+      );
+    }
+  /**
  * @summary Destroy an authenticated session.
  */
 const authLogout = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<MessageResponse>> => {
-    return axiosInstance.post(
-      `/auth/logout`,
-      undefined,options
-    );
-  }
-/**
+
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/auth/logout`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Handle an incoming new password request.
  */
 const authResetPassword = (
-    authResetPasswordBody: AuthResetPasswordBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<MessageResponse>> => {
-    return axiosInstance.post(
-      `/auth/reset-password`,
-      authResetPasswordBody,options
-    );
-  }
-/**
+    authResetPasswordBody: AuthResetPasswordBody,
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/auth/reset-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: authResetPasswordBody
+    },
+      );
+    }
+  /**
+ * @summary Update the user's password.
+ */
+const updatePassword = (
+    updatePasswordBody: UpdatePasswordBody,
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/password`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updatePasswordBody
+    },
+      );
+    }
+  /**
  * @summary Send a password reset link to the given email.
  */
 const authForgotPassword = (
-    authForgotPasswordBody: AuthForgotPasswordBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<MessageResponse>> => {
-    return axiosInstance.post(
-      `/auth/forgot-password`,
-      authForgotPasswordBody,options
-    );
-  }
-const authRegister = (
-    authRegisterBody: AuthRegisterBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AuthRegister201>> => {
-    return axiosInstance.post(
-      `/auth/register`,
-      authRegisterBody,options
-    );
-  }
-return {getAuthUser,authLogin,authLogout,authResetPassword,authForgotPassword,authRegister}};
-export type GetAuthUserResult = AxiosResponse<User>
-export type AuthLoginResult = AxiosResponse<AuthLogin200>
-export type AuthLogoutResult = AxiosResponse<MessageResponse>
-export type AuthResetPasswordResult = AxiosResponse<MessageResponse>
-export type AuthForgotPasswordResult = AxiosResponse<MessageResponse>
-export type AuthRegisterResult = AxiosResponse<AuthRegister201>
+    authForgotPasswordBody: AuthForgotPasswordBody,
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/auth/forgot-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: authForgotPasswordBody
+    },
+      );
+    }
+  const authRegister = (
+    authRegisterBody: AuthRegisterBody,
+ ) => {
+      return customInstance<AuthRegister201>(
+      {url: `/auth/register`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: authRegisterBody
+    },
+      );
+    }
+  return {getAuthUser,authLogin,authLogout,authResetPassword,updatePassword,authForgotPassword,authRegister}};
+export type GetAuthUserResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['getAuthUser']>>>
+export type AuthLoginResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authLogin']>>>
+export type AuthLogoutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authLogout']>>>
+export type AuthResetPasswordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authResetPassword']>>>
+export type UpdatePasswordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['updatePassword']>>>
+export type AuthForgotPasswordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authForgotPassword']>>>
+export type AuthRegisterResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authRegister']>>>

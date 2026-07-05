@@ -5,16 +5,15 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import * as axios from 'axios';
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
-
 import type {
   AddMealItem201,
   AddMealItemBody,
+  AddMealItemFromFood201,
+  AddMealItemFromFoodBody,
+  AddMealItemFromRecipe201,
+  AddMealItemFromRecipeBody,
+  CopyMeal201,
+  CopyMealBody,
   CreateMeal201,
   CreateMealBody,
   GetMeal200,
@@ -26,83 +25,131 @@ import type {
   UpdateMealItemBody
 } from '../model';
 
+import { customInstance } from '../../mutator';
 
 
 
-  export const getMeals = (axiosInstance: AxiosInstance = axios.default) => {
-const listMeals = (
-    params?: ListMealsParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<MealLog[]>> => {
-    return axiosInstance.get(
-      `/meals`,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-const createMeal = (
-    createMealBody: CreateMealBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<CreateMeal201>> => {
-    return axiosInstance.post(
-      `/meals`,
-      createMealBody,options
-    );
-  }
-const getMeal = (
-    meal: number, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetMeal200>> => {
-    return axiosInstance.get(
-      `/meals/${meal}`,options
-    );
-  }
-const updateMeal = (
+  export const getMeals = () => {
+const copyMeal = (
     meal: number,
-    updateMealBody: UpdateMealBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<MealLog>> => {
-    return axiosInstance.put(
-      `/meals/${meal}`,
-      updateMealBody,options
-    );
-  }
-const deleteMeal = (
-    meal: number, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<MessageResponse>> => {
-    return axiosInstance.delete(
-      `/meals/${meal}`,options
-    );
-  }
-const addMealItem = (
+    copyMealBody: CopyMealBody,
+ ) => {
+      return customInstance<CopyMeal201>(
+      {url: `/meals/${meal}/copy`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: copyMealBody
+    },
+      );
+    }
+  const addMealItemFromFood = (
     meal: number,
-    addMealItemBody: AddMealItemBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AddMealItem201>> => {
-    return axiosInstance.post(
-      `/meals/${meal}/items`,
-      addMealItemBody,options
-    );
-  }
-const updateMealItem = (
+    addMealItemFromFoodBody: AddMealItemFromFoodBody,
+ ) => {
+      return customInstance<AddMealItemFromFood201>(
+      {url: `/meals/${meal}/items/from-food`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addMealItemFromFoodBody
+    },
+      );
+    }
+  const addMealItemFromRecipe = (
+    meal: number,
+    addMealItemFromRecipeBody: AddMealItemFromRecipeBody,
+ ) => {
+      return customInstance<AddMealItemFromRecipe201>(
+      {url: `/meals/${meal}/items/from-recipe`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addMealItemFromRecipeBody
+    },
+      );
+    }
+  const listMeals = (
+    params?: ListMealsParams,
+ ) => {
+      return customInstance<MealLog[]>(
+      {url: `/meals`, method: 'GET',
+        params
+    },
+      );
+    }
+  const createMeal = (
+    createMealBody: CreateMealBody,
+ ) => {
+      return customInstance<CreateMeal201>(
+      {url: `/meals`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createMealBody
+    },
+      );
+    }
+  const getMeal = (
+    meal: number,
+ ) => {
+      return customInstance<GetMeal200>(
+      {url: `/meals/${meal}`, method: 'GET'
+    },
+      );
+    }
+  const updateMeal = (
+    meal: number,
+    updateMealBody: UpdateMealBody,
+ ) => {
+      return customInstance<MealLog>(
+      {url: `/meals/${meal}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateMealBody
+    },
+      );
+    }
+  const deleteMeal = (
+    meal: number,
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/meals/${meal}`, method: 'DELETE'
+    },
+      );
+    }
+  const addMealItem = (
+    meal: number,
+    addMealItemBody: AddMealItemBody,
+ ) => {
+      return customInstance<AddMealItem201>(
+      {url: `/meals/${meal}/items`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addMealItemBody
+    },
+      );
+    }
+  const updateMealItem = (
     meal: number,
     item: number,
-    updateMealItemBody: UpdateMealItemBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<MealLogItem>> => {
-    return axiosInstance.put(
-      `/meals/${meal}/items/${item}`,
-      updateMealItemBody,options
-    );
-  }
-const deleteMealItem = (
+    updateMealItemBody: UpdateMealItemBody,
+ ) => {
+      return customInstance<MealLogItem>(
+      {url: `/meals/${meal}/items/${item}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateMealItemBody
+    },
+      );
+    }
+  const deleteMealItem = (
     meal: number,
-    item: number, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    return axiosInstance.delete(
-      `/meals/${meal}/items/${item}`,options
-    );
-  }
-return {listMeals,createMeal,getMeal,updateMeal,deleteMeal,addMealItem,updateMealItem,deleteMealItem}};
-export type ListMealsResult = AxiosResponse<MealLog[]>
-export type CreateMealResult = AxiosResponse<CreateMeal201>
-export type GetMealResult = AxiosResponse<GetMeal200>
-export type UpdateMealResult = AxiosResponse<MealLog>
-export type DeleteMealResult = AxiosResponse<MessageResponse>
-export type AddMealItemResult = AxiosResponse<AddMealItem201>
-export type UpdateMealItemResult = AxiosResponse<MealLogItem>
-export type DeleteMealItemResult = AxiosResponse<void>
+    item: number,
+ ) => {
+      return customInstance<void>(
+      {url: `/meals/${meal}/items/${item}`, method: 'DELETE'
+    },
+      );
+    }
+  return {copyMeal,addMealItemFromFood,addMealItemFromRecipe,listMeals,createMeal,getMeal,updateMeal,deleteMeal,addMealItem,updateMealItem,deleteMealItem}};
+export type CopyMealResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['copyMeal']>>>
+export type AddMealItemFromFoodResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['addMealItemFromFood']>>>
+export type AddMealItemFromRecipeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['addMealItemFromRecipe']>>>
+export type ListMealsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['listMeals']>>>
+export type CreateMealResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['createMeal']>>>
+export type GetMealResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['getMeal']>>>
+export type UpdateMealResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['updateMeal']>>>
+export type DeleteMealResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['deleteMeal']>>>
+export type AddMealItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['addMealItem']>>>
+export type UpdateMealItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['updateMealItem']>>>
+export type DeleteMealItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getMeals>['deleteMealItem']>>>

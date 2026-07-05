@@ -5,57 +5,44 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import * as axios from 'axios';
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
-
 import type {
   DeleteAccountBody,
+  ExportAccountData200,
   MessageResponse
 } from '../model';
 
+import { customInstance } from '../../mutator';
 
 
 
-  export const getAccount = (axiosInstance: AxiosInstance = axios.default) => {
-/**
- * Uses streaming to handle potentially large datasets.
- * @summary Export all user data as JSON.
- */
+  export const getAccount = () => {
 const exportAccountData = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    return axiosInstance.get(
-      `/account/export`,options
-    );
-  }
-/**
- * Does NOT delete data. Blocks new entries until re-accepted.
- * @summary Revoke a specific consent type.
- */
-const revokeConsent = (
-    consent: number, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<MessageResponse>> => {
-    return axiosInstance.post(
-      `/account/consents/${consent}/revoke`,
-      undefined,options
-    );
-  }
-/**
- * Soft-deletes meal logs, hard-deletes profile and consents.
- * @summary Delete the user's account with password re-authentication.
- */
-const deleteAccount = (
-    deleteAccountBody: DeleteAccountBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<MessageResponse>> => {
-    return axiosInstance.delete(
-      `/account`,{data: deleteAccountBody,...options}
-    );
-  }
-return {exportAccountData,revokeConsent,deleteAccount}};
-export type ExportAccountDataResult = AxiosResponse<void>
-export type RevokeConsentResult = AxiosResponse<MessageResponse>
-export type DeleteAccountResult = AxiosResponse<MessageResponse>
+
+ ) => {
+      return customInstance<ExportAccountData200>(
+      {url: `/account/export`, method: 'GET'
+    },
+      );
+    }
+  const revokeConsent = (
+    consent: number,
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/account/consents/${consent}/revoke`, method: 'POST'
+    },
+      );
+    }
+  const deleteAccount = (
+    deleteAccountBody: DeleteAccountBody,
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/account`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: deleteAccountBody
+    },
+      );
+    }
+  return {exportAccountData,revokeConsent,deleteAccount}};
+export type ExportAccountDataResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAccount>['exportAccountData']>>>
+export type RevokeConsentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAccount>['revokeConsent']>>>
+export type DeleteAccountResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAccount>['deleteAccount']>>>

@@ -5,17 +5,21 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import type { UserProfileSex } from './userProfileSex';
+import type { UserProfileActivityLevel } from './userProfileActivityLevel';
+import type { UserProfileGoal } from './userProfileGoal';
+import type { UserProfileSexForEquation } from './userProfileSexForEquation';
 
 export interface UserProfile {
+  /** @nullable */
+  id?: number | null;
   user_id?: number;
-  sex?: UserProfileSex;
+  sex_for_equation?: UserProfileSexForEquation;
   birth_date?: string;
   height_cm?: number;
   weight_kg?: number;
-  activity_level?: string;
-  goal?: string;
-  macro_protein_pct?: number;
-  macro_carbohydrate_pct?: number;
-  macro_fat_pct?: number;
+  activity_level?: UserProfileActivityLevel;
+  goal?: UserProfileGoal;
+  protein_percentage?: number;
+  carbohydrate_percentage?: number;
+  fat_percentage?: number;
 }

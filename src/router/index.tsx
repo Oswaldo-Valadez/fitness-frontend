@@ -32,8 +32,24 @@ const DiaryPage = lazy(() => import('@/pages/diary/DiaryPage'))
 const ProfilePage = lazy(() => import('@/pages/profile/ProfilePage'))
 const AccountPage = lazy(() => import('@/pages/account/AccountPage'))
 
+// Library
+const LibraryPage = lazy(() => import('@/pages/library/LibraryPage'))
+const MyFoodsPage = lazy(() => import('@/pages/library/MyFoodsPage'))
+const RecipesPage = lazy(() => import('@/pages/library/RecipesPage'))
+const TemplatesPage = lazy(() => import('@/pages/library/TemplatesPage'))
+const RecipeEditorPage = lazy(() => import('@/pages/recipes/RecipeEditorPage'))
+const RecipeDetailPage = lazy(() => import('@/pages/recipes/RecipeDetailPage'))
+
+// Reports
+const ReportsPage = lazy(() => import('@/pages/reports/ReportsPage'))
+
 // Admin
+const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'))
 const AdminFoodsPage = lazy(() => import('@/pages/admin/AdminFoodsPage'))
+const FdcPage = lazy(() => import('@/pages/admin/FdcPage'))
+const ImportBatchesPage = lazy(() => import('@/pages/admin/ImportBatchesPage'))
+const NutrientMappingsPage = lazy(() => import('@/pages/admin/NutrientMappingsPage'))
+const AuditPage = lazy(() => import('@/pages/admin/AuditPage'))
 
 // Layout
 const AppLayout = lazy(() => import('@/layouts/AppLayout'))
@@ -68,9 +84,23 @@ export const router = createBrowserRouter([
         element: wrap(AppLayout),
         children: [
           { path: '/dashboard', element: wrap(DashboardPage) },
-          { path: '/foods', element: wrap(FoodsPage) },
+          { path: '/foods', element: <Navigate to="/library/foods" replace /> },
           { path: '/foods/:id', element: wrap(FoodDetailPage) },
+          {
+            path: '/library',
+            element: wrap(LibraryPage),
+            children: [
+              { path: 'foods', element: wrap(FoodsPage) },
+              { path: 'my-foods', element: wrap(MyFoodsPage) },
+              { path: 'recipes', element: wrap(RecipesPage) },
+              { path: 'templates', element: wrap(TemplatesPage) },
+            ],
+          },
+          { path: '/recipes/new', element: wrap(RecipeEditorPage) },
+          { path: '/recipes/:id', element: wrap(RecipeDetailPage) },
+          { path: '/recipes/:id/edit', element: wrap(RecipeEditorPage) },
           { path: '/diary', element: wrap(DiaryPage) },
+          { path: '/reports', element: wrap(ReportsPage) },
           { path: '/profile', element: wrap(ProfilePage) },
           { path: '/account', element: wrap(AccountPage) },
         ],
@@ -85,7 +115,20 @@ export const router = createBrowserRouter([
     children: [
       {
         element: wrap(AppLayout),
-        children: [{ path: '/admin/foods', element: wrap(AdminFoodsPage) }],
+        children: [
+          {
+            path: '/admin',
+            element: wrap(AdminLayout),
+            children: [
+              { index: true, element: <Navigate to="/admin/foods" replace /> },
+              { path: 'foods', element: wrap(AdminFoodsPage) },
+              { path: 'imports', element: wrap(ImportBatchesPage) },
+              { path: 'fdc', element: wrap(FdcPage) },
+              { path: 'nutrient-mappings', element: wrap(NutrientMappingsPage) },
+              { path: 'audit', element: wrap(AuditPage) },
+            ],
+          },
+        ],
       },
     ],
   },

@@ -7,11 +7,12 @@
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "ignoreDeprecations": "6.0",
     "types": ["node", "@playwright/test"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["e2e"]
+  "include": ["e2e", "playwright.config.ts"]
 }

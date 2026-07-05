@@ -1,54 +1,63 @@
-import api from '@/api/client'
-import type { MealLog, MealLogItem } from '@/types/models'
+import { getMeals } from '@/api/generated/meals/meals'
+import type { MealLog, MealLogItem, MealLogMealType } from '@/api/generated/model'
 
 interface StoreMealPayload {
-  meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack'
+  meal_type: MealLogMealType
   occurred_at: string
   notes?: string
 }
 
-interface AddItemPayload {
-  food_id: number
-  quantity_g: number
-}
-
 export const mealApi = {
   async list(date: string): Promise<MealLog[]> {
-    // Backend returns the array directly (MealLogController::index), not wrapped in { data }.
-    const { data } = await api.get<MealLog[]>(`/meals?date=${date}`)
-    return data
+    return getMeals().listMeals({ date })
   },
 
   async get(id: number): Promise<MealLog> {
-    const { data } = await api.get<{ meal: MealLog }>(`/meals/${id}`)
-    return data.meal
+    const { meal } = await getMeals().getMeal(id)
+    return meal as MealLog
   },
 
   async create(payload: StoreMealPayload): Promise<MealLog> {
-    const { data } = await api.post<{ meal: MealLog }>('/meals', payload)
-    return data.meal
-  },
-
-  async update(id: number, payload: Partial<StoreMealPayload>): Promise<MealLog> {
-    const { data } = await api.put<MealLog>(`/meals/${id}`, payload)
-    return data
+    const { meal } = await getMeals().createMeal(payload)
+    return meal as MealLog
   },
 
   async destroy(id: number): Promise<void> {
-    await api.delete(`/meals/${id}`)
+    await getMeals().deleteMeal(id)
   },
 
-  async addItem(mealId: number, payload: AddItemPayload): Promise<MealLogItem> {
-    const { data } = await api.post<{ item: MealLogItem }>(`/meals/${mealId}/items`, payload)
-    return data.item
+  /** Classic grams-only entry. Kept for the dashboard's safe "undo delete". */
+  async addItem(mealId: number, payload: { food_id: number; quantity_g: number }): Promise<MealLogItem> {
+    const { item } = await getMeals().addMealItem(mealId, payload)
+    return item as MealLogItem
+  },
+
+  /** Food by grams, or by portion count when portionId is set. */
+  async addItemFromFood(mealId: number, payload: { food_id: number; portion_id?: number | null; quantity: number }): Promise<MealLogItem> {
+    const { item } = await getMeals().addMealItemFromFood(mealId, payload)
+    return item as MealLogItem
+  },
+
+  /** Recipe by grams of finished dish, or by number of servings. */
+  async addItemFromRecipe(mealId: number, payload: { recipe_id: number; unit: 'grams' | 'servings'; quantity: number }): Promise<MealLogItem> {
+    const { item } = await getMeals().addMealItemFromRecipe(mealId, payload)
+    return item as MealLogItem
   },
 
   async updateItem(mealId: number, itemId: number, quantity_g: number): Promise<MealLogItem> {
-    const { data } = await api.put<MealLogItem>(`/meals/${mealId}/items/${itemId}`, { quantity_g })
-    return data
+    return getMeals().updateMealItem(mealId, itemId, { quantity_g })
   },
 
   async destroyItem(mealId: number, itemId: number): Promise<void> {
-    await api.delete(`/meals/${mealId}/items/${itemId}`)
+    await getMeals().deleteMealItem(mealId, itemId)
+  },
+
+  /** Copies a meal to another date. Never assumes the copy keeps identical nutrients — read `warnings`/`differences`. */
+  async copy(
+    mealId: number,
+    payload: { target_date: string; meal_type?: MealLogMealType; keep_name?: boolean; mode?: 'recalculate' | 'snapshot'; idempotency_key?: string },
+  ): Promise<{ meal: MealLog; warnings: string[]; differences: string[] }> {
+    const { meal, warnings, differences } = await getMeals().copyMeal(mealId, payload)
+    return { meal: meal as MealLog, warnings: warnings ?? [], differences: differences ?? [] }
   },
 }

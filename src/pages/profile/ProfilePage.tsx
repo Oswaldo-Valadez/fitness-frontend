@@ -55,7 +55,7 @@ export default function ProfilePage() {
       setProfile(p)
       setLoading(false)
     })
-    weightApi.list().then((entries) => setCurrentWeight(entries.at(-1)?.weight_kg ?? null))
+    weightApi.progress(30).then((p) => setCurrentWeight(p.trend?.daily_points?.at(-1)?.weight_kg ?? null))
     return () => clearTimeout(id)
   }, [])
 

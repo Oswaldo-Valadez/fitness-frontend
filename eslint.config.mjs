@@ -89,7 +89,7 @@ export default [
   },
   // ✅ E2E override
   {
-    files: ['e2e/**/*.{ts,tsx}'],
+    files: ['e2e/**/*.{ts,tsx}', 'playwright.config.ts'],
     languageOptions: {
       parserOptions: {
         tsconfigRootDir: import.meta.dirname,

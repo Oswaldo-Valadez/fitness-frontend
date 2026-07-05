@@ -30,9 +30,7 @@ export default function Switch({ checked, onChange, label, description, disabled
           checked ? 'bg-primary' : 'bg-surface-muted',
         )}
       >
-        <span
-          className={clsx('absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform', checked ? 'translate-x-[-20px]' : '')}
-        />
+        <span className={clsx('absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform', checked ? 'translate-x-[-20px]' : '')} />
       </button>
     </div>
   )

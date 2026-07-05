@@ -1,22 +1,56 @@
-import api from '@/api/client'
-import type { Food, PaginatedResponse } from '@/types/models'
+import { getFoods } from '@/api/generated/foods/foods'
+import type { CreateFoodPortionBody, Food, RecentItemsResponse, UnifiedSearchResponse, UpdateFoodPortionBody } from '@/api/generated/model'
+import type { PaginatedResponse } from '@/types/models'
 
 export const foodsApi = {
+  /** Paginated catalog browse (Fase 5 "Biblioteca › Alimentos"). */
   async search(query: string, category?: string, page = 1): Promise<PaginatedResponse<Food>> {
-    const params = new URLSearchParams({ page: String(page) })
-    if (query) params.set('q', query)
-    if (category) params.set('category', category)
-    const { data } = await api.get<PaginatedResponse<Food>>(`/foods?${params}`)
-    return data
+    const { data, meta } = await getFoods().listFoods({ q: query || undefined, category, page })
+    return { data: data ?? [], meta: meta as PaginatedResponse<Food>['meta'] }
   },
 
   async categories(): Promise<string[]> {
-    const { data } = await api.get<{ categories: string[] }>('/foods/categories')
-    return data.categories
+    const { categories } = await getFoods().getFoodCategories()
+    return categories ?? []
   },
 
   async get(id: number): Promise<Food> {
-    const { data } = await api.get<{ food: Food }>(`/foods/${id}`)
-    return data.food
+    const { food } = await getFoods().getFood(id)
+    return food as Food
+  },
+
+  async favorite(foodId: number): Promise<void> {
+    await getFoods().favoriteFood(foodId)
+  },
+
+  async unfavorite(foodId: number): Promise<void> {
+    await getFoods().unfavoriteFood(foodId)
+  },
+
+  async createPortion(foodId: number, payload: CreateFoodPortionBody) {
+    const { portion } = await getFoods().createFoodPortion(foodId, payload)
+    return portion
+  },
+
+  async updatePortion(portionId: number, payload: UpdateFoodPortionBody) {
+    const { portion } = await getFoods().updateFoodPortion(portionId, payload)
+    return portion
+  },
+
+  async deletePortion(portionId: number): Promise<void> {
+    await getFoods().deleteFoodPortion(portionId)
+  },
+}
+
+export const unifiedSearchApi = {
+  /** Grouped quick-add search used by the diary: foods / my_foods / recipes. */
+  async search(query: string): Promise<UnifiedSearchResponse> {
+    return getFoods().unifiedSearch({ q: query })
+  },
+}
+
+export const recentItemsApi = {
+  async list(): Promise<RecentItemsResponse> {
+    return getFoods().listRecentItems()
   },
 }

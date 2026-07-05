@@ -5,46 +5,44 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import * as axios from 'axios';
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
-
 import type {
   MessageResponse,
   OnboardingStoreConsentsBody,
-  OnboardingStoreProfile200,
-  UserProfile
+  OnboardingStoreProfile201,
+  UserProfileInput
 } from '../model';
 
+import { customInstance } from '../../mutator';
 
 
 
-  export const getOnboarding = (axiosInstance: AxiosInstance = axios.default) => {
+  export const getOnboarding = () => {
 /**
  * @summary Accept all required consents.
  */
 const onboardingStoreConsents = (
-    onboardingStoreConsentsBody: OnboardingStoreConsentsBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<MessageResponse>> => {
-    return axiosInstance.post(
-      `/onboarding/consents`,
-      onboardingStoreConsentsBody,options
-    );
-  }
-/**
+    onboardingStoreConsentsBody: OnboardingStoreConsentsBody,
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/onboarding/consents`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: onboardingStoreConsentsBody
+    },
+      );
+    }
+  /**
  * @summary Save profile and calculate first nutrition target.
  */
 const onboardingStoreProfile = (
-    userProfile: UserProfile, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<OnboardingStoreProfile200>> => {
-    return axiosInstance.post(
-      `/onboarding/profile`,
-      userProfile,options
-    );
-  }
-return {onboardingStoreConsents,onboardingStoreProfile}};
-export type OnboardingStoreConsentsResult = AxiosResponse<MessageResponse>
-export type OnboardingStoreProfileResult = AxiosResponse<OnboardingStoreProfile200>
+    userProfileInput: UserProfileInput,
+ ) => {
+      return customInstance<OnboardingStoreProfile201>(
+      {url: `/onboarding/profile`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: userProfileInput
+    },
+      );
+    }
+  return {onboardingStoreConsents,onboardingStoreProfile}};
+export type OnboardingStoreConsentsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOnboarding>['onboardingStoreConsents']>>>
+export type OnboardingStoreProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOnboarding>['onboardingStoreProfile']>>>

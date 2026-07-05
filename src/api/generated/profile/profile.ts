@@ -5,50 +5,47 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import * as axios from 'axios';
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
-
 import type {
   GetProfile200,
   GetTargetHistory200,
   GetTargetHistoryParams,
   UpdateProfile200,
-  UserProfile
+  UserProfileInput
 } from '../model';
 
+import { customInstance } from '../../mutator';
 
 
 
-  export const getProfile = (axiosInstance: AxiosInstance = axios.default) => {
+  export const getProfile = () => {
 const getProfile = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetProfile200>> => {
-    return axiosInstance.get(
-      `/profile`,options
-    );
-  }
-const updateProfile = (
-    userProfile: UserProfile, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<UpdateProfile200>> => {
-    return axiosInstance.put(
-      `/profile`,
-      userProfile,options
-    );
-  }
-const getTargetHistory = (
-    params?: GetTargetHistoryParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<GetTargetHistory200>> => {
-    return axiosInstance.get(
-      `/profile/targets`,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-return {getProfile,updateProfile,getTargetHistory}};
-export type GetProfileResult = AxiosResponse<GetProfile200>
-export type UpdateProfileResult = AxiosResponse<UpdateProfile200>
-export type GetTargetHistoryResult = AxiosResponse<GetTargetHistory200>
+
+ ) => {
+      return customInstance<GetProfile200>(
+      {url: `/profile`, method: 'GET'
+    },
+      );
+    }
+  const updateProfile = (
+    userProfileInput: UserProfileInput,
+ ) => {
+      return customInstance<UpdateProfile200>(
+      {url: `/profile`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: userProfileInput
+    },
+      );
+    }
+  const getTargetHistory = (
+    params?: GetTargetHistoryParams,
+ ) => {
+      return customInstance<GetTargetHistory200>(
+      {url: `/profile/targets`, method: 'GET',
+        params
+    },
+      );
+    }
+  return {getProfile,updateProfile,getTargetHistory}};
+export type GetProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getProfile>['getProfile']>>>
+export type UpdateProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getProfile>['updateProfile']>>>
+export type GetTargetHistoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getProfile>['getTargetHistory']>>>

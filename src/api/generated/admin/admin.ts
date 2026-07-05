@@ -5,13 +5,6 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import * as axios from 'axios';
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
-
 import type {
   AdminCreateFoodBody,
   AdminImportFoodsCommit200,
@@ -21,91 +14,196 @@ import type {
   AdminListFoods200,
   AdminListFoodsParams,
   AdminUpdateFoodBody,
-  Food
+  FdcImport201,
+  FdcImportBody,
+  FdcPreview200,
+  FdcPreviewBody,
+  FdcStatus,
+  Food,
+  FoodSource,
+  GetImportBatch200,
+  ListAuditEventsParams,
+  PaginatedAuditEvents,
+  PaginatedFoodImportBatches,
+  PaginatedNutrientMappings,
+  UpdateNutrientMapping200,
+  UpdateNutrientMappingBody
 } from '../model';
 
+import { customInstance } from '../../mutator';
 
 
 
-  export const getAdmin = (axiosInstance: AxiosInstance = axios.default) => {
-const adminListFoods = (
-    params?: AdminListFoodsParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AdminListFoods200>> => {
-    return axiosInstance.get(
-      `/admin/foods`,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-const adminCreateFood = (
-    adminCreateFoodBody: AdminCreateFoodBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Food>> => {
-    return axiosInstance.post(
-      `/admin/foods`,
-      adminCreateFoodBody,options
-    );
-  }
-const adminGetFood = (
-    food: number, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Food>> => {
-    return axiosInstance.get(
-      `/admin/foods/${food}`,options
-    );
-  }
-const adminUpdateFood = (
+  export const getAdmin = () => {
+const listAuditEvents = (
+    params?: ListAuditEventsParams,
+ ) => {
+      return customInstance<PaginatedAuditEvents>(
+      {url: `/admin/audit-events`, method: 'GET',
+        params
+    },
+      );
+    }
+  const adminListFoods = (
+    params?: AdminListFoodsParams,
+ ) => {
+      return customInstance<AdminListFoods200>(
+      {url: `/admin/foods`, method: 'GET',
+        params
+    },
+      );
+    }
+  const adminCreateFood = (
+    adminCreateFoodBody: AdminCreateFoodBody,
+ ) => {
+      return customInstance<Food>(
+      {url: `/admin/foods`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: adminCreateFoodBody
+    },
+      );
+    }
+  const adminGetFood = (
     food: number,
-    adminUpdateFoodBody: AdminUpdateFoodBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<Food>> => {
-    return axiosInstance.put(
-      `/admin/foods/${food}`,
-      adminUpdateFoodBody,options
-    );
-  }
-const adminDeleteFood = (
-    food: number, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    return axiosInstance.delete(
-      `/admin/foods/${food}`,options
-    );
-  }
-const adminImportFoodsPreview = (
-    adminImportFoodsPreviewBody: AdminImportFoodsPreviewBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AdminImportFoodsPreview200>> => {const formData = new FormData();
+ ) => {
+      return customInstance<Food>(
+      {url: `/admin/foods/${food}`, method: 'GET'
+    },
+      );
+    }
+  const adminUpdateFood = (
+    food: number,
+    adminUpdateFoodBody: AdminUpdateFoodBody,
+ ) => {
+      return customInstance<Food>(
+      {url: `/admin/foods/${food}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: adminUpdateFoodBody
+    },
+      );
+    }
+  const adminDeleteFood = (
+    food: number,
+ ) => {
+      return customInstance<void>(
+      {url: `/admin/foods/${food}`, method: 'DELETE'
+    },
+      );
+    }
+  const adminImportFoodsPreview = (
+    adminImportFoodsPreviewBody: AdminImportFoodsPreviewBody,
+ ) => {const formData = new FormData();
 formData.append(`file`, adminImportFoodsPreviewBody.file);
 formData.append(`source_id`, adminImportFoodsPreviewBody.source_id.toString())
 
-    return axiosInstance.post(
-      `/admin/foods/import/preview`,
-      formData,options
-    );
-  }
-const adminImportFoodsCommit = (
-    adminImportFoodsCommitBody: AdminImportFoodsCommitBody, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AdminImportFoodsCommit200>> => {const formData = new FormData();
+      return customInstance<AdminImportFoodsPreview200>(
+      {url: `/admin/foods/import/preview`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData
+    },
+      );
+    }
+  const adminImportFoodsCommit = (
+    adminImportFoodsCommitBody: AdminImportFoodsCommitBody,
+ ) => {const formData = new FormData();
 formData.append(`file`, adminImportFoodsCommitBody.file);
 formData.append(`source_id`, adminImportFoodsCommitBody.source_id.toString())
 if(adminImportFoodsCommitBody.update_existing !== undefined) {
  formData.append(`update_existing`, adminImportFoodsCommitBody.update_existing.toString())
  }
 
-    return axiosInstance.post(
-      `/admin/foods/import/commit`,
-      formData,options
-    );
-  }
-const adminListFoodSources = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    return axiosInstance.get(
-      `/admin/food-sources`,options
-    );
-  }
-return {adminListFoods,adminCreateFood,adminGetFood,adminUpdateFood,adminDeleteFood,adminImportFoodsPreview,adminImportFoodsCommit,adminListFoodSources}};
-export type AdminListFoodsResult = AxiosResponse<AdminListFoods200>
-export type AdminCreateFoodResult = AxiosResponse<Food>
-export type AdminGetFoodResult = AxiosResponse<Food>
-export type AdminUpdateFoodResult = AxiosResponse<Food>
-export type AdminDeleteFoodResult = AxiosResponse<void>
-export type AdminImportFoodsPreviewResult = AxiosResponse<AdminImportFoodsPreview200>
-export type AdminImportFoodsCommitResult = AxiosResponse<AdminImportFoodsCommit200>
-export type AdminListFoodSourcesResult = AxiosResponse<void>
+      return customInstance<AdminImportFoodsCommit200>(
+      {url: `/admin/foods/import/commit`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData
+    },
+      );
+    }
+  const adminListFoodSources = (
+
+ ) => {
+      return customInstance<FoodSource[]>(
+      {url: `/admin/food-sources`, method: 'GET'
+    },
+      );
+    }
+  const fdcStatus = (
+
+ ) => {
+      return customInstance<FdcStatus>(
+      {url: `/admin/integrations/food-data-central`, method: 'GET'
+    },
+      );
+    }
+  const fdcPreview = (
+    fdcPreviewBody: FdcPreviewBody,
+ ) => {
+      return customInstance<FdcPreview200>(
+      {url: `/admin/integrations/food-data-central/preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: fdcPreviewBody
+    },
+      );
+    }
+  const fdcImport = (
+    fdcImportBody: FdcImportBody,
+ ) => {
+      return customInstance<FdcImport201>(
+      {url: `/admin/integrations/food-data-central/import`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: fdcImportBody
+    },
+      );
+    }
+  const listImportBatches = (
+
+ ) => {
+      return customInstance<PaginatedFoodImportBatches>(
+      {url: `/admin/food-import-batches`, method: 'GET'
+    },
+      );
+    }
+  const getImportBatch = (
+    batch: number,
+ ) => {
+      return customInstance<GetImportBatch200>(
+      {url: `/admin/food-import-batches/${batch}`, method: 'GET'
+    },
+      );
+    }
+  const listNutrientMappings = (
+
+ ) => {
+      return customInstance<PaginatedNutrientMappings>(
+      {url: `/admin/nutrient-mappings`, method: 'GET'
+    },
+      );
+    }
+  const updateNutrientMapping = (
+    mapping: number,
+    updateNutrientMappingBody: UpdateNutrientMappingBody,
+ ) => {
+      return customInstance<UpdateNutrientMapping200>(
+      {url: `/admin/nutrient-mappings/${mapping}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateNutrientMappingBody
+    },
+      );
+    }
+  return {listAuditEvents,adminListFoods,adminCreateFood,adminGetFood,adminUpdateFood,adminDeleteFood,adminImportFoodsPreview,adminImportFoodsCommit,adminListFoodSources,fdcStatus,fdcPreview,fdcImport,listImportBatches,getImportBatch,listNutrientMappings,updateNutrientMapping}};
+export type ListAuditEventsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listAuditEvents']>>>
+export type AdminListFoodsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['adminListFoods']>>>
+export type AdminCreateFoodResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['adminCreateFood']>>>
+export type AdminGetFoodResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['adminGetFood']>>>
+export type AdminUpdateFoodResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['adminUpdateFood']>>>
+export type AdminDeleteFoodResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['adminDeleteFood']>>>
+export type AdminImportFoodsPreviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['adminImportFoodsPreview']>>>
+export type AdminImportFoodsCommitResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['adminImportFoodsCommit']>>>
+export type AdminListFoodSourcesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['adminListFoodSources']>>>
+export type FdcStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['fdcStatus']>>>
+export type FdcPreviewResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['fdcPreview']>>>
+export type FdcImportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['fdcImport']>>>
+export type ListImportBatchesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listImportBatches']>>>
+export type GetImportBatchResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['getImportBatch']>>>
+export type ListNutrientMappingsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['listNutrientMappings']>>>
+export type UpdateNutrientMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAdmin>['updateNutrientMapping']>>>

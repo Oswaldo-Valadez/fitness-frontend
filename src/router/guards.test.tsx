@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { RequireAdmin, RequireAuth, RequireGuest } from './guards'
 import { useAuth } from '@/store/hooks'
+import type { User } from '@/types/models'
 
 vi.mock('@/store/hooks', () => ({
   useAuth: vi.fn(),
@@ -10,13 +11,29 @@ vi.mock('@/store/hooks', () => ({
 
 const mockedUseAuth = vi.mocked(useAuth)
 
+const baseUser: User = {
+  id: 1,
+  name: 'Test',
+  email: 'test@example.com',
+  is_admin: false,
+  timezone: 'America/Mexico_City',
+  locale: 'es_MX',
+  onboarding_completed_at: '2026-01-01T00:00:00Z',
+  has_active_consents: true,
+  has_profile: true,
+}
+
+function authState(user: User | null) {
+  return { user, initialized: true, status: 'idle' as const, consentRequired: null }
+}
+
 describe('route guards', () => {
   beforeEach(() => {
     mockedUseAuth.mockReset()
   })
 
   it('RequireAuth redirects unauthenticated users to login', () => {
-    mockedUseAuth.mockReturnValue({ user: null, initialized: true, status: 'idle' })
+    mockedUseAuth.mockReturnValue(authState(null))
 
     render(
       <MemoryRouter initialEntries={['/private']}>
@@ -32,21 +49,8 @@ describe('route guards', () => {
     expect(screen.getByText('login page')).toBeInTheDocument()
   })
 
-  it('RequireAuth redirects users without onboarding to onboarding page', () => {
-    mockedUseAuth.mockReturnValue({
-      user: {
-        id: 1,
-        name: 'Test',
-        email: 'test@example.com',
-        timezone: 'America/Mexico_City',
-        locale: 'es_MX',
-        onboarding_completed_at: null,
-        has_active_consents: true,
-        has_profile: true,
-      },
-      initialized: true,
-      status: 'idle',
-    })
+  it('RequireAuth redirects users without onboarding_completed_at to onboarding page', () => {
+    mockedUseAuth.mockReturnValue(authState({ ...baseUser, onboarding_completed_at: null }))
 
     render(
       <MemoryRouter initialEntries={['/dashboard']}>
@@ -62,21 +66,42 @@ describe('route guards', () => {
     expect(screen.getByText('onboarding page')).toBeInTheDocument()
   })
 
+  it('RequireAuth redirects users without a saved profile to onboarding, even with a timestamp', () => {
+    mockedUseAuth.mockReturnValue(authState({ ...baseUser, has_profile: false }))
+
+    render(
+      <MemoryRouter initialEntries={['/dashboard']}>
+        <Routes>
+          <Route element={<RequireAuth />}>
+            <Route path="/dashboard" element={<div>dashboard page</div>} />
+          </Route>
+          <Route path="/onboarding" element={<div>onboarding page</div>} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('onboarding page')).toBeInTheDocument()
+  })
+
+  it('RequireAuth does not redirect to onboarding just because consents were revoked', () => {
+    mockedUseAuth.mockReturnValue(authState({ ...baseUser, has_active_consents: false }))
+
+    render(
+      <MemoryRouter initialEntries={['/dashboard']}>
+        <Routes>
+          <Route element={<RequireAuth />}>
+            <Route path="/dashboard" element={<div>dashboard page</div>} />
+          </Route>
+          <Route path="/onboarding" element={<div>onboarding page</div>} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('dashboard page')).toBeInTheDocument()
+  })
+
   it('RequireGuest redirects authenticated users to dashboard', () => {
-    mockedUseAuth.mockReturnValue({
-      user: {
-        id: 1,
-        name: 'Test',
-        email: 'test@example.com',
-        timezone: 'America/Mexico_City',
-        locale: 'es_MX',
-        onboarding_completed_at: '2026-01-01T00:00:00Z',
-        has_active_consents: true,
-        has_profile: true,
-      },
-      initialized: true,
-      status: 'idle',
-    })
+    mockedUseAuth.mockReturnValue(authState(baseUser))
 
     render(
       <MemoryRouter initialEntries={['/login']}>
@@ -93,19 +118,7 @@ describe('route guards', () => {
   })
 
   it('RequireAdmin blocks non-admin users', () => {
-    mockedUseAuth.mockReturnValue({
-      user: {
-        id: 2,
-        name: 'Regular',
-        email: 'regular@example.com',
-        timezone: 'America/Mexico_City',
-        locale: 'es_MX',
-        onboarding_completed_at: '2026-01-01T00:00:00Z',
-        is_admin: false,
-      },
-      initialized: true,
-      status: 'idle',
-    } as never)
+    mockedUseAuth.mockReturnValue(authState({ ...baseUser, is_admin: false }))
 
     render(
       <MemoryRouter initialEntries={['/admin']}>
@@ -122,19 +135,7 @@ describe('route guards', () => {
   })
 
   it('RequireAdmin allows admin users', () => {
-    mockedUseAuth.mockReturnValue({
-      user: {
-        id: 3,
-        name: 'Admin',
-        email: 'admin@example.com',
-        timezone: 'America/Mexico_City',
-        locale: 'es_MX',
-        onboarding_completed_at: '2026-01-01T00:00:00Z',
-        is_admin: true,
-      },
-      initialized: true,
-      status: 'idle',
-    } as never)
+    mockedUseAuth.mockReturnValue(authState({ ...baseUser, is_admin: true }))
 
     render(
       <MemoryRouter initialEntries={['/admin']}>

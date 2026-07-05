@@ -47,7 +47,11 @@ export default function ConsentsStep({ onAccepted, api }: Props) {
     setLoading(true)
     setError('')
     try {
-      await api.acceptConsents(CONSENTS.map((c) => ({ type: c.type, document_version: c.version })))
+      await api.acceptConsents({
+        terms: !!accepted.terms,
+        privacy: !!accepted.privacy,
+        general_wellness_disclaimer: !!accepted.general_wellness_disclaimer,
+      })
       onAccepted()
     } catch {
       setError('No se pudieron guardar los consentimientos. Intenta de nuevo.')

@@ -1,5 +1,3 @@
-import type { Food } from '@/types/models'
-
 // Matches the codes seeded by the backend's NutrientSeeder (database/seeders/NutrientSeeder.php).
 export const NUTRIENT_CODES = {
   energy: 'energy_kcal',
@@ -10,18 +8,33 @@ export const NUTRIENT_CODES = {
   sodium: 'sodium_mg',
 } as const
 
-function findNutrient(food: Pick<Food, 'nutrients'>, code: string) {
+/**
+ * Structural (not nominal) nutrient row shape — `amount_per_100g` is a
+ * decimal-cast backend column, which serializes as a numeric string
+ * regardless of what a given OpenAPI schema declares, so this accepts
+ * either representation rather than tying callers to one exact `Food` type.
+ */
+interface NutrientRow {
+  code?: string | null
+  amount_per_100g?: string | number | null
+}
+
+interface FoodWithNutrients {
+  nutrients?: NutrientRow[]
+}
+
+function findNutrient(food: FoodWithNutrients, code: string) {
   return food.nutrients?.find((n) => n.code === code)
 }
 
 /** Amount per 100g for a nutrient code, or 0 if the food has no such nutrient. */
-export function nutrientAmount(food: Pick<Food, 'nutrients'>, code: string): number {
+export function nutrientAmount(food: FoodWithNutrients, code: string): number {
   const nutrient = findNutrient(food, code)
   return nutrient ? Number(nutrient.amount_per_100g) : 0
 }
 
 /** Like nutrientAmount, but null (instead of 0) when absent — for optional facts like fiber/sodium. */
-export function nutrientAmountOrNull(food: Pick<Food, 'nutrients'>, code: string): number | null {
+export function nutrientAmountOrNull(food: FoodWithNutrients, code: string): number | null {
   const nutrient = findNutrient(food, code)
   return nutrient ? Number(nutrient.amount_per_100g) : null
 }
@@ -36,7 +49,7 @@ export interface FoodMacros {
 }
 
 /** Convenience bundle of the six standard macros/micros for a food, per 100g. */
-export function getFoodMacros(food: Pick<Food, 'nutrients'>): FoodMacros {
+export function getFoodMacros(food: FoodWithNutrients): FoodMacros {
   return {
     energy_kcal: nutrientAmount(food, NUTRIENT_CODES.energy),
     protein_g: nutrientAmount(food, NUTRIENT_CODES.protein),

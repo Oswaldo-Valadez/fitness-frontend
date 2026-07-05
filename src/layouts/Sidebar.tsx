@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Activity, LogOut } from 'lucide-react'
+import { Activity, LogOut, Settings } from 'lucide-react'
 import { clsx } from 'clsx'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import { ADMIN_NAV, PRIMARY_NAV } from './navConfig'
@@ -58,6 +58,9 @@ export default function Sidebar({ userName, userEmail, isAdmin, onLogout }: Prop
             <p className="truncate text-sm font-medium text-foreground">{userName}</p>
             <p className="truncate text-xs text-muted">{userEmail}</p>
           </div>
+          <NavLink to="/account" aria-label="Cuenta" title="Cuenta" className="rounded-lg p-2 text-muted hover:bg-surface-muted hover:text-foreground">
+            <Settings className="h-4 w-4" />
+          </NavLink>
           <button
             onClick={onLogout}
             aria-label="Cerrar sesión"

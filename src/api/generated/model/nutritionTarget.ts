@@ -9,9 +9,25 @@
 export interface NutritionTarget {
   id?: number;
   user_id?: number;
-  energy_kcal?: number;
-  protein_g?: number;
-  carbohydrate_g?: number;
-  fat_g?: number;
+  calculation_method_id?: number;
   effective_from?: string;
+  /** @nullable */
+  effective_to?: string | null;
+  age_years?: number;
+  sex_for_equation?: string;
+  height_cm?: number;
+  weight_kg?: number;
+  activity_level?: string;
+  goal?: string;
+  bmr_kcal?: number;
+  activity_factor?: number;
+  tdee_kcal?: number;
+  goal_adjustment_kcal?: number;
+  target_kcal?: number;
+  protein_percentage?: number;
+  carbohydrate_percentage?: number;
+  fat_percentage?: number;
+  protein_grams?: number;
+  carbohydrate_grams?: number;
+  fat_grams?: number;
 }
