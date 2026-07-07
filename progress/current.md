@@ -1,5 +1,17 @@
 # Current Progress
 
+## Sprint 3 — COMPLETED 2026-07-05
+
+- Módulo de calidad de dieta integrado: tabs en Reportes (`/reports/quality`),
+  wizard MEDAS-14 de 14 pasos (respuestas solo en memoria, manejo de 409 por
+  versión), detalle histórico, metas opcionales con check-ins y dashboard
+  card.
+- Cliente Orval regenerado desde el spec Sprint 3; adapter
+  `src/api/dietQuality.ts`; sin score en cliente, sin schemas duplicados.
+- Suites verdes: lint, typecheck, 53 tests Vitest, build, 7 specs E2E
+  (incluye `e2e/diet-quality.spec.ts` con ciclo de consentimiento).
+- Sin blockers abiertos.
+
 ## Sprint 1 — COMPLETED 2026-06-30
 
 ## Status

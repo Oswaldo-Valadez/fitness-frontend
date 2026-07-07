@@ -37,7 +37,10 @@
                                         "recipes",
                                         "meal_templates",
                                         "body_weight_logs",
-                                        "favorite_foods"
+                                        "favorite_foods",
+                                        "diet_quality_assessments",
+                                        "diet_quality_goals",
+                                        "diet_quality_check_ins"
                                     ],
                                     "properties": {
                                         "export_version": {
@@ -107,6 +110,24 @@
                                             }
                                         },
                                         "favorite_foods": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "diet_quality_assessments": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "diet_quality_goals": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "diet_quality_check_ins": {
                                             "type": "array",
                                             "items": {
                                                 "type": "object"
@@ -1403,6 +1424,635 @@
                                         }
                                     },
                                     "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/diet-quality/assessments": {
+            "get": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "listDietQualityAssessments",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated assessment history (newest first)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DietQualityAssessmentListResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "createDietQualityAssessment",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreDietQualityAssessmentRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Assessment created (immutable snapshot)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DietQualityAssessmentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Instrument version outdated or consent required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InstrumentVersionOutdatedError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/diet-quality/assessments/latest": {
+            "get": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "getLatestDietQualityAssessment",
+                "responses": {
+                    "200": {
+                        "description": "Latest assessment with items, or null when none exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "assessment"
+                                    ],
+                                    "properties": {
+                                        "assessment": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/DietQualityAssessment"
+                                                }
+                                            ],
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/diet-quality/assessments/{assessment}": {
+            "get": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "getDietQualityAssessment",
+                "parameters": [
+                    {
+                        "name": "assessment",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Assessment detail with item snapshots",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DietQualityAssessmentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found (including foreign assessments)"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "deleteDietQualityAssessment",
+                "parameters": [
+                    {
+                        "name": "assessment",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Assessment and items deleted; historical goals keep their snapshots",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found (including foreign assessments)"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/diet-quality/goals/{goal}/check-ins/{date}": {
+            "put": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "upsertDietQualityCheckIn",
+                "parameters": [
+                    {
+                        "name": "goal",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "description": "Local date (Y-m-d) in the user timezone",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertDietQualityCheckInRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Check-in created or replaced idempotently",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "check_in"
+                                    ],
+                                    "properties": {
+                                        "check_in": {
+                                            "$ref": "#/components/schemas/DietQualityCheckIn"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found (including foreign goals)"
+                    },
+                    "409": {
+                        "description": "Consent required"
+                    },
+                    "422": {
+                        "description": "Future date or invalid value",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "deleteDietQualityCheckIn",
+                "parameters": [
+                    {
+                        "name": "goal",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Check-in deleted (idempotent)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found (including foreign goals)"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/diet-quality/goals": {
+            "get": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "listDietQualityGoals",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "active",
+                                "paused",
+                                "completed",
+                                "archived"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Goals with descriptive progress for the current local period",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "goals",
+                                        "progress"
+                                    ],
+                                    "properties": {
+                                        "goals": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/DietQualityGoal"
+                                            }
+                                        },
+                                        "progress": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/DietQualityGoalProgress"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "createDietQualityGoal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreDietQualityGoalRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Goal created from catalog snapshot",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "goal"
+                                    ],
+                                    "properties": {
+                                        "goal": {
+                                            "$ref": "#/components/schemas/DietQualityGoal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Consent required"
+                    },
+                    "422": {
+                        "description": "Validation error (unknown focus, limits, duplicates)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/diet-quality/goals/{goal}": {
+            "put": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "updateDietQualityGoal",
+                "parameters": [
+                    {
+                        "name": "goal",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateDietQualityGoalRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Goal status updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "goal"
+                                    ],
+                                    "properties": {
+                                        "goal": {
+                                            "$ref": "#/components/schemas/DietQualityGoal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found (including foreign goals)"
+                    },
+                    "422": {
+                        "description": "Invalid transition",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "deleteDietQualityGoal",
+                "parameters": [
+                    {
+                        "name": "goal",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Goal and its check-ins deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found (including foreign goals)"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/diet-quality/instruments/medas-14": {
+            "get": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "getMedas14Instrument",
+                "responses": {
+                    "200": {
+                        "description": "Versioned MEDAS-14 instrument definition",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "instrument"
+                                    ],
+                                    "properties": {
+                                        "instrument": {
+                                            "$ref": "#/components/schemas/DietQualityInstrument"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/diet-quality/summary": {
+            "get": {
+                "tags": [
+                    "DietQuality"
+                ],
+                "operationId": "getDietQualitySummary",
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "description": "Days of history: 30, 90, 180 or 365",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 90,
+                            "enum": [
+                                30,
+                                90,
+                                180,
+                                365
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Descriptive diet-quality summary (no clinical interpretation)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DietQualitySummary"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid period",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
                                 }
                             }
                         }
@@ -6630,6 +7280,940 @@
                     }
                 },
                 "type": "object"
+            },
+            "DietQualityQuestion": {
+                "required": [
+                    "code",
+                    "order",
+                    "prompt",
+                    "helper_text",
+                    "answer_type",
+                    "unit",
+                    "max_value",
+                    "direction",
+                    "period",
+                    "actionable",
+                    "goal_available",
+                    "safety_excluded",
+                    "exclusion_reason"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "order": {
+                        "type": "integer"
+                    },
+                    "prompt": {
+                        "type": "string"
+                    },
+                    "helper_text": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "answer_type": {
+                        "type": "string",
+                        "enum": [
+                            "boolean",
+                            "number"
+                        ]
+                    },
+                    "unit": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "max_value": {
+                        "description": "Technical anti-abuse maximum, not a health recommendation.",
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "direction": {
+                        "type": "string",
+                        "enum": [
+                            "at_least",
+                            "at_most",
+                            "binary"
+                        ]
+                    },
+                    "period": {
+                        "type": "string",
+                        "enum": [
+                            "day",
+                            "week"
+                        ]
+                    },
+                    "actionable": {
+                        "type": "boolean"
+                    },
+                    "goal_available": {
+                        "type": "boolean"
+                    },
+                    "safety_excluded": {
+                        "type": "boolean"
+                    },
+                    "exclusion_reason": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityInstrument": {
+                "required": [
+                    "code",
+                    "version",
+                    "locale",
+                    "name",
+                    "description",
+                    "max_score",
+                    "evidence_reviewed_at",
+                    "checksum",
+                    "source",
+                    "limitations",
+                    "safety_notices",
+                    "questions"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "locale": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "max_score": {
+                        "type": "integer"
+                    },
+                    "evidence_reviewed_at": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "checksum": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "object"
+                    },
+                    "limitations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "safety_notices": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "questions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DietQualityQuestion"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Medas14Answers": {
+                "description": "All 14 answers are required. Booleans must be real JSON booleans; quantities must be real JSON numbers >= 0.",
+                "required": [
+                    "olive_oil_main_fat",
+                    "olive_oil_tbsp_day",
+                    "vegetable_servings_day",
+                    "fruit_units_day",
+                    "red_processed_meat_servings_day",
+                    "butter_margarine_cream_servings_day",
+                    "sweetened_beverages_day",
+                    "wine_glasses_week",
+                    "legume_servings_week",
+                    "fish_seafood_servings_week",
+                    "commercial_pastries_week",
+                    "nuts_servings_week",
+                    "prefer_white_meat",
+                    "sofrito_servings_week"
+                ],
+                "properties": {
+                    "olive_oil_main_fat": {
+                        "type": "boolean"
+                    },
+                    "olive_oil_tbsp_day": {
+                        "type": "number"
+                    },
+                    "vegetable_servings_day": {
+                        "type": "number"
+                    },
+                    "fruit_units_day": {
+                        "type": "number"
+                    },
+                    "red_processed_meat_servings_day": {
+                        "type": "number"
+                    },
+                    "butter_margarine_cream_servings_day": {
+                        "type": "number"
+                    },
+                    "sweetened_beverages_day": {
+                        "type": "number"
+                    },
+                    "wine_glasses_week": {
+                        "type": "number"
+                    },
+                    "legume_servings_week": {
+                        "type": "number"
+                    },
+                    "fish_seafood_servings_week": {
+                        "type": "number"
+                    },
+                    "commercial_pastries_week": {
+                        "type": "number"
+                    },
+                    "nuts_servings_week": {
+                        "type": "number"
+                    },
+                    "prefer_white_meat": {
+                        "type": "boolean"
+                    },
+                    "sofrito_servings_week": {
+                        "type": "number"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreDietQualityAssessmentRequest": {
+                "required": [
+                    "instrument_code",
+                    "instrument_version",
+                    "answers"
+                ],
+                "properties": {
+                    "instrument_code": {
+                        "type": "string",
+                        "example": "medas_14"
+                    },
+                    "instrument_version": {
+                        "type": "string",
+                        "example": "1.0.0"
+                    },
+                    "answers": {
+                        "$ref": "#/components/schemas/Medas14Answers"
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityAssessmentItem": {
+                "required": [
+                    "question_code",
+                    "question_order",
+                    "prompt",
+                    "helper_text",
+                    "answer",
+                    "unit",
+                    "points",
+                    "met",
+                    "actionable",
+                    "goal_available",
+                    "safety_excluded",
+                    "exclusion_reason"
+                ],
+                "properties": {
+                    "question_code": {
+                        "type": "string"
+                    },
+                    "question_order": {
+                        "type": "integer"
+                    },
+                    "prompt": {
+                        "type": "string"
+                    },
+                    "helper_text": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "answer": {
+                        "description": "Boolean for boolean items, number for quantity items.",
+                        "oneOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            }
+                        ]
+                    },
+                    "unit": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "points": {
+                        "type": "integer"
+                    },
+                    "met": {
+                        "type": "boolean"
+                    },
+                    "actionable": {
+                        "type": "boolean"
+                    },
+                    "goal_available": {
+                        "type": "boolean"
+                    },
+                    "safety_excluded": {
+                        "type": "boolean"
+                    },
+                    "exclusion_reason": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityAssessmentSummary": {
+                "required": [
+                    "id",
+                    "instrument_code",
+                    "instrument_version",
+                    "instrument_locale",
+                    "score",
+                    "max_score",
+                    "completed_local_date",
+                    "completed_at"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "instrument_code": {
+                        "type": "string"
+                    },
+                    "instrument_version": {
+                        "type": "string"
+                    },
+                    "instrument_locale": {
+                        "type": "string"
+                    },
+                    "score": {
+                        "type": "integer"
+                    },
+                    "max_score": {
+                        "type": "integer"
+                    },
+                    "completed_local_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityAssessment": {
+                "required": [
+                    "id",
+                    "instrument_code",
+                    "instrument_version",
+                    "instrument_locale",
+                    "score",
+                    "max_score",
+                    "completed_local_date",
+                    "completed_at",
+                    "evidence_reviewed_at",
+                    "items",
+                    "unmet_actionable_codes",
+                    "safety_notices",
+                    "limitations",
+                    "source"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "instrument_code": {
+                        "type": "string"
+                    },
+                    "instrument_version": {
+                        "type": "string"
+                    },
+                    "instrument_locale": {
+                        "type": "string"
+                    },
+                    "score": {
+                        "type": "integer"
+                    },
+                    "max_score": {
+                        "type": "integer"
+                    },
+                    "completed_local_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "evidence_reviewed_at": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DietQualityAssessmentItem"
+                        }
+                    },
+                    "unmet_actionable_codes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "safety_notices": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "limitations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "source": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityAssessmentResponse": {
+                "required": [
+                    "assessment"
+                ],
+                "properties": {
+                    "assessment": {
+                        "$ref": "#/components/schemas/DietQualityAssessment"
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityAssessmentListResponse": {
+                "required": [
+                    "data",
+                    "current_page",
+                    "last_page",
+                    "per_page",
+                    "total"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DietQualityAssessmentSummary"
+                        }
+                    },
+                    "current_page": {
+                        "type": "integer"
+                    },
+                    "last_page": {
+                        "type": "integer"
+                    },
+                    "per_page": {
+                        "type": "integer"
+                    },
+                    "total": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityHistoryPoint": {
+                "required": [
+                    "assessment_id",
+                    "score",
+                    "max_score",
+                    "completed_local_date"
+                ],
+                "properties": {
+                    "assessment_id": {
+                        "type": "integer"
+                    },
+                    "score": {
+                        "type": "integer"
+                    },
+                    "max_score": {
+                        "type": "integer"
+                    },
+                    "completed_local_date": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityFocusCandidate": {
+                "description": "Optional, traceable focus suggestion. Alcohol and olive-oil quantity never appear here.",
+                "required": [
+                    "focus_code",
+                    "title",
+                    "description",
+                    "direction",
+                    "period",
+                    "target_value",
+                    "unit",
+                    "source_question_code",
+                    "disclaimer"
+                ],
+                "properties": {
+                    "focus_code": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "direction": {
+                        "type": "string",
+                        "enum": [
+                            "at_least",
+                            "at_most",
+                            "binary"
+                        ]
+                    },
+                    "period": {
+                        "type": "string",
+                        "enum": [
+                            "day",
+                            "week"
+                        ]
+                    },
+                    "target_value": {
+                        "type": "number"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "source_question_code": {
+                        "type": "string"
+                    },
+                    "disclaimer": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityGoal": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "source_assessment_id",
+                    "focus_code",
+                    "title",
+                    "description",
+                    "direction",
+                    "period",
+                    "target_value",
+                    "unit",
+                    "starts_on",
+                    "ends_on",
+                    "status",
+                    "source_instrument_code",
+                    "source_instrument_version",
+                    "disclaimer"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "source_assessment_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "focus_code": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "direction": {
+                        "type": "string",
+                        "enum": [
+                            "at_least",
+                            "at_most",
+                            "binary"
+                        ]
+                    },
+                    "period": {
+                        "type": "string",
+                        "enum": [
+                            "day",
+                            "week"
+                        ]
+                    },
+                    "target_value": {
+                        "type": "number"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "starts_on": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "ends_on": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "paused",
+                            "completed",
+                            "archived"
+                        ]
+                    },
+                    "source_instrument_code": {
+                        "type": "string"
+                    },
+                    "source_instrument_version": {
+                        "type": "string"
+                    },
+                    "disclaimer": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityGoalProgress": {
+                "description": "Descriptive progress for the current local period (ISO week Mon-Sun). `no_data` never counts as success.",
+                "required": [
+                    "goal_id",
+                    "direction",
+                    "period",
+                    "period_start",
+                    "period_end",
+                    "recorded_value",
+                    "target_value",
+                    "remaining_value",
+                    "remaining_allowance",
+                    "comparison",
+                    "data_points",
+                    "expected_data_points",
+                    "coverage_pct",
+                    "is_period_complete"
+                ],
+                "properties": {
+                    "goal_id": {
+                        "type": "integer"
+                    },
+                    "direction": {
+                        "type": "string",
+                        "enum": [
+                            "at_least",
+                            "at_most",
+                            "binary"
+                        ]
+                    },
+                    "period": {
+                        "type": "string",
+                        "enum": [
+                            "day",
+                            "week"
+                        ]
+                    },
+                    "period_start": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "period_end": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "recorded_value": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "target_value": {
+                        "type": "number"
+                    },
+                    "remaining_value": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "remaining_allowance": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "comparison": {
+                        "type": "string",
+                        "enum": [
+                            "no_data",
+                            "below_threshold_so_far",
+                            "meets_threshold_so_far",
+                            "within_threshold_so_far",
+                            "exceeds_threshold_so_far",
+                            "recorded_false",
+                            "recorded_true"
+                        ]
+                    },
+                    "data_points": {
+                        "type": "integer"
+                    },
+                    "expected_data_points": {
+                        "type": "integer"
+                    },
+                    "coverage_pct": {
+                        "type": "number"
+                    },
+                    "is_period_complete": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityCheckIn": {
+                "required": [
+                    "id",
+                    "diet_quality_goal_id",
+                    "local_date",
+                    "value",
+                    "note"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "diet_quality_goal_id": {
+                        "type": "integer"
+                    },
+                    "local_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "value": {
+                        "type": "number"
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualitySummary": {
+                "description": "Descriptive summary only: no clinical bands, no risk language, no predictions.",
+                "required": [
+                    "period_days",
+                    "latest_assessment",
+                    "previous_assessment",
+                    "score_delta",
+                    "history",
+                    "component_summary",
+                    "focus_candidates",
+                    "active_goals",
+                    "goal_progress",
+                    "assessment_age_days",
+                    "can_retake"
+                ],
+                "properties": {
+                    "period_days": {
+                        "type": "integer"
+                    },
+                    "latest_assessment": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/DietQualityAssessmentSummary"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "previous_assessment": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/DietQualityAssessmentSummary"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "score_delta": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "history": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DietQualityHistoryPoint"
+                        }
+                    },
+                    "component_summary": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DietQualityComponentSummary"
+                        }
+                    },
+                    "focus_candidates": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DietQualityFocusCandidate"
+                        }
+                    },
+                    "active_goals": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DietQualityGoal"
+                        }
+                    },
+                    "goal_progress": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DietQualityGoalProgress"
+                        }
+                    },
+                    "assessment_age_days": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "can_retake": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "DietQualityComponentSummary": {
+                "required": [
+                    "question_code",
+                    "question_order",
+                    "prompt",
+                    "met",
+                    "points",
+                    "actionable",
+                    "goal_available",
+                    "safety_excluded"
+                ],
+                "properties": {
+                    "question_code": {
+                        "type": "string"
+                    },
+                    "question_order": {
+                        "type": "integer"
+                    },
+                    "prompt": {
+                        "type": "string"
+                    },
+                    "met": {
+                        "type": "boolean"
+                    },
+                    "points": {
+                        "type": "integer"
+                    },
+                    "actionable": {
+                        "type": "boolean"
+                    },
+                    "goal_available": {
+                        "type": "boolean"
+                    },
+                    "safety_excluded": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreDietQualityGoalRequest": {
+                "description": "Title, threshold and scoring always come from the backend catalog; the client only picks a focus.",
+                "required": [
+                    "focus_code"
+                ],
+                "properties": {
+                    "focus_code": {
+                        "type": "string",
+                        "example": "legume_servings_week"
+                    },
+                    "source_assessment_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "starts_on": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateDietQualityGoalRequest": {
+                "required": [
+                    "status"
+                ],
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "paused",
+                            "completed",
+                            "archived"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "UpsertDietQualityCheckInRequest": {
+                "required": [
+                    "value"
+                ],
+                "properties": {
+                    "value": {
+                        "type": "number",
+                        "minimum": 0
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 250
+                    }
+                },
+                "type": "object"
+            },
+            "InstrumentVersionOutdatedError": {
+                "required": [
+                    "message",
+                    "code",
+                    "requested_version",
+                    "current_version"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "INSTRUMENT_VERSION_OUTDATED"
+                    },
+                    "requested_version": {
+                        "type": "string"
+                    },
+                    "current_version": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -6657,6 +8241,10 @@
         {
             "name": "Dashboard",
             "description": "Dashboard"
+        },
+        {
+            "name": "DietQuality",
+            "description": "DietQuality"
         },
         {
             "name": "Foods",

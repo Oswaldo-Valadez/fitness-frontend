@@ -11,7 +11,7 @@ test.describe('smoke: demo user golden path', () => {
     await page.click('button[type="submit"]')
 
     await page.waitForURL(/\/dashboard/)
-    await expect(page.locator('text=Diario alimenticio').or(page.locator('nav'))).toBeVisible()
+    await expect(page.locator('text=Diario alimenticio').or(page.locator('nav')).first()).toBeVisible()
   })
 
   test('dashboard shows the calorie ring and weight trend without crashing', async ({ page }) => {

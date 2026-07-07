@@ -7,6 +7,9 @@
  */
 import type { BodyWeightLog } from './bodyWeightLog';
 import type { ExportAccountData200ConsentsItem } from './exportAccountData200ConsentsItem';
+import type { ExportAccountData200DietQualityAssessmentsItem } from './exportAccountData200DietQualityAssessmentsItem';
+import type { ExportAccountData200DietQualityCheckInsItem } from './exportAccountData200DietQualityCheckInsItem';
+import type { ExportAccountData200DietQualityGoalsItem } from './exportAccountData200DietQualityGoalsItem';
 import type { ExportAccountData200FavoriteFoodsItem } from './exportAccountData200FavoriteFoodsItem';
 import type { ExportAccountData200User } from './exportAccountData200User';
 import type { Food } from './food';
@@ -31,4 +34,7 @@ export type ExportAccountData200 = {
   meal_templates: MealTemplate[];
   body_weight_logs: BodyWeightLog[];
   favorite_foods: ExportAccountData200FavoriteFoodsItem[];
+  diet_quality_assessments: ExportAccountData200DietQualityAssessmentsItem[];
+  diet_quality_goals: ExportAccountData200DietQualityGoalsItem[];
+  diet_quality_check_ins: ExportAccountData200DietQualityCheckInsItem[];
 };

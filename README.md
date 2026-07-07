@@ -89,7 +89,12 @@ Estado actual:
   recientes, copiar comida entre fechas.
 - Library: mis alimentos, recetas (editor + detalle), plantillas de comida
   (crear/aplicar).
-- Reports: reportes de nutricion por periodo, grafica y export JSON/CSV.
+- Reports: reportes de nutricion por periodo, grafica y export JSON/CSV;
+  tab "Calidad de dieta" (`/reports/quality`) con cuestionario MEDAS-14 de
+  14 pasos, detalle de evaluaciones históricas, metas opcionales con
+  check-ins y tarjeta compacta en el dashboard. El backend es la única
+  fuente del score y del catálogo de metas; adapter en
+  `src/api/dietQuality.ts`, E2E en `e2e/diet-quality.spec.ts` (Sprint 3).
 - Profile: edicion e historial de objetivos.
 - Account: export y eliminacion de cuenta.
 - Admin: alimentos e import CSV, integracion FoodData Central (estado,

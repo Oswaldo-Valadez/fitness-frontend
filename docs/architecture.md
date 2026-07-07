@@ -82,6 +82,21 @@ consumidor nunca inventa endpoints ni payloads.
   agregarlo hoy implicaria un secreto de checkout cruzado. Se ejecuta
   localmente con `npm run test:e2e` contra un backend sembrado a mano.
 
+## Sprint 3 — Calidad de dieta
+- `/reports` usa `ReportsLayout` con tabs (Nutrición / Calidad de dieta) para
+  mantener la navegación primaria en 5 items.
+- Páginas en `src/pages/quality/`: `DietQualityPage` (summary, historial con
+  tabla accesible, focus candidates, metas + progreso),
+  `DietQualityAssessmentPage` (wizard de 1 pregunta por paso, respuestas solo
+  en memoria — nunca localStorage — y manejo del 409
+  `INSTRUMENT_VERSION_OUTDATED` recargando el instrumento),
+  `DietQualityAssessmentDetailPage`, y modales `DietQualityGoalModal` /
+  `DietQualityCheckInModal`.
+- Copy fijo en `src/pages/quality/copy.ts` (disclaimer, aviso de alcohol,
+  labels neutrales de comparación de progreso).
+- `DietQualityCard` en el dashboard consulta `summary(30)` y se oculta si el
+  módulo no carga. El score nunca se recalcula en el cliente.
+
 ## Estado actual
 - Build en verde.
 - Tests frontend en verde (Vitest + MSW).

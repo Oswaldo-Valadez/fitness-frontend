@@ -41,7 +41,11 @@ const RecipeEditorPage = lazy(() => import('@/pages/recipes/RecipeEditorPage'))
 const RecipeDetailPage = lazy(() => import('@/pages/recipes/RecipeDetailPage'))
 
 // Reports
+const ReportsLayout = lazy(() => import('@/pages/reports/ReportsLayout'))
 const ReportsPage = lazy(() => import('@/pages/reports/ReportsPage'))
+const DietQualityPage = lazy(() => import('@/pages/quality/DietQualityPage'))
+const DietQualityAssessmentPage = lazy(() => import('@/pages/quality/DietQualityAssessmentPage'))
+const DietQualityAssessmentDetailPage = lazy(() => import('@/pages/quality/DietQualityAssessmentDetailPage'))
 
 // Admin
 const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'))
@@ -100,7 +104,16 @@ export const router = createBrowserRouter([
           { path: '/recipes/:id', element: wrap(RecipeDetailPage) },
           { path: '/recipes/:id/edit', element: wrap(RecipeEditorPage) },
           { path: '/diary', element: wrap(DiaryPage) },
-          { path: '/reports', element: wrap(ReportsPage) },
+          {
+            path: '/reports',
+            element: wrap(ReportsLayout),
+            children: [
+              { index: true, element: wrap(ReportsPage) },
+              { path: 'quality', element: wrap(DietQualityPage) },
+            ],
+          },
+          { path: '/reports/quality/assessment', element: wrap(DietQualityAssessmentPage) },
+          { path: '/reports/quality/assessments/:id', element: wrap(DietQualityAssessmentDetailPage) },
           { path: '/profile', element: wrap(ProfilePage) },
           { path: '/account', element: wrap(AccountPage) },
         ],

@@ -1,5 +1,13 @@
 # Frontend integration (PLAN_INTEGRACION_FRONTEND_FITNESS_CODEX.md)
 
+## Sprint 3 — Diet quality (2026-07-05)
+
+Integrado el módulo de calidad de dieta: tabs en Reportes, wizard MEDAS-14,
+detalle histórico, metas/check-ins, dashboard card, adapter
+`src/api/dietQuality.ts` + cliente Orval regenerado, handlers MSW nuevos,
+16 tests nuevos (53 totales) y E2E dedicado. Sin React Query, sin duplicación
+de schemas backend, sin score autoritativo en cliente.
+
 Current phase: 1 — Foundation del cliente frontend
 Status: done
 Backend contract SHA: fitness-backend Fase 0 commit (OpenAPI 60 paths / 80 ops, all core 2xx typed)

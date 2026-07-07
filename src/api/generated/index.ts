@@ -2,6 +2,7 @@ export * from './account/account';
 export * from './admin/admin';
 export * from './progress/progress';
 export * from './dashboard/dashboard';
+export * from './diet-quality/diet-quality';
 export * from './foods/foods';
 export * from './system/system';
 export * from './meals/meals';
