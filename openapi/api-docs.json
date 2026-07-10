@@ -6169,6 +6169,7 @@
                     "id",
                     "source",
                     "mode",
+                    "is_dry_run",
                     "filename",
                     "status",
                     "started_at",
@@ -6192,6 +6193,9 @@
                     },
                     "mode": {
                         "type": "string"
+                    },
+                    "is_dry_run": {
+                        "type": "boolean"
                     },
                     "filename": {
                         "type": "string",

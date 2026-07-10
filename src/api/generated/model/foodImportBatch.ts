@@ -12,6 +12,7 @@ export interface FoodImportBatch {
   id: number;
   source: string;
   mode: string;
+  is_dry_run: boolean;
   /** @nullable */
   filename: string | null;
   status: FoodImportBatchStatus;

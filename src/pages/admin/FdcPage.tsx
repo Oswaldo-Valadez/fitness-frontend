@@ -108,7 +108,10 @@ export default function FdcPage() {
             {status.recent_batches.map((b) => (
               <li key={b.id} className="flex items-center justify-between py-2">
                 <span className="text-foreground">{b.filename ?? b.mode}</span>
-                <Badge variant={b.status === 'completed' ? 'success' : b.status === 'failed' ? 'danger' : 'neutral'}>{b.status}</Badge>
+                <div className="flex items-center gap-2">
+                  {b.is_dry_run && <Badge variant="neutral">Vista previa (no persistido)</Badge>}
+                  <Badge variant={b.status === 'completed' ? 'success' : b.status === 'failed' ? 'danger' : 'neutral'}>{b.status}</Badge>
+                </div>
               </li>
             ))}
           </ul>
