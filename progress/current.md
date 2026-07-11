@@ -1,5 +1,46 @@
 # Current Progress
 
+## Fase 10 (frontend integration plan) — COMPLETED 2026-07-10
+
+Contract-first closure across `fitness-backend` (owner) and `fitness-frontend`
+(consumer), run as three separate sessions per the plan's own rule. Full
+details in `progress/frontend-integration.md` (Fase 10A/10B/10C sections)
+and `fitness-backend/progress/backend-hardening.md`.
+
+- **10A — backend contract precision**: `required[]` added to every core
+  response schema (and several inline ones found while starting 10B/10C);
+  fixed `decimal:N` casts serializing as strings across
+  `UserProfile`/`NutritionTarget`/`MealLogItem`/`MealTemplateItem`/`Food`/
+  `FoodPortion`/`Recipe`/`RecipeIngredient`; found and fixed a real bug
+  (`GET /profile/targets` returning Laravel's native paginator while
+  documenting `{data, meta}`).
+- **10B — frontend type/adapter consolidation**: migrated
+  `auth`/`profile`/`account`/`admin` adapters to the generated Orval client;
+  removed every `as unknown as LaravelPage<...>` cast and the one `api: any`;
+  retired `src/types/models.ts` entirely; fixed `nutrientAmount()` coercing
+  unknown macros to `0` for energy/protein/carbs/fat (only fiber/sodium were
+  null-safe before) across 7 pages.
+- **10C — full-stack acceptance**: 4 new Playwright specs
+  (`auth-consent`, `foods-portions`, `recipes-diary`, `templates-reports`)
+  plus an expanded `admin.spec.ts` — 27 E2E tests total, all green against a
+  locally seeded backend. Found and fixed 3 more real bugs live: the weight
+  modal never closed on a failed submit (trapped the user behind the
+  backdrop when a 409 CONSENT_REQUIRED fired); `StoreCustomFoodRequest`
+  rejected a private food with every macro left blank (`nutrients: []`
+  failed Laravel's `required` array check, contradicting the app's own
+  "unknown ≠ zero" policy); admin CSV import crashed with a 500 on every
+  fresh environment (Laravel 13 moved the `local` disk root to
+  `storage/app/private`, but the controller read the file back from
+  `storage/app/` directly — added a regression test since no test covered
+  CSV import at all before this).
+- Contract source: `openapi/api-docs.json` is a **vendored copy** of
+  `fitness-backend/storage/api-docs/api-docs.json` (not read via relative
+  path) — `fitness-backend` is a private repo, so `npm run gen`/
+  `contract:check` must work without cross-repo access. Sync manually when
+  the backend contract changes (see README.md).
+- Suites green: lint, typecheck, 53 Vitest tests, build, 27 Playwright E2E
+  tests (7 spec files). No open blockers.
+
 ## Sprint 3 — COMPLETED 2026-07-05
 
 - Módulo de calidad de dieta integrado: tabs en Reportes (`/reports/quality`),
@@ -35,9 +76,9 @@
 
 ## Generate typed client
 ```
-npx orval
+npm run gen
 ```
-(reads from `../fitness-backend/storage/api-docs/api-docs.json`)
+(reads from the vendored `openapi/api-docs.json` — see Fase 10 note above)
 
 ## Open blockers
 - None

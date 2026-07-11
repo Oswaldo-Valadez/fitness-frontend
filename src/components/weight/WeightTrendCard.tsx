@@ -37,6 +37,12 @@ export default function WeightTrendCard() {
       setModalOpen(false)
       setWeightInput('')
       show({ variant: 'success', message: 'Peso registrado correctamente.' })
+    } catch {
+      // Close the modal on any failure (e.g. 409 CONSENT_REQUIRED) so the
+      // page underneath — including the ConsentBanner — stays reachable
+      // instead of trapping the user behind the backdrop with no feedback.
+      setModalOpen(false)
+      show({ variant: 'error', message: 'No se pudo registrar el peso.' })
     } finally {
       setSaving(false)
     }

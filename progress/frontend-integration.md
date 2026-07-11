@@ -540,3 +540,104 @@ Remaining: none for 10B's scope. Per the plan's explicit "no ejecutar las
 tres en una sola sesión" rule, 10C (full-stack acceptance across both
 repos, E2E flows, harness/progress updates) is intentionally not started
 in this session.
+
+## Fase 10C — Full-stack acceptance and cleanup
+Status: done
+Mode: integration verification. Both repos, real servers, no FDC real calls,
+no new features, contracts only changed where a bug was reproduced live.
+Setup: backend served with an isolated MySQL database (`fitness_e2e_10c`,
+`DB_DATABASE` env override — never touched the developer's real local
+`fitness_app` database, which already had 36 tables of unrelated local
+work), `FDC_ENABLED=false`, `php artisan migrate:fresh --seed` per clean
+run; frontend `npm run dev` against the default Vite proxy config.
+Decisions:
+- Confirmed two real product gaps that block a "pure UI" E2E for their
+  checklist items, without inventing UI to paper over them (out of scope
+  per "no agregues features"): there is no screen to create a food portion
+  (`foodsApi.createPortion()` exists, nothing calls it), and no "manage
+  consents" screen (by design — no endpoint lists individual consents).
+  Both flows are exercised at the API level instead, through the browser's
+  own authenticated session (see `e2e/helpers.ts#apiRequest`), so the
+  underlying contract is still proven end-to-end.
+- `apiRequest()` runs as an in-page `fetch()`, not Playwright's
+  `page.request` — Sanctum's stateful-domain check needs `Origin`/`Referer`
+  headers that only a same-page fetch sends automatically; `page.request`
+  doesn't, and silently gets a false 401 (same root cause as the earlier
+  curl-based Sanctum repro gotcha from Fase 5-7 smoke testing).
+- **Three real, reproducible bugs found via live E2E and fixed** (all with
+  regression coverage):
+  1. `WeightTrendCard`'s `handleLog()` had no `catch` — on any failed
+     submit (reproduced via a 409 CONSENT_REQUIRED after revoking a
+     consent) the modal never closed and its backdrop trapped the user,
+     hiding the `ConsentBanner` underneath with zero error feedback. Fixed
+     by closing the modal and showing an error toast on failure, matching
+     the pattern used elsewhere in the app.
+  2. `StoreCustomFoodRequest` validated `nutrients` as `required` (not just
+     `present`), so a private food with every macro left blank — the exact
+     "fully unknown nutrition" case the UI's own help text promises
+     ("se guardará como desconocido, no como cero") — failed with a 422
+     the user couldn't interpret. Fixed to `present` (key must exist, may
+     be empty); `MyFoodController::normalize()` also directly indexed
+     `$validated['nutrients']`, which Laravel's `validated()` omits
+     entirely for an empty array (not present-and-empty) — added a `?? []`
+     fallback, since the domain layer (`CustomFoodNormalizer::cleanValues`)
+     already treats every missing nutrient code as unknown correctly.
+  3. Admin CSV import (`FoodAdminController::importPreview`/`importCommit`)
+     stored the upload via `Storage::disk('local')` (root
+     `storage/app/private` in Laravel 13) but read it back via
+     `storage_path("app/{$path}")` (`storage/app`, missing `private/`) —
+     a 500 on every environment, not an artifact of this session's setup.
+     Fixed both call sites to `Storage::disk('local')->path($path)`. No
+     backend test covered CSV import at all before this; added one that
+     deliberately does *not* use `Storage::fake()` (a fake disk would have
+     masked exactly this class of path-resolution bug) and confirmed it
+     fails without the fix before confirming it passes with it.
+  4. (Frontend-only, not a contract bug) `FoodFormModal.tsx` (admin) sent
+     `food_source_id: Number(form.food_source_id)` unconditionally — on
+     edit, that field is hidden and never re-collected, so `Number('')`
+     sent `0`, which fails the backend's `exists:food_sources,id` check on
+     every edit. Backend already supported omitting the key on update
+     ("the edit form doesn't re-collect them" — a pre-existing comment).
+     Fixed the frontend to only include `food_source_id` when creating.
+- 4 new Playwright specs (`e2e/auth-consent.spec.ts`,
+  `e2e/foods-portions.spec.ts`, `e2e/recipes-diary.spec.ts`,
+  `e2e/templates-reports.spec.ts`) plus `e2e/admin.spec.ts` extended from 2
+  to 8 tests (CRUD, CSV preview, FDC disabled state, batches/mappings empty
+  states, audit list). Covers every Fase 10C checklist item except the two
+  documented UI gaps above (still covered at the API level).
+- Full suite (27 tests across 7 spec files, including the pre-existing
+  `smoke.spec.ts`/`diet-quality.spec.ts`) passes green. Two tests failed
+  once in a single full-suite run (both pre-existing, both timing out at
+  login) and passed cleanly when re-run in isolation immediately after —
+  consistent with rate-limit/resource pressure from ~25 sequential logins
+  fired during this session's debugging, not a regression; noted here
+  rather than silently ignored.
+- `.ai-harness.yaml` updated (both repos): `install` now `npm ci`/
+  `composer install` stays, `integration_tests`/`e2e_tests`/
+  `contract_generate`/`contract_validate` filled in (frontend's were all
+  `null`; backend's `contract_validate` was literally `UNKNOWN`),
+  `verification_profiles.full` now matches the plan's actual gate.
+  `progress/current.md` rewritten — it still described "Sprint 1, 9 tests"
+  in one section despite other sections already being newer, and its
+  Orval instructions still referenced the pre-Fase-8 relative-path contract
+  source instead of the vendored copy.
+Changed: app/Http/Requests/Food/StoreCustomFoodRequest.php,
+app/Http/Controllers/Api/Admin/FoodAdminController.php (Storage path fix),
+tests/Feature/Api/Admin/FoodAdminTest.php (+1 regression test) — backend;
+src/components/weight/WeightTrendCard.tsx, src/pages/admin/FoodFormModal.tsx,
+e2e/helpers.ts (new), e2e/{auth-consent,foods-portions,recipes-diary,
+templates-reports}.spec.ts (new), e2e/admin.spec.ts (extended),
+e2e/fixtures/import-preview.csv (new), .ai-harness.yaml, progress/current.md
+— frontend. Backend .ai-harness.yaml also updated (contract_validate).
+Passed: backend — vendor/bin/pint --test, php artisan test --no-coverage
+(287 tests, 992 assertions), APP_ENV=testing php artisan testing:verify-upgrade-path.
+Frontend — npm run lint (clean), npm run typecheck (clean), npm run test -- --run
+(53 tests), npm run build, npm run test:e2e (27/27 passed).
+`contract:check` on both repos shows a diff — expected, not a regression:
+this entire Fase 10 body of work (10A + 10B + 10C) is still uncommitted at
+the moment this section was written.
+Remaining: the two documented UI gaps (portion creation, consent
+management) are product decisions for the team, not implementation gaps —
+flagged, not fixed, per "no agregues features". The `e2e` CI job is still
+not automated (documented reason unchanged since Fase 8/10B: fitness-backend
+is a private separate repo).

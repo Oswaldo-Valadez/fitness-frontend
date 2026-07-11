@@ -78,7 +78,11 @@ export default function FoodFormModal({ open, onClose, onSaved, food }: Props) {
       const payload = {
         name: form.name,
         category: form.category || undefined,
-        food_source_id: Number(form.food_source_id),
+        // Only sent when creating: the edit form doesn't re-collect the
+        // source, and the backend keeps the existing value when this key
+        // is absent — sending 0 (Number('') on the hidden edit field)
+        // fails `exists:food_sources,id` and silently breaks every edit.
+        ...(food ? {} : { food_source_id: Number(form.food_source_id) }),
         data_type: form.data_type,
         energy_kcal: form.energy_kcal ? Number(form.energy_kcal) : undefined,
         protein_g: form.protein_g ? Number(form.protein_g) : undefined,
@@ -88,7 +92,7 @@ export default function FoodFormModal({ open, onClose, onSaved, food }: Props) {
         sodium_mg: form.sodium_mg ? Number(form.sodium_mg) : undefined,
       }
       if (food) await adminApi.updateFood(food.id, payload)
-      else await adminApi.createFood(payload)
+      else await adminApi.createFood(payload as Parameters<typeof adminApi.createFood>[0])
       onSaved()
     } catch {
       setError('No se pudo guardar el alimento. Revisa los campos.')

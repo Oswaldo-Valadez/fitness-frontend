@@ -1,23 +1,45 @@
 # Verification
 
 ## Evidence sources
-- package.json (frontend lint/test/build/generation scripts)
-- No .github/workflows files were found.
+- package.json (frontend lint/typecheck/test/build/generation/e2e scripts)
+- .github/workflows/ci.yml (static, unit, build jobs; e2e job intentionally
+  omitted, see comment in that file)
+- .ai-harness.yaml
 
 ## Command profiles
 
 ### Targeted
 1. npm run lint
-2. npm run test
+2. npm run typecheck
+3. npm run test
 
 ### Full
-1. npm run lint
-2. npm run test
-3. npm run build
+1. npm ci
+2. npm run gen
+3. npm run contract:check
+4. npm run lint
+5. npm run typecheck
+6. npm run test
+7. npm run build
+
+### E2E (not in CI — see evidence_gaps in .ai-harness.yaml)
+1. Seed and serve fitness-backend locally (`php artisan migrate:fresh --seed`,
+   `php artisan serve`).
+2. `npm run dev` (frontend).
+3. `npm run test:e2e`, or `BASE_URL=<url> npx playwright test` against a
+   different host.
 
 ## Known blockers and unknowns
-- Contract generation is backend-owner responsibility.
-- Contract validation is backend-owner responsibility.
+- Contract source is owned by fitness-backend, but vendored into this repo
+  at `openapi/api-docs.json` (not read via relative path) because
+  fitness-backend is a private, separate repo — CI here cannot check it
+  out. Whoever changes the backend contract copies the updated
+  `storage/api-docs/api-docs.json` into `openapi/api-docs.json` here before
+  running `npm run gen`.
+- Contract *validation* (`npm run contract:check`) runs locally in this
+  repo against that vendored copy — it is no longer purely a backend-owner
+  responsibility from a tooling standpoint, though the backend still owns
+  the contract's content.
 
 ## Command rules
 - Use terminating, non-watch commands only.

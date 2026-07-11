@@ -1,0 +1,2 @@
+external_id,name,category,brand,barcode,data_type,serving_size,serving_unit,energy_kcal,protein_g,carbohydrate_g,fat_g,fiber_g,sodium_mg,is_verified
+e2e-001,Alimento CSV E2E,Otros,,,generic,100,g,120,5,20,2,1,10,0

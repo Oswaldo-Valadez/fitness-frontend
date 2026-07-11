@@ -20,6 +20,7 @@ paths:
     - public/**
   tests:
     - src/**/*.{test,spec}.{ts,tsx}
+    - e2e/**/*.spec.ts
   specs: specs
   progress: progress
   generated:
@@ -38,26 +39,33 @@ paths:
     - temp/**
     - "*.log"
     - "*.tsbuildinfo"
+    - test-results/**
+    - playwright-report/**
 
 commands:
-  install: npm install
+  install: npm ci
   format_check: null
   lint: npm run lint
   typecheck: npm run typecheck
   unit_tests: npm run test
-  integration_tests: null
-  e2e_tests: null
+  integration_tests: npm run test
+  e2e_tests: npm run test:e2e
   build: npm run build
-  contract_generate: null
-  contract_validate: null
+  contract_generate: npm run gen
+  contract_validate: npm run contract:check
   client_generate: npm run gen
 
 verification_profiles:
   targeted:
     - npm run lint
+    - npm run typecheck
     - npm run test
   full:
+    - npm ci
+    - npm run gen
+    - npm run contract:check
     - npm run lint
+    - npm run typecheck
     - npm run test
     - npm run build
 
@@ -84,4 +92,8 @@ review:
 
 evidence_gaps:
   - Missing project-specific requirements/spec/ADR files.
-  - No CI workflow files found under .github/workflows.
+  - e2e_tests (npm run test:e2e) requires a real seeded fitness-backend
+    running locally (see e2e/helpers.ts, playwright.config.ts BASE_URL) —
+    not runnable standalone from this repo, and not wired into CI since
+    fitness-backend is a private separate repo (see .github/workflows/ci.yml
+    comment on the omitted e2e job).
