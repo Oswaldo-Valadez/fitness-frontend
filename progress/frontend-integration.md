@@ -674,3 +674,33 @@ Passed: `npm run lint` (clean, one pre-existing unrelated warning),
 
 Remaining: Fases 11B (consent revoke), 11C (change password), 11D (edit
 meal metadata) — same audit, not yet implemented.
+
+## Fase 11B — Gestión de consentimientos
+
+Closes the second gap from the Fase 11 audit: `accountApi.revokeConsent()`
+existed but no screen called it. Investigated whether the frontend could
+resolve which consent IDs belong to the current user — it cannot (`/user`
+only returns the aggregate `has_active_consents` boolean, no endpoint lists
+individual consents) — so this phase required a small, justified backend
+addition, documented on the backend side as Fase 11B in
+`fitness-backend/progress/backend-hardening.md`: `POST
+/account/consents/revoke-all` (`revokeAllConsents`), which revokes all
+three required consent types for the authenticated user in one call.
+
+Changed: `src/api/generated/**` (regenerated from the updated vendored
+contract), `src/api/account.ts` (added `revokeAllConsents()`),
+`src/pages/account/AccountPage.tsx` — added a "Privacidad" card with a
+"Revocar mis consentimientos" button behind a `ConfirmDialog`; on success,
+dispatches `setConsentRequired(...)` directly so the existing
+`ConsentBanner` appears immediately instead of waiting for the next
+mutation's 409. `e2e/auth-consent.spec.ts` — added a test driving the real
+UI (click revoke → confirm → banner appears → next mutation still 409s,
+proving the banner reflects real backend state, not just local UI state).
+
+Passed: backend — `vendor/bin/pint --test`, `php artisan test --no-coverage`
+(289 tests, 997 assertions), `APP_ENV=testing php artisan
+testing:verify-upgrade-path`. Frontend — `npm run lint` (clean),
+`npm run typecheck` (clean), `npm run test -- --run` (53 tests),
+`npm run build`, `npx playwright test e2e/auth-consent.spec.ts` (3/3).
+
+Remaining: Fases 11C (change password), 11D (edit meal metadata).

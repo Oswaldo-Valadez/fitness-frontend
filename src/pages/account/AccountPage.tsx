@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, Download, Trash2 } from 'lucide-react'
+import { AlertTriangle, Download, ShieldOff, Trash2 } from 'lucide-react'
 import { useAppDispatch } from '@/store/hooks'
-import { clearUser } from '@/store/authSlice'
+import { clearUser, setConsentRequired } from '@/store/authSlice'
 import { accountApi } from '@/api/account'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Card, { CardHeader } from '@/components/ui/Card'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { useToast } from '@/components/ui/toast'
 
 export default function AccountPage() {
@@ -19,6 +20,7 @@ export default function AccountPage() {
   const [deleteError, setDeleteError] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showRevokeConfirm, setShowRevokeConfirm] = useState(false)
 
   const handleExport = async () => {
     setExporting(true)
@@ -28,6 +30,17 @@ export default function AccountPage() {
     } finally {
       setExporting(false)
     }
+  }
+
+  const handleRevokeConsents = async () => {
+    await accountApi.revokeAllConsents()
+    dispatch(
+      setConsentRequired({
+        message: 'Revocaste tus consentimientos. Debes aceptarlos de nuevo para seguir registrando datos.',
+        returnPath: '/account',
+      }),
+    )
+    show({ variant: 'success', message: 'Consentimientos revocados.' })
   }
 
   const handleDelete = async (e: React.FormEvent) => {
@@ -59,6 +72,26 @@ export default function AccountPage() {
           Descargar mis datos
         </Button>
       </Card>
+
+      <Card>
+        <CardHeader
+          title="Privacidad"
+          subtitle="Revoca los consentimientos que aceptaste al registrarte. Deberás volver a aceptarlos para seguir registrando datos."
+          action={<ShieldOff className="h-5 w-5 text-warning" />}
+        />
+        <Button variant="secondary" onClick={() => setShowRevokeConfirm(true)}>
+          Revocar mis consentimientos
+        </Button>
+      </Card>
+
+      <ConfirmDialog
+        open={showRevokeConfirm}
+        onClose={() => setShowRevokeConfirm(false)}
+        onConfirm={handleRevokeConsents}
+        title="Revocar consentimientos"
+        description="Se revocarán los tres consentimientos vigentes (términos, privacidad y aviso de bienestar general). No podrás registrar comidas, peso ni otros datos hasta que los aceptes de nuevo."
+        confirmLabel="Sí, revocar"
+      />
 
       <Card className="border-destructive/20">
         <CardHeader title={<span className="text-destructive">Eliminar cuenta</span>} action={<Trash2 className="h-5 w-5 text-destructive" />} />

@@ -191,6 +191,31 @@
                 ]
             }
         },
+        "/account/consents/revoke-all": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "operationId": "revokeAllConsents",
+                "responses": {
+                    "200": {
+                        "description": "All active consents revoked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
         "/account": {
             "delete": {
                 "tags": [

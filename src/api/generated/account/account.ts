@@ -32,6 +32,14 @@ const exportAccountData = (
     },
       );
     }
+  const revokeAllConsents = (
+
+ ) => {
+      return customInstance<MessageResponse>(
+      {url: `/account/consents/revoke-all`, method: 'POST'
+    },
+      );
+    }
   const deleteAccount = (
     deleteAccountBody: DeleteAccountBody,
  ) => {
@@ -42,7 +50,8 @@ const exportAccountData = (
     },
       );
     }
-  return {exportAccountData,revokeConsent,deleteAccount}};
+  return {exportAccountData,revokeConsent,revokeAllConsents,deleteAccount}};
 export type ExportAccountDataResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAccount>['exportAccountData']>>>
 export type RevokeConsentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAccount>['revokeConsent']>>>
+export type RevokeAllConsentsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAccount>['revokeAllConsents']>>>
 export type DeleteAccountResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAccount>['deleteAccount']>>>

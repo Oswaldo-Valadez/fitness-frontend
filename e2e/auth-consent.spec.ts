@@ -10,10 +10,10 @@ test.describe('auth + consent revoke/reaccept', () => {
   test('a revoked consent blocks the next mutation with 409, and reaccepting through /onboarding clears it', async ({ page }) => {
     await login(page, DEMO_EMAIL, DEMO_PASSWORD)
 
-    // No "manage consents" screen exists by design (there is no endpoint that
-    // lists a user's individual consents — /user only exposes the aggregate
-    // has_active_consents boolean). Arrange the revoked state directly
-    // through the authenticated session instead of inventing a UI control.
+    // Individual per-consent revocation (by numeric ID) has no dedicated UI —
+    // only the bulk "revoke all" action on /account does (see the next test).
+    // Arrange this single-consent-revoked state directly through the
+    // authenticated session to test the 409-then-reaccept path in isolation.
     const revokeResponse = await apiRequest(page, 'POST', '/api/account/consents/1/revoke')
     expect(revokeResponse.ok).toBeTruthy()
 
@@ -38,5 +38,23 @@ test.describe('auth + consent revoke/reaccept', () => {
 
     await page.waitForURL(/\/dashboard|\/profile/)
     await expect(page.getByText(/consentimientos/i)).toHaveCount(0)
+  })
+
+  test('revoking all consents from the account page shows the reaccept banner (Fase 11B)', async ({ page }) => {
+    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
+    await page.goto('/account')
+
+    await page.getByRole('button', { name: 'Revocar mis consentimientos' }).click()
+    await page.getByRole('button', { name: 'Sí, revocar' }).click()
+    await expect(page.getByText('Consentimientos revocados.')).toBeVisible()
+    await expect(page.getByText(/consentimientos/i).first()).toBeVisible()
+
+    // The next mutation is still rejected server-side, confirming the
+    // banner reflects a real backend state, not just local UI state.
+    await page.goto('/profile')
+    await page.getByRole('button', { name: 'Registrar' }).click()
+    await page.fill('#weight-input', '71')
+    await page.getByRole('button', { name: 'Guardar' }).click()
+    await expect(page.getByText(/consentimientos/i).first()).toBeVisible()
   })
 })

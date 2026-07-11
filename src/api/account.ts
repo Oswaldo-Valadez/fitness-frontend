@@ -22,6 +22,13 @@ export const accountApi = {
     await getAccount().revokeConsent(consentId)
   },
 
+  // Required consent types are always granted together during onboarding
+  // (see ConsentsStep), and the frontend never learns individual consent
+  // IDs, so revocation is symmetric: revoke all active consents in one call.
+  async revokeAllConsents(): Promise<void> {
+    await getAccount().revokeAllConsents()
+  },
+
   async deleteAccount(password: string): Promise<void> {
     await getAccount().deleteAccount({ current_password: password })
   },
