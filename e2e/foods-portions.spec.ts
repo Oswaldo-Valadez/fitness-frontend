@@ -31,34 +31,42 @@ test.describe('private foods, portions, favorites, recents', () => {
     await expect(row.getByText('Sin dato')).toBeVisible()
   })
 
-  test('creating a food portion via the documented endpoint (no dedicated UI exists for this yet)', async ({ page }) => {
+  test('creating, editing, and deleting a food portion from the food detail page (Fase 11A)', async ({ page }) => {
     await login(page, DEMO_EMAIL, DEMO_PASSWORD)
 
-    // Fase 10C finding: the frontend has no screen to create a food portion —
-    // foodsApi.createPortion() exists but nothing calls it. Not a bug to fix
-    // here (out of scope per "no agregues features"); verified at the
-    // contract level instead so the flow itself is proven end-to-end.
     const search = await apiRequest(page, 'GET', '/api/foods?q=Arroz blanco cocido')
     const { data } = search.json as { data: { id: number }[] }
     const foodId = data[0].id
 
-    const uniqueUnit = `taza E2E ${Date.now()}`
-    const created = await apiRequest(page, 'POST', `/api/foods/${foodId}/portions`, {
-      description: '1 taza E2E',
-      amount: 1,
-      unit_label: uniqueUnit,
-      gram_weight: 158,
-    })
-    expect(created.ok).toBeTruthy()
-    const { portion } = created.json as { portion: { gram_weight: number; display_label: string } }
-    expect(portion.gram_weight).toBe(158)
-
-    // The UI always shows the backend-computed display_label
-    // ("{amount} {unit_label} ({gram_weight} g)"), not the free-text
-    // description — using a unique unit label keeps this assertion
-    // independent of any other portions on this food.
+    const description = `Taza E2E ${Date.now()}`
+    const uniqueUnit = `taza-e2e-${Date.now()}`
     await page.goto(`/foods/${foodId}`)
-    await expect(page.getByText(portion.display_label)).toBeVisible()
+    await page.getByRole('button', { name: 'Agregar porción' }).click()
+    await page.fill('#portion-description', description)
+    await page.fill('#portion-amount', '1')
+    await page.fill('#portion-unit-label', uniqueUnit)
+    await page.fill('#portion-gram-weight', '158')
+    await page.getByRole('button', { name: 'Crear porción' }).click()
+
+    // The row's visible text is the backend-computed display_label
+    // ("{amount} {unit_label} ({gram_weight} g)"), not the free-text
+    // description. The same label also appears in the top pill-selector,
+    // so scope to the "Mis porciones" row via the unique edit button.
+    await expect(page.getByText('Porción guardada.')).toBeVisible()
+    const editButton = page.getByRole('button', { name: `Editar porción ${description}` })
+    const row = page.locator('div.flex.items-center.justify-between', { has: editButton })
+    await expect(row.getByText(`1 ${uniqueUnit} (158 g)`)).toBeVisible()
+
+    await editButton.click()
+    await page.fill('#portion-gram-weight', '160')
+    await page.getByRole('button', { name: 'Guardar cambios' }).click()
+    await expect(page.getByText('Porción guardada.')).toBeVisible()
+    await expect(row.getByText(`1 ${uniqueUnit} (160 g)`)).toBeVisible()
+
+    await page.getByRole('button', { name: `Eliminar porción ${description}` }).click()
+    await page.getByRole('button', { name: 'Eliminar', exact: true }).click()
+    await expect(page.getByText('Porción eliminada.')).toBeVisible()
+    await expect(page.getByText(uniqueUnit)).toHaveCount(0)
   })
 
   test('favoriting a food in the catalog persists across navigation', async ({ page }) => {

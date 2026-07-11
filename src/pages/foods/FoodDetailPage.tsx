@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Star } from 'lucide-react'
+import { ArrowLeft, Pencil, Plus, Star, Trash2 } from 'lucide-react'
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
 import { clsx } from 'clsx'
 import { foodsApi } from '@/api/foods'
@@ -10,7 +10,9 @@ import NutrientValue from '@/components/nutrition/NutrientValue'
 import PageSpinner from '@/components/ui/PageSpinner'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { useToast } from '@/components/ui/toast'
+import PortionFormModal from './PortionFormModal'
 
 const ROW = (label: string, value: React.ReactNode, accentClass?: string) => (
   <div className="flex justify-between border-b border-border py-2 text-sm last:border-0">
@@ -32,13 +34,20 @@ export default function FoodDetailPage() {
   const [selectedPortion, setSelectedPortion] = useState<FoodPortion | null>(null)
   const [portionCount, setPortionCount] = useState(1)
   const [togglingFavorite, setTogglingFavorite] = useState(false)
+  const [portionFormOpen, setPortionFormOpen] = useState(false)
+  const [editingPortion, setEditingPortion] = useState<FoodPortion | null>(null)
+  const [deletingPortion, setDeletingPortion] = useState<FoodPortion | null>(null)
 
-  useEffect(() => {
+  const load = () => {
     if (!id) return
     foodsApi
       .get(Number(id))
       .then(setFood)
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    load()
   }, [id])
 
   if (loading) return <PageSpinner />
@@ -87,6 +96,23 @@ export default function FoodDetailPage() {
     }
     navigate(`/diary?${params}`)
   }
+
+  const handlePortionSaved = () => {
+    setPortionFormOpen(false)
+    setEditingPortion(null)
+    load()
+    show({ variant: 'success', message: 'Porción guardada.' })
+  }
+
+  const handleDeletePortion = async () => {
+    if (!deletingPortion) return
+    if (selectedPortion?.id === deletingPortion.id) setSelectedPortion(null)
+    await foodsApi.deletePortion(deletingPortion.id)
+    load()
+    show({ variant: 'success', message: 'Porción eliminada.' })
+  }
+
+  const ownPortions = food.portions?.filter((p) => p.is_own) ?? []
 
   return (
     <div className="mx-auto max-w-md space-y-5">
@@ -167,6 +193,48 @@ export default function FoodDetailPage() {
             ))}
           </div>
         )}
+
+        <div className="mt-3 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-muted">Mis porciones</p>
+            <button
+              type="button"
+              onClick={() => {
+                setEditingPortion(null)
+                setPortionFormOpen(true)
+              }}
+              className="flex cursor-pointer items-center gap-1 text-xs font-medium text-primary hover:underline"
+            >
+              <Plus className="h-3 w-3" /> Agregar porción
+            </button>
+          </div>
+          {ownPortions.map((p) => (
+            <div key={p.id} className="flex items-center justify-between rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs">
+              <span className="text-foreground">{p.display_label ?? `${p.description} (${p.gram_weight}g)`}</span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingPortion(p)
+                    setPortionFormOpen(true)
+                  }}
+                  aria-label={`Editar porción ${p.description}`}
+                  className="cursor-pointer rounded p-1 text-muted hover:text-primary"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeletingPortion(p)}
+                  aria-label={`Eliminar porción ${p.description}`}
+                  className="cursor-pointer rounded p-1 text-muted hover:text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
 
         <div className="mt-5 flex items-end justify-between gap-3 rounded-lg bg-surface-muted p-3">
           {selectedPortion ? (
@@ -253,6 +321,26 @@ export default function FoodDetailPage() {
           Agregar al diario
         </Button>
       </Card>
+
+      <PortionFormModal
+        open={portionFormOpen}
+        onClose={() => {
+          setPortionFormOpen(false)
+          setEditingPortion(null)
+        }}
+        onSaved={handlePortionSaved}
+        foodId={food.id}
+        portion={editingPortion}
+      />
+
+      <ConfirmDialog
+        open={!!deletingPortion}
+        onClose={() => setDeletingPortion(null)}
+        onConfirm={handleDeletePortion}
+        title="Eliminar porción"
+        description={`¿Seguro que quieres eliminar "${deletingPortion?.description}"?`}
+        confirmLabel="Eliminar"
+      />
     </div>
   )
 }

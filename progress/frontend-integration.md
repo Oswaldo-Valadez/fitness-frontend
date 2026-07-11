@@ -641,3 +641,36 @@ management) are product decisions for the team, not implementation gaps —
 flagged, not fixed, per "no agregues features". The `e2e` CI job is still
 not automated (documented reason unchanged since Fase 8/10B: fitness-backend
 is a private separate repo).
+
+## Fase 11A — Gestión de porciones de alimento (product gap closed)
+
+Full product-gap audit (see `fitness-backend/PLAN_FASE_11_GAPS_DE_PRODUCTO.md`)
+compared all 90 backend `operationId`s against real frontend usage. Found
+four backend capabilities with a working adapter but zero UI: portions CRUD,
+consent revoke, password change, meal metadata edit. This phase closes the
+first: `createFoodPortion`/`updateFoodPortion`/`deleteFoodPortion` (already
+present in `src/api/foods.ts`, never called from a component before now).
+
+Changed: `src/pages/foods/PortionFormModal.tsx` (new) — a create/edit modal
+for a food portion (`description`, `amount`, `unit_label`, `gram_weight`),
+reusing `Modal`/`Input`/`Button`. `src/pages/foods/FoodDetailPage.tsx` — added
+a "Mis porciones" section listing the user's own portions
+(`food.portions.filter(p => p.is_own)`) with edit/delete icon buttons;
+official/manufacturer portions (`is_own: false`) are excluded from this list
+since `FoodPortionPolicy` rejects mutations on them — the UI does not offer
+an action that would 403. Delete uses the existing `ConfirmDialog`. Data
+reloads via a shared `load()` after every mutation. `e2e/foods-portions.spec.ts`
+— replaced the old API-only portion assertion with a full UI-driven test
+(create → edit → delete) that also exercises the same `display_label` field
+the diary/food-list already rely on, run against an isolated `fitness_e2e_11`
+database.
+
+No backend changes — the three endpoints and their request/response schemas
+were already complete and documented; this phase was frontend-only.
+
+Passed: `npm run lint` (clean, one pre-existing unrelated warning),
+`npm run typecheck` (clean), `npm run test -- --run` (53 tests),
+`npm run build`, `npx playwright test e2e/foods-portions.spec.ts` (5/5).
+
+Remaining: Fases 11B (consent revoke), 11C (change password), 11D (edit
+meal metadata) — same audit, not yet implemented.
