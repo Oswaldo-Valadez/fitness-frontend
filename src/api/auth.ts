@@ -1,11 +1,12 @@
 import { initCsrf } from '@/api/client'
 import { getAuth } from '@/api/generated/auth/auth'
-import type { AuthForgotPasswordBody, AuthLoginBody, AuthRegisterBody, AuthResetPasswordBody } from '@/api/generated/model'
+import type { AuthForgotPasswordBody, AuthLoginBody, AuthRegisterBody, AuthResetPasswordBody, UpdatePasswordBody } from '@/api/generated/model'
 
 export type LoginPayload = AuthLoginBody
 export type RegisterPayload = AuthRegisterBody
 export type ForgotPasswordPayload = AuthForgotPasswordBody
 export type ResetPasswordPayload = AuthResetPasswordBody
+export type UpdatePasswordPayload = UpdatePasswordBody
 
 export const authApi = {
   async getCsrf() {
@@ -38,5 +39,9 @@ export const authApi = {
 
   async me() {
     return getAuth().getAuthUser()
+  },
+
+  async updatePassword(payload: UpdatePasswordPayload) {
+    return getAuth().updatePassword(payload)
   },
 }

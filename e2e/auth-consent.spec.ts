@@ -57,4 +57,39 @@ test.describe('auth + consent revoke/reaccept', () => {
     await page.getByRole('button', { name: 'Guardar' }).click()
     await expect(page.getByText(/consentimientos/i).first()).toBeVisible()
   })
+
+  test('changing the password from the account page takes effect on the next login (Fase 11C)', async ({ page }) => {
+    const temporaryPassword = 'TempPass456!'
+    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
+    await page.goto('/account')
+
+    await page.fill('#current_password', DEMO_PASSWORD)
+    await page.fill('#new_password', temporaryPassword)
+    await page.fill('#new_password_confirmation', temporaryPassword)
+    await page.getByRole('button', { name: 'Cambiar contraseña' }).click()
+    await expect(page.getByText('Contraseña actualizada.')).toBeVisible()
+
+    // Confirm the new password actually works, then restore the original
+    // password through the same UI so the shared demo account keeps
+    // working for every other test in the suite — even if this fails.
+    try {
+      await apiRequest(page, 'POST', '/api/auth/logout')
+      await login(page, DEMO_EMAIL, temporaryPassword)
+      await page.goto('/account')
+      await page.fill('#current_password', temporaryPassword)
+      await page.fill('#new_password', DEMO_PASSWORD)
+      await page.fill('#new_password_confirmation', DEMO_PASSWORD)
+      await page.getByRole('button', { name: 'Cambiar contraseña' }).click()
+      await expect(page.getByText('Contraseña actualizada.')).toBeVisible()
+    } catch (err) {
+      await apiRequest(page, 'POST', '/api/auth/logout')
+      await login(page, DEMO_EMAIL, temporaryPassword)
+      await apiRequest(page, 'PUT', '/api/password', {
+        current_password: temporaryPassword,
+        password: DEMO_PASSWORD,
+        password_confirmation: DEMO_PASSWORD,
+      })
+      throw err
+    }
+  })
 })

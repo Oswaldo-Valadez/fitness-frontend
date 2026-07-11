@@ -704,3 +704,31 @@ testing:verify-upgrade-path`. Frontend — `npm run lint` (clean),
 `npm run build`, `npx playwright test e2e/auth-consent.spec.ts` (3/3).
 
 Remaining: Fases 11C (change password), 11D (edit meal metadata).
+
+## Fase 11C — Cambiar contraseña
+
+Closes the third gap: `PUT /password` (`updatePassword`) was fully
+documented and generated but had no adapter method or UI. No backend
+changes needed.
+
+Changed: `src/api/auth.ts` — added `updatePassword()`.
+`src/pages/account/AccountPage.tsx` — added a "Seguridad" card with a
+3-field form (current/new/confirm), reusing the same 422-validation-error
+pattern already used by `ResetPasswordPage.tsx` (flatten
+`err.data.errors` into per-field messages). Clears the form and shows a
+toast on success.
+
+`e2e/auth-consent.spec.ts` — added a test that changes the shared demo
+account's password through the real UI, logs out, logs back in with the
+new password to prove the change took effect server-side (not just local
+state), then restores the original password through the same UI so the
+rest of the E2E suite keeps working; wrapped the restore in a try/catch
+that also restores via a direct API call if the UI step itself fails, so
+a test failure here can't leave the shared demo account permanently
+locked out for every other spec file.
+
+Passed: `npm run lint` (clean), `npm run typecheck` (clean),
+`npm run test -- --run` (53 tests), `npm run build`,
+`npx playwright test e2e/auth-consent.spec.ts` (4/4).
+
+Remaining: Fase 11D (edit meal metadata).

@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, Download, ShieldOff, Trash2 } from 'lucide-react'
+import { AlertTriangle, Download, KeyRound, ShieldOff, Trash2 } from 'lucide-react'
 import { useAppDispatch } from '@/store/hooks'
 import { clearUser, setConsentRequired } from '@/store/authSlice'
 import { accountApi } from '@/api/account'
+import { authApi } from '@/api/auth'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Card, { CardHeader } from '@/components/ui/Card'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { useToast } from '@/components/ui/toast'
+
+const EMPTY_PASSWORD_FORM = { current_password: '', password: '', password_confirmation: '' }
 
 export default function AccountPage() {
   const dispatch = useAppDispatch()
@@ -21,6 +24,11 @@ export default function AccountPage() {
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showRevokeConfirm, setShowRevokeConfirm] = useState(false)
+  const [passwordForm, setPasswordForm] = useState(EMPTY_PASSWORD_FORM)
+  const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({})
+  const [changingPassword, setChangingPassword] = useState(false)
+
+  const setPasswordField = (k: keyof typeof passwordForm) => (e: React.ChangeEvent<HTMLInputElement>) => setPasswordForm((f) => ({ ...f, [k]: e.target.value }))
 
   const handleExport = async () => {
     setExporting(true)
@@ -41,6 +49,28 @@ export default function AccountPage() {
       }),
     )
     show({ variant: 'success', message: 'Consentimientos revocados.' })
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordErrors({})
+    setChangingPassword(true)
+    try {
+      await authApi.updatePassword(passwordForm)
+      setPasswordForm(EMPTY_PASSWORD_FORM)
+      show({ variant: 'success', message: 'Contraseña actualizada.' })
+    } catch (err: unknown) {
+      const data = (err as { data?: { errors?: Record<string, string[]> } })?.data
+      if (data?.errors) {
+        const flat: Record<string, string> = {}
+        for (const [k, v] of Object.entries(data.errors)) flat[k] = v[0]
+        setPasswordErrors(flat)
+      } else {
+        setPasswordErrors({ current_password: 'No se pudo actualizar la contraseña.' })
+      }
+    } finally {
+      setChangingPassword(false)
+    }
   }
 
   const handleDelete = async (e: React.FormEvent) => {
@@ -92,6 +122,45 @@ export default function AccountPage() {
         description="Se revocarán los tres consentimientos vigentes (términos, privacidad y aviso de bienestar general). No podrás registrar comidas, peso ni otros datos hasta que los aceptes de nuevo."
         confirmLabel="Sí, revocar"
       />
+
+      <Card>
+        <CardHeader title="Seguridad" subtitle="Cambia tu contraseña." action={<KeyRound className="h-5 w-5 text-primary" />} />
+        <form onSubmit={handleChangePassword} className="space-y-4">
+          <Input
+            id="current_password"
+            label="Contraseña actual"
+            type="password"
+            autoComplete="current-password"
+            value={passwordForm.current_password}
+            onChange={setPasswordField('current_password')}
+            error={passwordErrors.current_password}
+            required
+          />
+          <Input
+            id="new_password"
+            label="Nueva contraseña"
+            type="password"
+            autoComplete="new-password"
+            value={passwordForm.password}
+            onChange={setPasswordField('password')}
+            error={passwordErrors.password}
+            required
+          />
+          <Input
+            id="new_password_confirmation"
+            label="Confirmar nueva contraseña"
+            type="password"
+            autoComplete="new-password"
+            value={passwordForm.password_confirmation}
+            onChange={setPasswordField('password_confirmation')}
+            error={passwordErrors.password_confirmation}
+            required
+          />
+          <Button type="submit" loading={changingPassword}>
+            Cambiar contraseña
+          </Button>
+        </form>
+      </Card>
 
       <Card className="border-destructive/20">
         <CardHeader title={<span className="text-destructive">Eliminar cuenta</span>} action={<Trash2 className="h-5 w-5 text-destructive" />} />
