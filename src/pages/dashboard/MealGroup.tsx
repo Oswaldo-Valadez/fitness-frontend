@@ -1,4 +1,4 @@
-import { Copy, Plus, Save, Trash2 } from 'lucide-react'
+import { Copy, Pencil, Plus, Save, Trash2 } from 'lucide-react'
 import { MEAL_ICONS, MEAL_LABELS, type MealType } from '@/lib/mealTypes'
 import type { NutrientStatusValue } from '@/lib/nutrientStatus'
 import NutrientValue from '@/components/nutrition/NutrientValue'
@@ -13,6 +13,7 @@ export interface MealGroupItem {
 
 export interface MealGroupMeal {
   id?: number
+  name?: string | null
   items?: MealGroupItem[]
   /** When the caller already has an honest (null-safe) aggregate, pass it
    * instead of letting this component re-sum items client-side. */
@@ -27,6 +28,7 @@ interface Props {
   /** Both are only offered once the meal actually has items. */
   onSaveAsTemplate?: () => void
   onCopyToDate?: () => void
+  onEdit?: () => void
 }
 
 /** Sums only items with a known energy value — never treats unknown as 0. */
@@ -40,7 +42,7 @@ function summarizeEnergy(items: MealGroupItem[]): { value: number | null; status
   return { value: sum, status: known.length < items.length ? 'partial' : 'complete' }
 }
 
-export default function MealGroup({ mealType, meal, onAddMeal, onDeleteItem, onSaveAsTemplate, onCopyToDate }: Props) {
+export default function MealGroup({ mealType, meal, onAddMeal, onDeleteItem, onSaveAsTemplate, onCopyToDate, onEdit }: Props) {
   const Icon = MEAL_ICONS[mealType]
   const items = meal?.items ?? []
   const fallback = summarizeEnergy(items)
@@ -54,13 +56,18 @@ export default function MealGroup({ mealType, meal, onAddMeal, onDeleteItem, onS
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Icon className="h-4 w-4" aria-hidden="true" />
           </span>
-          {MEAL_LABELS[mealType]}
+          {meal?.name || MEAL_LABELS[mealType]}
         </h3>
         {meal && (
           <div className="flex items-center gap-1">
             <span className="text-sm font-medium text-muted">
               <NutrientValue value={totalValue} status={totalStatus} unit=" kcal" />
             </span>
+            {onEdit && (
+              <button onClick={onEdit} aria-label="Editar comida" title="Editar comida" className="cursor-pointer rounded p-1 text-muted hover:text-primary">
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            )}
             {items.length > 0 && onCopyToDate && (
               <button
                 onClick={onCopyToDate}

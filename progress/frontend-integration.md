@@ -731,4 +731,62 @@ Passed: `npm run lint` (clean), `npm run typecheck` (clean),
 `npm run test -- --run` (53 tests), `npm run build`,
 `npx playwright test e2e/auth-consent.spec.ts` (4/4).
 
+Follow-up fix: the Fase 11B revoke-all test originally left the shared
+demo account's consents permanently revoked after a pass, which broke
+every subsequent spec file that mutates data (`foods-portions`,
+`recipes-diary`, `templates-reports`, ...) whenever the full suite ran —
+15+ cascading failures. Wrapped the test body in try/finally so it always
+reaccepts through the same onboarding flow the previous test exercises,
+regardless of pass/fail. Confirmed by resetting the isolated E2E DB and
+re-running the full 30-test suite: 29/30 pass, with the one remaining
+failure isolated to `auth-consent.spec.ts`'s own Fase 11B test hitting the
+backend's `RateLimiter::for('auth')` cap (10 logins/min/IP,
+`AppServiceProvider.php`) purely from running late in a ~25-login
+sequential suite — passes cleanly alone or as part of just this file, so
+it is not treated as a regression (same class of issue documented in Fase
+10C).
+
 Remaining: Fase 11D (edit meal metadata).
+
+## Fase 11D — Editar metadatos de una comida
+
+Closes the fourth and final gap from the Fase 11 audit: `PUT /meals/{meal}`
+(`updateMeal`) had a generated client but no adapter method or UI. While
+implementing, found a real backend bug — see
+`fitness-backend/progress/backend-hardening.md` (Fase 11D): the shared
+`StoreMealLogRequest` required `meal_type`/`occurred_at` on every request
+including PUT, so a metadata-only edit always 422'd despite the documented
+contract allowing a fully optional body. Fixed backend-side with a
+reproduction test before implementing the frontend.
+
+Changed: `src/api/meals.ts` — added `update()` (name/notes only, per the
+plan: `meal_type`/`occurred_at` moves are already covered by "Copiar a
+otra fecha"). `src/pages/dashboard/MealGroup.tsx` — added an optional
+`onEdit` prop and a pencil icon button next to the existing copy/template
+actions; the meal's `name` now replaces the generic meal-type label in the
+header when set. `src/pages/diary/EditMealModal.tsx` (new) — a small modal
+(name + notes), mirroring `CopyMealModal.tsx`'s structure. Wired only into
+`DiaryPage.tsx` (not `DashboardPage.tsx`, which uses a simplified
+read-mostly `MealGroup` without the copy/template actions either).
+
+`e2e/recipes-diary.spec.ts` — added a test that adds a snack, edits its
+name/notes through the real UI, and confirms the new name survives a page
+reload (proving server persistence, not just local state).
+
+Passed: backend — `vendor/bin/pint --test`, `php artisan test --no-coverage`
+(291 tests, 1005 assertions), `APP_ENV=testing php artisan
+testing:verify-upgrade-path`, `composer contract:check` (no diff — the fix
+was request-validation only). Frontend — `npm run lint` (clean),
+`npm run typecheck` (clean), `npm run test -- --run` (53 tests),
+`npm run build`, `npx playwright test e2e/recipes-diary.spec.ts` (3/3),
+full suite 29/30 (see the auth-consent throttle note above).
+
+## Fase 11 — closed
+
+All four product gaps from the audit (`fitness-backend/PLAN_FASE_11_GAPS_DE_PRODUCTO.md`)
+now have a working UI: food portion CRUD, consent revocation, password
+change, meal metadata editing. Two real bugs were found and fixed along
+the way (both with reproduction tests before the fix, per the established
+pattern): `revokeConsent` had no way to resolve consent IDs from the
+frontend (closed with a new, justified `revokeAllConsents` endpoint), and
+`updateMeal` rejected partial payloads despite its documented contract.

@@ -19,6 +19,7 @@ import DateNav from '@/components/ui/DateNav'
 import { useToast } from '@/components/ui/toast'
 import MealGroup from '@/pages/dashboard/MealGroup'
 import CopyMealModal from './CopyMealModal'
+import EditMealModal from './EditMealModal'
 
 export default function DiaryPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -45,6 +46,7 @@ export default function DiaryPage() {
   const [quantity, setQuantity] = useState(100)
   const [addingItem, setAddingItem] = useState(false)
   const [copyingMealId, setCopyingMealId] = useState<number | null>(null)
+  const [editingMeal, setEditingMeal] = useState<MealLog | null>(null)
 
   const loadMeals = useCallback(async () => {
     setLoading(true)
@@ -490,6 +492,7 @@ export default function DiaryPage() {
             onDeleteItem={(item) => handleDeleteItem(meal.id as number, item as MealLogItem)}
             onSaveAsTemplate={() => handleSaveAsTemplate(meal.id as number)}
             onCopyToDate={() => setCopyingMealId(meal.id as number)}
+            onEdit={() => setEditingMeal(meal)}
           />
         )
       })}
@@ -497,6 +500,7 @@ export default function DiaryPage() {
       {meals.length === 0 && <p className="py-10 text-center text-muted">Sin comidas registradas para esta fecha.</p>}
 
       <CopyMealModal mealId={copyingMealId} onClose={() => setCopyingMealId(null)} onCopied={loadMeals} />
+      <EditMealModal meal={editingMeal} onClose={() => setEditingMeal(null)} onSaved={loadMeals} />
     </div>
   )
 }

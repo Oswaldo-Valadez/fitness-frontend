@@ -56,4 +56,27 @@ test.describe('recipes and diary registration', () => {
     await expect(page.getByText(/Agregado a desayuno/i)).toBeVisible()
     await expect(page.getByText('Leche entera de vaca (demo)')).toBeVisible()
   })
+
+  test('editing a meal name and notes persists after reload (Fase 11D)', async ({ page }) => {
+    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
+    await page.goto('/diary')
+    await page.fill('#food-query', 'Manzana fresca')
+    await page
+      .getByRole('option', { name: /Manzana fresca/ })
+      .first()
+      .click()
+    await page.getByRole('button', { name: '+ Snack' }).click()
+    await expect(page.getByText(/Agregado a snack/i)).toBeVisible()
+
+    const mealName = `Merienda E2E ${Date.now()}`
+    await page.getByRole('button', { name: 'Editar comida' }).click()
+    await page.fill('#edit-meal-name', mealName)
+    await page.fill('#edit-meal-notes', 'Sin azúcar añadida')
+    await page.getByRole('button', { name: 'Guardar cambios' }).click()
+    await expect(page.getByText('Comida actualizada.')).toBeVisible()
+    await expect(page.getByText(mealName)).toBeVisible()
+
+    await page.reload()
+    await expect(page.getByText(mealName)).toBeVisible()
+  })
 })

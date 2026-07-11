@@ -44,18 +44,32 @@ test.describe('auth + consent revoke/reaccept', () => {
     await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/account')
 
-    await page.getByRole('button', { name: 'Revocar mis consentimientos' }).click()
-    await page.getByRole('button', { name: 'Sí, revocar' }).click()
-    await expect(page.getByText('Consentimientos revocados.')).toBeVisible()
-    await expect(page.getByText(/consentimientos/i).first()).toBeVisible()
+    try {
+      await page.getByRole('button', { name: 'Revocar mis consentimientos' }).click()
+      await page.getByRole('button', { name: 'Sí, revocar' }).click()
+      await expect(page.getByText('Consentimientos revocados.')).toBeVisible()
+      await expect(page.getByText(/consentimientos/i).first()).toBeVisible()
 
-    // The next mutation is still rejected server-side, confirming the
-    // banner reflects a real backend state, not just local UI state.
-    await page.goto('/profile')
-    await page.getByRole('button', { name: 'Registrar' }).click()
-    await page.fill('#weight-input', '71')
-    await page.getByRole('button', { name: 'Guardar' }).click()
-    await expect(page.getByText(/consentimientos/i).first()).toBeVisible()
+      // The next mutation is still rejected server-side, confirming the
+      // banner reflects a real backend state, not just local UI state.
+      await page.goto('/profile')
+      await page.getByRole('button', { name: 'Registrar' }).click()
+      await page.fill('#weight-input', '71')
+      await page.getByRole('button', { name: 'Guardar' }).click()
+      await expect(page.getByText(/consentimientos/i).first()).toBeVisible()
+    } finally {
+      // Revoking is a real, session-wide side effect on the shared demo
+      // account — every other spec file needs it able to mutate data, so
+      // always reaccept through the same reaccept-onboarding flow the
+      // previous test exercises, regardless of whether this test passed.
+      await page.getByRole('link', { name: 'Revisar consentimientos' }).click()
+      await page.waitForURL(/\/onboarding/)
+      await page.getByText('Términos y condiciones', { exact: true }).click()
+      await page.getByText('Política de privacidad', { exact: true }).click()
+      await page.getByText('Aviso de bienestar general', { exact: true }).click()
+      await page.getByRole('button', { name: 'Continuar' }).click()
+      await page.waitForURL(/\/dashboard|\/profile/)
+    }
   })
 
   test('changing the password from the account page takes effect on the next login (Fase 11C)', async ({ page }) => {

@@ -22,6 +22,11 @@ export const mealApi = {
     return meal as MealLog
   },
 
+  /** Metadata-only edit (name/notes). meal_type/occurred_at moves are handled by copy(). */
+  async update(id: number, payload: { name?: string | null; notes?: string | null }): Promise<MealLog> {
+    return getMeals().updateMeal(id, payload)
+  },
+
   async destroy(id: number): Promise<void> {
     await getMeals().deleteMeal(id)
   },
