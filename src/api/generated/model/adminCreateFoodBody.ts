@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { AdminCreateFoodBodyDataType } from './adminCreateFoodBodyDataType';
+import type { AdminCreateFoodBodyNutrients } from './adminCreateFoodBodyNutrients';
 
 export type AdminCreateFoodBody = {
   food_source_id: number;
@@ -19,16 +20,36 @@ export type AdminCreateFoodBody = {
   serving_size?: number | null;
   /** @nullable */
   serving_unit?: string | null;
-  /** @nullable */
+  /**
+     * Legacy field, deprecated — use nutrients.energy_kcal.
+     * @nullable
+     */
   energy_kcal?: number | null;
-  /** @nullable */
+  /**
+     * Legacy field, deprecated — use nutrients.protein_g.
+     * @nullable
+     */
   protein_g?: number | null;
-  /** @nullable */
+  /**
+     * Legacy field, deprecated — use nutrients.carbohydrate_g.
+     * @nullable
+     */
   carbohydrate_g?: number | null;
-  /** @nullable */
+  /**
+     * Legacy field, deprecated — use nutrients.fat_g.
+     * @nullable
+     */
   fat_g?: number | null;
-  /** @nullable */
+  /**
+     * Legacy field, deprecated — use nutrients.fiber_g.
+     * @nullable
+     */
   fiber_g?: number | null;
-  /** @nullable */
+  /**
+     * Legacy field, deprecated — use nutrients.sodium_mg.
+     * @nullable
+     */
   sodium_mg?: number | null;
+  /** Canonical dynamic payload: any tracked nutrient code (all 17, not limited to the six legacy ones) mapped to a number or null. null = unknown/remove; 0 = a real declared zero. Unknown codes and legacy/nutrients value conflicts are rejected with 422. */
+  nutrients?: AdminCreateFoodBodyNutrients;
 };

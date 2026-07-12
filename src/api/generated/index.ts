@@ -5,6 +5,7 @@ export * from './dashboard/dashboard';
 export * from './diet-quality/diet-quality';
 export * from './foods/foods';
 export * from './system/system';
+export * from './hydration/hydration';
 export * from './meals/meals';
 export * from './meal-templates/meal-templates';
 export * from './my-foods/my-foods';
