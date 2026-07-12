@@ -40,11 +40,18 @@
                                         "favorite_foods",
                                         "diet_quality_assessments",
                                         "diet_quality_goals",
-                                        "diet_quality_check_ins"
+                                        "diet_quality_check_ins",
+                                        "nutrient_reference_contexts",
+                                        "meal_log_item_nutrients",
+                                        "recipe_ingredient_nutrients",
+                                        "recipe_nutrients",
+                                        "food_label_snapshot_nutrients",
+                                        "nutrient_reference_set"
                                     ],
                                     "properties": {
                                         "export_version": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "4.0.0"
                                         },
                                         "generated_at": {
                                             "type": "string",
@@ -132,6 +139,41 @@
                                             "items": {
                                                 "type": "object"
                                             }
+                                        },
+                                        "nutrient_reference_contexts": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meal_log_item_nutrients": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "recipe_ingredient_nutrients": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "recipe_nutrients": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "food_label_snapshot_nutrients": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "nutrient_reference_set": {
+                                            "description": "Metadata of the DRI reference set used (code/version/checksum/sources/limitations) — not the full reference value table.",
+                                            "type": "object",
+                                            "nullable": true
                                         }
                                     },
                                     "type": "object"
@@ -3692,9 +3734,10 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "description": "Canonical shape uses `nutrition_basis` + `nutrients` (any tracked code). `input_mode` and the six legacy top-level nutrient fields are deprecated aliases still accepted; sending a legacy field and `nutrients` with different values for the same code returns 422.",
                                 "required": [
                                     "name",
-                                    "input_mode",
+                                    "nutrition_basis",
                                     "nutrients"
                                 ],
                                 "properties": {
@@ -3717,31 +3760,85 @@
                                         "type": "string",
                                         "nullable": true
                                     },
-                                    "input_mode": {
+                                    "nutrition_basis": {
                                         "type": "string",
                                         "enum": [
                                             "per_100g",
                                             "per_serving"
                                         ]
                                     },
+                                    "input_mode": {
+                                        "description": "Deprecated alias for nutrition_basis.",
+                                        "type": "string",
+                                        "deprecated": true,
+                                        "enum": [
+                                            "per_100g",
+                                            "per_serving"
+                                        ]
+                                    },
                                     "nutrients": {
-                                        "$ref": "#/components/schemas/NutrientTotals"
+                                        "$ref": "#/components/schemas/DynamicNutrientInput"
+                                    },
+                                    "serving_size_g": {
+                                        "description": "Required (or the legacy serving_* quartet) when nutrition_basis=per_serving.",
+                                        "type": "number",
+                                        "nullable": true
                                     },
                                     "serving_description": {
                                         "type": "string",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "deprecated": true
                                     },
                                     "serving_amount": {
                                         "type": "number",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "deprecated": true
                                     },
                                     "serving_unit": {
                                         "type": "string",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "deprecated": true
                                     },
                                     "serving_weight_g": {
                                         "type": "number",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "energy_kcal": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.energy_kcal.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "protein_g": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.protein_g.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "carbohydrate_g": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.carbohydrate_g.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "fat_g": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.fat_g.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "fiber_g": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.fiber_g.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "sodium_mg": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.sodium_mg.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
                                     }
                                 },
                                 "type": "object"
@@ -3807,6 +3904,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "description": "Partial update: omitted keys are left unchanged. Canonical shape uses `nutrition_basis` + `nutrients` (any tracked code, null clears the row to unknown, 0 persists a real zero). `input_mode` and the six legacy top-level nutrient fields are deprecated aliases still accepted.",
                                 "properties": {
                                     "name": {
                                         "type": "string"
@@ -3827,31 +3925,84 @@
                                         "type": "string",
                                         "nullable": true
                                     },
-                                    "input_mode": {
+                                    "nutrition_basis": {
                                         "type": "string",
                                         "enum": [
                                             "per_100g",
                                             "per_serving"
                                         ]
                                     },
+                                    "input_mode": {
+                                        "description": "Deprecated alias for nutrition_basis.",
+                                        "type": "string",
+                                        "deprecated": true,
+                                        "enum": [
+                                            "per_100g",
+                                            "per_serving"
+                                        ]
+                                    },
                                     "nutrients": {
-                                        "$ref": "#/components/schemas/NutrientTotals"
+                                        "$ref": "#/components/schemas/DynamicNutrientInput"
+                                    },
+                                    "serving_size_g": {
+                                        "type": "number",
+                                        "nullable": true
                                     },
                                     "serving_description": {
                                         "type": "string",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "deprecated": true
                                     },
                                     "serving_amount": {
                                         "type": "number",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "deprecated": true
                                     },
                                     "serving_unit": {
                                         "type": "string",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "deprecated": true
                                     },
                                     "serving_weight_g": {
                                         "type": "number",
-                                        "nullable": true
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "energy_kcal": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.energy_kcal.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "protein_g": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.protein_g.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "carbohydrate_g": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.carbohydrate_g.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "fat_g": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.fat_g.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "fiber_g": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.fiber_g.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
+                                    },
+                                    "sodium_mg": {
+                                        "description": "Deprecated legacy top-level field; use nutrients.sodium_mg.",
+                                        "type": "number",
+                                        "nullable": true,
+                                        "deprecated": true
                                     }
                                 },
                                 "type": "object"
@@ -3937,6 +4088,308 @@
                 ]
             }
         },
+        "/nutrients": {
+            "get": {
+                "tags": [
+                    "Nutrients"
+                ],
+                "operationId": "listNutrients",
+                "responses": {
+                    "200": {
+                        "description": "Tracked nutrient definitions in stable display order",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/NutrientDefinition"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/nutrition/intake/daily": {
+            "get": {
+                "tags": [
+                    "Nutrients"
+                ],
+                "operationId": "getDailyNutrientIntake",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-07-05"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Per-nutrient daily intake with status, coverage, reference and descriptive comparison",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DailyNutrientIntakeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Invalid date",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Throttled"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/nutrition/intake/nutrients/{code}": {
+            "get": {
+                "tags": [
+                    "Nutrients"
+                ],
+                "operationId": "getNutrientIntakeDetail",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "calcium_mg"
+                        }
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                7,
+                                30,
+                                90
+                            ]
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detailed longitudinal report for one nutrient",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NutrientDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Unknown or inactive nutrient code"
+                    },
+                    "422": {
+                        "description": "Invalid period or range over the maximum",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Throttled"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/nutrition/intake/period": {
+            "get": {
+                "tags": [
+                    "Nutrients"
+                ],
+                "operationId": "getPeriodNutrientIntake",
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                7,
+                                30,
+                                90
+                            ]
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Longitudinal nutrient intake: logged-day averages, coverage, provenance, references and descriptive comparisons",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PeriodNutrientIntakeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Invalid period or range over the maximum",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Throttled"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/nutrition/references": {
+            "get": {
+                "tags": [
+                    "Nutrients"
+                ],
+                "operationId": "getNutritionReferences",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-07-05"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Reference set metadata, profile context and applicable references",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NutrientReferenceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Invalid date",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
         "/reports/nutrition": {
             "get": {
                 "tags": [
@@ -3979,6 +4432,15 @@
                     {
                         "name": "include_weight",
                         "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "include_nutrients",
+                        "in": "query",
+                        "description": "Sprint 4D: adds an optional nutrient_summary block (all 16 tracked nutrients)",
                         "required": false,
                         "schema": {
                             "type": "boolean"
@@ -5641,32 +6103,6 @@
                 },
                 "type": "object"
             },
-            "FoodNutrient": {
-                "required": [
-                    "code",
-                    "name",
-                    "amount_per_100g",
-                    "unit"
-                ],
-                "properties": {
-                    "code": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "amount_per_100g": {
-                        "type": "number"
-                    },
-                    "unit": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "type": "object"
-            },
             "Food": {
                 "description": "`is_favorite` is only present on endpoints that compute favorite state (catalog, search, recent items) — absent on my-foods CRUD responses. `portions` is only present on the food detail endpoint, not on list endpoints.",
                 "required": [
@@ -5752,7 +6188,7 @@
                     "nutrients": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/FoodNutrient"
+                            "$ref": "#/components/schemas/FoodNutrientProvenance"
                         }
                     },
                     "portions": {
@@ -6025,7 +6461,8 @@
                     "meals",
                     "totals",
                     "nutrient_status",
-                    "has_demo_foods"
+                    "has_demo_foods",
+                    "nutrients"
                 ],
                 "properties": {
                     "date": {
@@ -6057,6 +6494,12 @@
                     },
                     "has_demo_foods": {
                         "type": "boolean"
+                    },
+                    "nutrients": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"
@@ -6326,6 +6769,37 @@
                 },
                 "type": "object"
             },
+            "FdcPendingNutrient": {
+                "description": "A source nutrient that was not mapped to a tracked code: dimension/unit mismatch, or an explicitly prohibited conversion (e.g. IU to RAE/mcg, folate total/folic acid to DFE). Never silently converted.",
+                "required": [
+                    "number",
+                    "name",
+                    "unit",
+                    "amount",
+                    "reason"
+                ],
+                "properties": {
+                    "number": {
+                        "description": "FDC nutrient number, e.g. \"318\".",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "reason": {
+                        "type": "string",
+                        "example": "prohibido_iu_a_rae_mcg"
+                    }
+                },
+                "type": "object"
+            },
             "FdcImportSummary": {
                 "required": [
                     "action",
@@ -6347,10 +6821,18 @@
                         "type": "string"
                     },
                     "mapped": {
-                        "type": "integer"
+                        "description": "Tracked nutrient code => amount for every FDC number that mapped cleanly.",
+                        "type": "object",
+                        "example": {
+                            "calcium_mg": 120,
+                            "iron_mg": 2.1
+                        }
                     },
                     "pending": {
-                        "type": "integer"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FdcPendingNutrient"
+                        }
                     },
                     "portions": {
                         "type": "integer"
@@ -6378,6 +6860,8 @@
                     "external_unit",
                     "nutrient_id",
                     "mapping_status",
+                    "is_locked",
+                    "reason_code",
                     "nutrient"
                 ],
                 "properties": {
@@ -6409,6 +6893,15 @@
                             "pending",
                             "ignored"
                         ]
+                    },
+                    "is_locked": {
+                        "description": "True for system-seeded canonical mappings; cannot be changed via the admin endpoint.",
+                        "type": "boolean"
+                    },
+                    "reason_code": {
+                        "description": "Why the mapping is pending/ignored (e.g. a prohibited FDC number), when applicable.",
+                        "type": "string",
+                        "nullable": true
                     },
                     "nutrient": {
                         "type": "object",
@@ -7252,6 +7745,10 @@
                         "items": {
                             "$ref": "#/components/schemas/NutritionReportDay"
                         }
+                    },
+                    "nutrient_summary": {
+                        "type": "object",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -8220,6 +8717,966 @@
                 },
                 "type": "object"
             },
+            "NutrientDefinition": {
+                "description": "Tracked nutrient metadata. Codes are the public contract; numeric IDs are never exposed.",
+                "required": [
+                    "code",
+                    "name",
+                    "unit",
+                    "category",
+                    "display_precision",
+                    "is_reference_eligible",
+                    "description"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "example": "calcium_mg"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Calcio"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "example": "mg"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "energy",
+                            "macro",
+                            "mineral",
+                            "vitamin",
+                            "other"
+                        ]
+                    },
+                    "display_precision": {
+                        "type": "integer"
+                    },
+                    "is_reference_eligible": {
+                        "type": "boolean"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientCoverage": {
+                "description": "Item-level data coverage for one nutrient on one day. `coverage_pct` is null when items_total is 0.",
+                "required": [
+                    "items_total",
+                    "items_known",
+                    "items_unknown",
+                    "coverage_pct"
+                ],
+                "properties": {
+                    "items_total": {
+                        "type": "integer"
+                    },
+                    "items_known": {
+                        "type": "integer"
+                    },
+                    "items_unknown": {
+                        "type": "integer"
+                    },
+                    "coverage_pct": {
+                        "type": "number",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientQualityBreakdown": {
+                "description": "Counts of contributing items per data-provenance bucket. Never a universal quality score.",
+                "required": [
+                    "verified",
+                    "source_reported",
+                    "user_reported",
+                    "estimated",
+                    "unknown"
+                ],
+                "properties": {
+                    "verified": {
+                        "type": "integer"
+                    },
+                    "source_reported": {
+                        "type": "integer"
+                    },
+                    "user_reported": {
+                        "type": "integer"
+                    },
+                    "estimated": {
+                        "type": "integer"
+                    },
+                    "unknown": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientReferenceRange": {
+                "description": "Range mode never discloses which end corresponds to which sex; there is no midpoint field.",
+                "required": [
+                    "minimum",
+                    "maximum"
+                ],
+                "properties": {
+                    "minimum": {
+                        "type": "number"
+                    },
+                    "maximum": {
+                        "type": "number"
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientReference": {
+                "description": "One resolved population reference (RDA/AI/CDRR) for a nutrient. Exact mode carries `value`; range mode carries `minimum`/`maximum` and both are null in exact mode (and vice versa).",
+                "required": [
+                    "nutrient_code",
+                    "reference_type",
+                    "reference_mode",
+                    "value",
+                    "minimum",
+                    "maximum",
+                    "unit",
+                    "direction",
+                    "is_primary",
+                    "sex_basis",
+                    "limitations",
+                    "source_note"
+                ],
+                "properties": {
+                    "nutrient_code": {
+                        "type": "string"
+                    },
+                    "reference_type": {
+                        "type": "string",
+                        "enum": [
+                            "RDA",
+                            "AI",
+                            "CDRR"
+                        ]
+                    },
+                    "reference_mode": {
+                        "type": "string",
+                        "enum": [
+                            "exact",
+                            "range"
+                        ]
+                    },
+                    "value": {
+                        "description": "Present only when reference_mode=exact.",
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "minimum": {
+                        "description": "Present only when reference_mode=range.",
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "maximum": {
+                        "description": "Present only when reference_mode=range.",
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "direction": {
+                        "type": "string",
+                        "enum": [
+                            "at_least",
+                            "informational",
+                            "reduce_if_above"
+                        ]
+                    },
+                    "is_primary": {
+                        "description": "Primary reference is used for comparison (e.g. sodium CDRR over AI).",
+                        "type": "boolean"
+                    },
+                    "sex_basis": {
+                        "type": "string",
+                        "enum": [
+                            "male",
+                            "female",
+                            "all",
+                            "undisclosed"
+                        ]
+                    },
+                    "limitations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "source_note": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientReferenceSet": {
+                "required": [
+                    "code",
+                    "version",
+                    "jurisdiction",
+                    "population_scope",
+                    "evidence_reviewed_at",
+                    "sources",
+                    "limitations"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "example": "nasem_dri_general_adults"
+                    },
+                    "version": {
+                        "type": "string",
+                        "example": "1.0.0"
+                    },
+                    "jurisdiction": {
+                        "type": "string",
+                        "example": "US_CA"
+                    },
+                    "population_scope": {
+                        "type": "string"
+                    },
+                    "evidence_reviewed_at": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "sources": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "limitations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientReferenceContext": {
+                "description": "Resolved profile context (age/sex stratum) used to select references on a given local date. `age_years`/`sex_basis` are null when no profile context is available for that date.",
+                "required": [
+                    "date",
+                    "age_years",
+                    "sex_basis"
+                ],
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "age_years": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "sex_basis": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "male",
+                            "female",
+                            "undisclosed"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientReferenceResponse": {
+                "required": [
+                    "reference_set",
+                    "context",
+                    "references",
+                    "reason"
+                ],
+                "properties": {
+                    "reference_set": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/NutrientReferenceSet"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "context": {
+                        "$ref": "#/components/schemas/NutrientReferenceContext"
+                    },
+                    "references": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientReference"
+                        }
+                    },
+                    "reason": {
+                        "type": "string",
+                        "example": "profile_context_unavailable",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientAmount": {
+                "description": "Per-nutrient intake for one local day, with status, coverage, reference and a neutral descriptive comparison. `value` is the sum of KNOWN item amounts; null when nothing is known (never coerced to zero).",
+                "required": [
+                    "code",
+                    "name",
+                    "unit",
+                    "value",
+                    "status",
+                    "coverage",
+                    "quality_breakdown",
+                    "reference",
+                    "comparison"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "energy",
+                            "macro",
+                            "mineral",
+                            "vitamin",
+                            "other"
+                        ]
+                    },
+                    "display_precision": {
+                        "type": "integer"
+                    },
+                    "value": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "no_data",
+                            "unknown",
+                            "partial",
+                            "complete",
+                            "legacy_fallback"
+                        ]
+                    },
+                    "coverage": {
+                        "$ref": "#/components/schemas/NutrientCoverage"
+                    },
+                    "quality_breakdown": {
+                        "$ref": "#/components/schemas/NutrientQualityBreakdown"
+                    },
+                    "reference": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/NutrientReference"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "informational_references": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientReference"
+                        }
+                    },
+                    "comparison": {
+                        "type": "string",
+                        "enum": [
+                            "indeterminate",
+                            "below_reference",
+                            "at_or_above_reference",
+                            "below_reference_range",
+                            "within_reference_range",
+                            "above_reference_range",
+                            "above_cdrr",
+                            "at_or_below_cdrr",
+                            "not_comparable_reference_changed"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "DailyNutrientIntake": {
+                "required": [
+                    "date",
+                    "timezone",
+                    "logged",
+                    "items_count",
+                    "nutrients",
+                    "limitations"
+                ],
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "timezone": {
+                        "type": "string"
+                    },
+                    "logged": {
+                        "type": "boolean"
+                    },
+                    "items_count": {
+                        "type": "integer"
+                    },
+                    "context": {
+                        "$ref": "#/components/schemas/NutrientReferenceContext"
+                    },
+                    "reference_unavailable_reason": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nutrients": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientAmount"
+                        }
+                    },
+                    "limitations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "DailyNutrientIntakeResponse": {
+                "required": [
+                    "date",
+                    "timezone",
+                    "logged",
+                    "items_count",
+                    "nutrients",
+                    "limitations"
+                ],
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "timezone": {
+                        "type": "string"
+                    },
+                    "logged": {
+                        "type": "boolean"
+                    },
+                    "items_count": {
+                        "type": "integer"
+                    },
+                    "context": {
+                        "$ref": "#/components/schemas/NutrientReferenceContext"
+                    },
+                    "reference_unavailable_reason": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nutrients": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientAmount"
+                        }
+                    },
+                    "limitations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientPeriodSummary": {
+                "required": [
+                    "start_date",
+                    "end_date",
+                    "timezone",
+                    "days_total",
+                    "days_logged",
+                    "diary_coverage_pct",
+                    "average_label"
+                ],
+                "properties": {
+                    "start_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "timezone": {
+                        "type": "string"
+                    },
+                    "days_total": {
+                        "type": "integer"
+                    },
+                    "days_logged": {
+                        "type": "integer"
+                    },
+                    "diary_coverage_pct": {
+                        "type": "number"
+                    },
+                    "average_label": {
+                        "type": "string",
+                        "example": "Promedio de días registrados"
+                    },
+                    "reference_changed": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientReferenceSegment": {
+                "description": "A run of consecutive local days sharing the same resolved reference context. Present only when the reference changed within the period; references are never averaged across segments.",
+                "required": [
+                    "start_date",
+                    "end_date",
+                    "age_years",
+                    "sex_basis"
+                ],
+                "properties": {
+                    "start_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "age_years": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "sex_basis": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "male",
+                            "female",
+                            "undisclosed"
+                        ]
+                    },
+                    "has_context": {
+                        "type": "boolean"
+                    },
+                    "references": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientReference"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientPeriodDay": {
+                "required": [
+                    "date",
+                    "logged",
+                    "items_count"
+                ],
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "logged": {
+                        "type": "boolean"
+                    },
+                    "items_count": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "PeriodNutrientIntake": {
+                "description": "Longitudinal per-nutrient summary. `average_value` is computed only over logged days with a fully known value (\"Promedio de días registrados\"); no-data days are excluded, never coerced to zero.",
+                "required": [
+                    "code",
+                    "name",
+                    "unit",
+                    "average_value",
+                    "average_label",
+                    "status",
+                    "comparison",
+                    "reference",
+                    "informational_references",
+                    "reference_changed",
+                    "reference_segments",
+                    "coverage",
+                    "quality_breakdown"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "energy",
+                            "macro",
+                            "mineral",
+                            "vitamin",
+                            "other"
+                        ]
+                    },
+                    "display_precision": {
+                        "type": "integer"
+                    },
+                    "average_value": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "average_label": {
+                        "type": "string",
+                        "example": "Promedio de días registrados"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "no_data",
+                            "unknown",
+                            "partial",
+                            "complete"
+                        ]
+                    },
+                    "comparison": {
+                        "type": "string",
+                        "enum": [
+                            "indeterminate",
+                            "below_reference",
+                            "at_or_above_reference",
+                            "below_reference_range",
+                            "within_reference_range",
+                            "above_reference_range",
+                            "above_cdrr",
+                            "at_or_below_cdrr",
+                            "not_comparable_reference_changed"
+                        ]
+                    },
+                    "reference": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/NutrientReference"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "informational_references": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientReference"
+                        }
+                    },
+                    "reference_changed": {
+                        "type": "boolean"
+                    },
+                    "reference_segments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientReferenceSegment"
+                        }
+                    },
+                    "coverage": {
+                        "description": "days_total, days_logged, days_with_known_value, days_with_partial_value, days_with_unknown_value, diary_coverage_pct, nutrient_data_coverage_pct.",
+                        "type": "object"
+                    },
+                    "quality_breakdown": {
+                        "$ref": "#/components/schemas/NutrientQualityBreakdown"
+                    }
+                },
+                "type": "object"
+            },
+            "PeriodNutrientIntakeResponse": {
+                "required": [
+                    "summary",
+                    "nutrients",
+                    "days",
+                    "reference_segments",
+                    "limitations"
+                ],
+                "properties": {
+                    "summary": {
+                        "$ref": "#/components/schemas/NutrientPeriodSummary"
+                    },
+                    "nutrients": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PeriodNutrientIntake"
+                        }
+                    },
+                    "days": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientPeriodDay"
+                        }
+                    },
+                    "reference_segments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientReferenceSegment"
+                        }
+                    },
+                    "limitations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientDailyPoint": {
+                "description": "One point in a nutrient trend series. `value` is null on days with no known contribution — charts must not interpolate across a null point.",
+                "required": [
+                    "date",
+                    "value",
+                    "status"
+                ],
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "value": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "no_data",
+                            "unknown",
+                            "partial",
+                            "complete",
+                            "legacy_fallback"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientDetailSummary": {
+                "required": [
+                    "start_date",
+                    "end_date",
+                    "timezone",
+                    "average_value",
+                    "average_label",
+                    "status",
+                    "comparison"
+                ],
+                "properties": {
+                    "start_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "timezone": {
+                        "type": "string"
+                    },
+                    "average_value": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "average_label": {
+                        "type": "string",
+                        "example": "Promedio de días registrados"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "no_data",
+                            "unknown",
+                            "partial",
+                            "complete"
+                        ]
+                    },
+                    "comparison": {
+                        "type": "string",
+                        "enum": [
+                            "indeterminate",
+                            "below_reference",
+                            "at_or_above_reference",
+                            "below_reference_range",
+                            "within_reference_range",
+                            "above_reference_range",
+                            "above_cdrr",
+                            "at_or_below_cdrr",
+                            "not_comparable_reference_changed"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "NutrientDetailResponse": {
+                "required": [
+                    "definition",
+                    "summary",
+                    "reference",
+                    "reference_changed",
+                    "reference_segments",
+                    "coverage",
+                    "quality_breakdown",
+                    "daily_points",
+                    "limitations"
+                ],
+                "properties": {
+                    "definition": {
+                        "$ref": "#/components/schemas/NutrientDefinition"
+                    },
+                    "summary": {
+                        "$ref": "#/components/schemas/NutrientDetailSummary"
+                    },
+                    "reference": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/NutrientReference"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "informational_references": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientReference"
+                        }
+                    },
+                    "reference_changed": {
+                        "type": "boolean"
+                    },
+                    "reference_segments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientReferenceSegment"
+                        }
+                    },
+                    "coverage": {
+                        "description": "days_total, days_logged, days_with_known_value, days_with_partial_value, days_with_unknown_value, diary_coverage_pct, nutrient_data_coverage_pct.",
+                        "type": "object"
+                    },
+                    "quality_breakdown": {
+                        "$ref": "#/components/schemas/NutrientQualityBreakdown"
+                    },
+                    "daily_points": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NutrientDailyPoint"
+                        }
+                    },
+                    "limitations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "DynamicNutrientInput": {
+                "description": "Canonical dynamic nutrient payload keyed by tracked nutrient code. Each value is a JSON number or null; omitted keys are left unchanged on update; null explicitly marks the nutrient unknown; 0 persists a real zero. Unknown keys, numeric strings, NaN/Infinity, negatives, arrays and objects are all rejected with 422.",
+                "type": "object",
+                "example": {
+                    "energy_kcal": 100,
+                    "protein_g": 5,
+                    "calcium_mg": 120,
+                    "iron_mg": null
+                },
+                "additionalProperties": {
+                    "type": "number",
+                    "nullable": true
+                }
+            },
+            "FoodNutrientProvenance": {
+                "description": "Per-nutrient row on a food, including data origin and quality provenance (Sprint 4B/4C columns). `amount_per_100g` is only meaningful when the row exists; absence of a row for a tracked code means unknown, never zero.",
+                "required": [
+                    "code",
+                    "name",
+                    "amount_per_100g",
+                    "unit",
+                    "data_origin",
+                    "quality_status",
+                    "source_reference",
+                    "is_estimated"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "amount_per_100g": {
+                        "type": "number"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "data_origin": {
+                        "description": "Null only for rows predating the Sprint 4B provenance columns.",
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "analytical",
+                            "label",
+                            "external_import",
+                            "user_entered",
+                            "derived",
+                            "legacy",
+                            null
+                        ]
+                    },
+                    "quality_status": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "verified",
+                            "source_reported",
+                            "user_reported",
+                            "estimated",
+                            "unknown",
+                            null
+                        ]
+                    },
+                    "source_reference": {
+                        "description": "E.g. the FDC nutrient number when data_origin=external_import.",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "is_estimated": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
             "InstrumentVersionOutdatedError": {
                 "required": [
                     "message",
@@ -8294,6 +9751,10 @@
         {
             "name": "MyFoods",
             "description": "MyFoods"
+        },
+        {
+            "name": "Nutrients",
+            "description": "Nutrients"
         },
         {
             "name": "Reports",

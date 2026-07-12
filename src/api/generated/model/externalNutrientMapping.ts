@@ -19,6 +19,13 @@ export interface ExternalNutrientMapping {
   /** @nullable */
   nutrient_id: number | null;
   mapping_status: ExternalNutrientMappingMappingStatus;
+  /** True for system-seeded canonical mappings; cannot be changed via the admin endpoint. */
+  is_locked: boolean;
+  /**
+     * Why the mapping is pending/ignored (e.g. a prohibited FDC number), when applicable.
+     * @nullable
+     */
+  reason_code: string | null;
   /** @nullable */
   nutrient: ExternalNutrientMappingNutrient;
 }

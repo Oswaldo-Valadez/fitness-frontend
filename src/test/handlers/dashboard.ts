@@ -66,6 +66,8 @@ export const dashboardSummaryFixture: DashboardSummary = {
   totals: { energy_kcal: 152, protein_g: 3.6, carbohydrate_g: 18, fat_g: 2.1 },
   nutrient_status: { energy_kcal: 'partial', protein_g: 'complete', carbohydrate_g: 'complete', fat_g: 'complete' },
   has_demo_foods: true,
+  // Sprint 4D field; empty here since this fixture predates the nutrients report UI (Sprint 4G).
+  nutrients: [],
 }
 
 export const dashboardHandlers = [http.get('/api/dashboard', () => HttpResponse.json(dashboardSummaryFixture))]

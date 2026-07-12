@@ -12,4 +12,8 @@ period?: GetNutritionReportPeriod;
 start_date?: string;
 end_date?: string;
 include_weight?: boolean;
+/**
+ * Sprint 4D: adds an optional nutrient_summary block (all 16 tracked nutrients)
+ */
+include_nutrients?: boolean;
 };

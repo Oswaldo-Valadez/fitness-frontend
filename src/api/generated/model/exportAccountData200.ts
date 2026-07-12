@@ -11,6 +11,12 @@ import type { ExportAccountData200DietQualityAssessmentsItem } from './exportAcc
 import type { ExportAccountData200DietQualityCheckInsItem } from './exportAccountData200DietQualityCheckInsItem';
 import type { ExportAccountData200DietQualityGoalsItem } from './exportAccountData200DietQualityGoalsItem';
 import type { ExportAccountData200FavoriteFoodsItem } from './exportAccountData200FavoriteFoodsItem';
+import type { ExportAccountData200FoodLabelSnapshotNutrientsItem } from './exportAccountData200FoodLabelSnapshotNutrientsItem';
+import type { ExportAccountData200MealLogItemNutrientsItem } from './exportAccountData200MealLogItemNutrientsItem';
+import type { ExportAccountData200NutrientReferenceContextsItem } from './exportAccountData200NutrientReferenceContextsItem';
+import type { ExportAccountData200NutrientReferenceSet } from './exportAccountData200NutrientReferenceSet';
+import type { ExportAccountData200RecipeIngredientNutrientsItem } from './exportAccountData200RecipeIngredientNutrientsItem';
+import type { ExportAccountData200RecipeNutrientsItem } from './exportAccountData200RecipeNutrientsItem';
 import type { ExportAccountData200User } from './exportAccountData200User';
 import type { Food } from './food';
 import type { FoodPortion } from './foodPortion';
@@ -37,4 +43,14 @@ export type ExportAccountData200 = {
   diet_quality_assessments: ExportAccountData200DietQualityAssessmentsItem[];
   diet_quality_goals: ExportAccountData200DietQualityGoalsItem[];
   diet_quality_check_ins: ExportAccountData200DietQualityCheckInsItem[];
+  nutrient_reference_contexts: ExportAccountData200NutrientReferenceContextsItem[];
+  meal_log_item_nutrients: ExportAccountData200MealLogItemNutrientsItem[];
+  recipe_ingredient_nutrients: ExportAccountData200RecipeIngredientNutrientsItem[];
+  recipe_nutrients: ExportAccountData200RecipeNutrientsItem[];
+  food_label_snapshot_nutrients: ExportAccountData200FoodLabelSnapshotNutrientsItem[];
+  /**
+     * Metadata of the DRI reference set used (code/version/checksum/sources/limitations) — not the full reference value table.
+     * @nullable
+     */
+  nutrient_reference_set: ExportAccountData200NutrientReferenceSet;
 };

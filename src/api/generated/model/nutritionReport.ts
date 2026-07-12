@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { NutritionReportDay } from './nutritionReportDay';
+import type { NutritionReportNutrientSummary } from './nutritionReportNutrientSummary';
 import type { NutritionReportSummary } from './nutritionReportSummary';
 import type { NutritionReportUnits } from './nutritionReportUnits';
 
@@ -20,4 +21,6 @@ export interface NutritionReport {
   unknown_value_indicator: string;
   summary: NutritionReportSummary;
   days: NutritionReportDay[];
+  /** @nullable */
+  nutrient_summary?: NutritionReportNutrientSummary;
 }

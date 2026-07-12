@@ -8,6 +8,7 @@ export * from './system/system';
 export * from './meals/meals';
 export * from './meal-templates/meal-templates';
 export * from './my-foods/my-foods';
+export * from './nutrients/nutrients';
 export * from './reports/reports';
 export * from './onboarding/onboarding';
 export * from './profile/profile';

@@ -55,6 +55,11 @@ function numberOrUndefined(value: string): number | undefined {
   return value.trim() === '' ? undefined : Number(value)
 }
 
+/** Same blank-vs-zero semantics as numberOrUndefined, but explicit null for the dynamic nutrients map (DynamicNutrientInput requires number|null, not undefined). */
+function numberOrNull(value: string): number | null {
+  return value.trim() === '' ? null : Number(value)
+}
+
 export default function MyFoodFormModal({ open, onClose, onSaved, food }: Props) {
   const [form, setForm] = useState<FormState>(EMPTY)
   const [saving, setSaving] = useState(false)
@@ -102,14 +107,14 @@ export default function MyFoodFormModal({ open, onClose, onSaved, food }: Props)
         category: form.category || undefined,
         brand: form.brand || undefined,
         notes: form.notes || undefined,
-        input_mode: form.input_mode,
+        nutrition_basis: form.input_mode,
         nutrients: {
-          energy_kcal: numberOrUndefined(form.energy_kcal),
-          protein_g: numberOrUndefined(form.protein_g),
-          carbohydrate_g: numberOrUndefined(form.carbohydrate_g),
-          fat_g: numberOrUndefined(form.fat_g),
-          fiber_g: numberOrUndefined(form.fiber_g),
-          sodium_mg: numberOrUndefined(form.sodium_mg),
+          energy_kcal: numberOrNull(form.energy_kcal),
+          protein_g: numberOrNull(form.protein_g),
+          carbohydrate_g: numberOrNull(form.carbohydrate_g),
+          fat_g: numberOrNull(form.fat_g),
+          fiber_g: numberOrNull(form.fiber_g),
+          sodium_mg: numberOrNull(form.sodium_mg),
         },
         ...(form.input_mode === 'per_serving'
           ? {

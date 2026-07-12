@@ -5,9 +5,13 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
-import type { NutrientTotals } from './nutrientTotals';
+import type { DynamicNutrientInput } from './dynamicNutrientInput';
 import type { UpdateMyFoodBodyInputMode } from './updateMyFoodBodyInputMode';
+import type { UpdateMyFoodBodyNutritionBasis } from './updateMyFoodBodyNutritionBasis';
 
+/**
+ * Partial update: omitted keys are left unchanged. Canonical shape uses `nutrition_basis` + `nutrients` (any tracked code, null clears the row to unknown, 0 persists a real zero). `input_mode` and the six legacy top-level nutrient fields are deprecated aliases still accepted.
+ */
 export type UpdateMyFoodBody = {
   name?: string;
   /** @nullable */
@@ -18,14 +22,69 @@ export type UpdateMyFoodBody = {
   barcode?: string | null;
   /** @nullable */
   notes?: string | null;
+  nutrition_basis?: UpdateMyFoodBodyNutritionBasis;
+  /**
+     * Deprecated alias for nutrition_basis.
+     * @deprecated
+     */
   input_mode?: UpdateMyFoodBodyInputMode;
-  nutrients?: NutrientTotals;
+  nutrients?: DynamicNutrientInput;
   /** @nullable */
+  serving_size_g?: number | null;
+  /**
+     * @deprecated
+     * @nullable
+     */
   serving_description?: string | null;
-  /** @nullable */
+  /**
+     * @deprecated
+     * @nullable
+     */
   serving_amount?: number | null;
-  /** @nullable */
+  /**
+     * @deprecated
+     * @nullable
+     */
   serving_unit?: string | null;
-  /** @nullable */
+  /**
+     * @deprecated
+     * @nullable
+     */
   serving_weight_g?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.energy_kcal.
+     * @deprecated
+     * @nullable
+     */
+  energy_kcal?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.protein_g.
+     * @deprecated
+     * @nullable
+     */
+  protein_g?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.carbohydrate_g.
+     * @deprecated
+     * @nullable
+     */
+  carbohydrate_g?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.fat_g.
+     * @deprecated
+     * @nullable
+     */
+  fat_g?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.fiber_g.
+     * @deprecated
+     * @nullable
+     */
+  fiber_g?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.sodium_mg.
+     * @deprecated
+     * @nullable
+     */
+  sodium_mg?: number | null;
 };

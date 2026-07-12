@@ -5,13 +5,16 @@
  * REST API for the Fitness & Nutrition SPA. Call GET /sanctum/csrf-cookie then POST /api/auth/login before accessing protected endpoints.
  * OpenAPI spec version: 1.0.0
  */
+import type { FdcImportSummaryMapped } from './fdcImportSummaryMapped';
+import type { FdcPendingNutrient } from './fdcPendingNutrient';
 
 export interface FdcImportSummary {
   action: string;
   /** @nullable */
   food_id: number | null;
   name: string;
-  mapped: number;
-  pending: number;
+  /** Tracked nutrient code => amount for every FDC number that mapped cleanly. */
+  mapped: FdcImportSummaryMapped;
+  pending: FdcPendingNutrient[];
   portions: number;
 }

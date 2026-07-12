@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { DashboardMeal } from './dashboardMeal';
+import type { DashboardSummaryNutrientsItem } from './dashboardSummaryNutrientsItem';
 import type { NutrientStatus } from './nutrientStatus';
 import type { NutrientTotals } from './nutrientTotals';
 import type { NutritionTarget } from './nutritionTarget';
@@ -18,4 +19,5 @@ export interface DashboardSummary {
   totals: NutrientTotals;
   nutrient_status: NutrientStatus;
   has_demo_foods: boolean;
+  nutrients: DashboardSummaryNutrientsItem[];
 }

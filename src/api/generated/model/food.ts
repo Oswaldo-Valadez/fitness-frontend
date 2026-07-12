@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { FoodDataType } from './foodDataType';
-import type { FoodNutrient } from './foodNutrient';
+import type { FoodNutrientProvenance } from './foodNutrientProvenance';
 import type { FoodPortion } from './foodPortion';
 
 /**
@@ -39,7 +39,7 @@ export interface Food {
   source: string | null;
   /** @nullable */
   source_version: string | null;
-  nutrients: FoodNutrient[];
+  nutrients: FoodNutrientProvenance[];
   /** Only present on the food detail endpoint. */
   portions?: FoodPortion[];
 }

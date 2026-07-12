@@ -6,6 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 
+/**
+ * Deprecated alias for nutrition_basis.
+ * @deprecated
+ */
 export type CreateMyFoodBodyInputMode = typeof CreateMyFoodBodyInputMode[keyof typeof CreateMyFoodBodyInputMode];
 
 

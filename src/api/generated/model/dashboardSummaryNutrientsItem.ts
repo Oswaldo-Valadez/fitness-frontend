@@ -6,12 +6,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface FoodNutrient {
-  /** @nullable */
-  code: string | null;
-  /** @nullable */
-  name: string | null;
-  amount_per_100g: number;
-  /** @nullable */
-  unit: string | null;
-}
+export type DashboardSummaryNutrientsItem = { [key: string]: unknown };

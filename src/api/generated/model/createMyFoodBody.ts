@@ -6,8 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { CreateMyFoodBodyInputMode } from './createMyFoodBodyInputMode';
-import type { NutrientTotals } from './nutrientTotals';
+import type { CreateMyFoodBodyNutritionBasis } from './createMyFoodBodyNutritionBasis';
+import type { DynamicNutrientInput } from './dynamicNutrientInput';
 
+/**
+ * Canonical shape uses `nutrition_basis` + `nutrients` (any tracked code). `input_mode` and the six legacy top-level nutrient fields are deprecated aliases still accepted; sending a legacy field and `nutrients` with different values for the same code returns 422.
+ */
 export type CreateMyFoodBody = {
   name: string;
   /** @nullable */
@@ -18,14 +22,72 @@ export type CreateMyFoodBody = {
   barcode?: string | null;
   /** @nullable */
   notes?: string | null;
-  input_mode: CreateMyFoodBodyInputMode;
-  nutrients: NutrientTotals;
-  /** @nullable */
+  nutrition_basis: CreateMyFoodBodyNutritionBasis;
+  /**
+     * Deprecated alias for nutrition_basis.
+     * @deprecated
+     */
+  input_mode?: CreateMyFoodBodyInputMode;
+  nutrients: DynamicNutrientInput;
+  /**
+     * Required (or the legacy serving_* quartet) when nutrition_basis=per_serving.
+     * @nullable
+     */
+  serving_size_g?: number | null;
+  /**
+     * @deprecated
+     * @nullable
+     */
   serving_description?: string | null;
-  /** @nullable */
+  /**
+     * @deprecated
+     * @nullable
+     */
   serving_amount?: number | null;
-  /** @nullable */
+  /**
+     * @deprecated
+     * @nullable
+     */
   serving_unit?: string | null;
-  /** @nullable */
+  /**
+     * @deprecated
+     * @nullable
+     */
   serving_weight_g?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.energy_kcal.
+     * @deprecated
+     * @nullable
+     */
+  energy_kcal?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.protein_g.
+     * @deprecated
+     * @nullable
+     */
+  protein_g?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.carbohydrate_g.
+     * @deprecated
+     * @nullable
+     */
+  carbohydrate_g?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.fat_g.
+     * @deprecated
+     * @nullable
+     */
+  fat_g?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.fiber_g.
+     * @deprecated
+     * @nullable
+     */
+  fiber_g?: number | null;
+  /**
+     * Deprecated legacy top-level field; use nutrients.sodium_mg.
+     * @deprecated
+     * @nullable
+     */
+  sodium_mg?: number | null;
 };

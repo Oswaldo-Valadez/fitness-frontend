@@ -92,7 +92,7 @@ export default function FdcPage() {
               <span className="font-medium text-foreground">{preview.name}</span> — acción: <span className="font-mono text-xs">{preview.action}</span>
             </p>
             <p className="text-xs text-muted">
-              Nutrientes mapeados: {preview.mapped} · pendientes: {preview.pending} · porciones: {preview.portions}
+              Nutrientes mapeados: {Object.keys(preview.mapped ?? {}).length} · pendientes: {(preview.pending ?? []).length} · porciones: {preview.portions}
             </p>
             <Button size="sm" loading={importing} onClick={handleImport}>
               Confirmar importación
