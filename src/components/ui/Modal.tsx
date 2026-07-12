@@ -48,9 +48,12 @@ export default function Modal({ open, onClose, title, description, children, siz
         aria-modal="true"
         aria-labelledby="modal-title"
         tabIndex={-1}
-        className={clsx('modal-panel-in relative w-full rounded-2xl border border-border bg-surface p-6 shadow-elevated outline-none', SIZES[size])}
+        className={clsx(
+          'modal-panel-in relative flex max-h-[calc(100vh-2rem)] w-full flex-col rounded-2xl border border-border bg-surface shadow-elevated outline-none',
+          SIZES[size],
+        )}
       >
-        <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-3 p-6 pb-4">
           <div>
             <h2 id="modal-title" className="text-lg font-semibold text-foreground">
               {title}
@@ -61,7 +64,7 @@ export default function Modal({ open, onClose, title, description, children, siz
             <X className="h-4 w-4" />
           </button>
         </div>
-        {children}
+        <div className="overflow-y-auto px-6 pb-6">{children}</div>
       </div>
     </div>,
     document.body,

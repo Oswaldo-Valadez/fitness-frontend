@@ -75,10 +75,14 @@ test.describe('admin FDC batches, nutrient mappings, and audit', () => {
     await expect(page.getByText('Sin importaciones')).toBeVisible()
   })
 
-  test('nutrient mappings list shows the empty state on a fresh database', async ({ page }) => {
+  test('nutrient mappings list shows the seeded canonical FDC mappings on a fresh database', async ({ page }) => {
+    // Since Sprint 4E, ExternalNutrientMappingSeeder seeds the 16 canonical,
+    // locked FDC->nutrient mappings on every fresh database (DatabaseSeeder) —
+    // "fresh" no longer means "empty" for this list.
     await login(page, ADMIN_EMAIL, ADMIN_PASSWORD)
     await page.goto('/admin/nutrient-mappings')
-    await expect(page.getByText('Sin mapeos')).toBeVisible()
+    await expect(page.getByText('Calcium, Ca')).toBeVisible()
+    await expect(page.getByText('mapped').first()).toBeVisible()
   })
 
   test('audit list shows entries after an admin mutation (append-only trail)', async ({ page }) => {

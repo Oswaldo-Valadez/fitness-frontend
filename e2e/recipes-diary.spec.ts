@@ -18,11 +18,14 @@ test.describe('recipes and diary registration', () => {
 
     await page.getByRole('button', { name: 'Crear receta' }).click()
     await page.waitForURL(/\/recipes\/\d+$/)
-    await expect(page.getByText(recipeName)).toBeVisible()
+    // Scoped to the heading: the recipe name also appears in an sr-only
+    // nutrient-breakdown table caption (Sprint 4G), which a loose
+    // getByText(recipeName) would also match.
+    await expect(page.getByRole('heading', { name: recipeName })).toBeVisible()
 
     await page.getByRole('button', { name: 'Agregar al diario' }).click()
     await page.waitForURL(/\/diary/)
-    await expect(page.getByText(recipeName)).toBeVisible()
+    await expect(page.getByText(recipeName).first()).toBeVisible()
     await page.getByRole('button', { name: '+ Comida' }).click()
     await expect(page.getByText(/Agregado a comida/i)).toBeVisible()
   })

@@ -95,6 +95,14 @@ Estado actual:
   check-ins y tarjeta compacta en el dashboard. El backend es la única
   fuente del score y del catálogo de metas; adapter en
   `src/api/dietQuality.ts`, E2E en `e2e/diet-quality.spec.ts` (Sprint 3).
+- Micronutrientes (Sprint 4): tab "Nutrientes" en Reportes
+  (`/reports/nutrients` y `/reports/nutrients/:code`) con catalogo de 16
+  nutrientes, reportes contra valores de referencia (DRI) y detalle por
+  nutriente; tarjeta de cobertura de micronutrientes en el dashboard
+  (completo/parcial/sin datos); detalle de alimento y formulario de
+  alimento propio muestran micronutrientes por 100g con estado de calidad y
+  fuente, sin sustituir valores faltantes por 0. Adapter en
+  `src/api/nutrients.ts`, E2E en `e2e/nutrients.spec.ts`.
 - Profile: edicion e historial de objetivos.
 - Account: export y eliminacion de cuenta.
 - Admin: alimentos e import CSV, integracion FoodData Central (estado,

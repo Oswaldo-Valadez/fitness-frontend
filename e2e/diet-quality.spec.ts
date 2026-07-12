@@ -134,7 +134,10 @@ test.describe('diet quality module', () => {
     const exportResponse = await page.request.get('/api/account/export', { headers: await apiHeaders(page) })
     expect(exportResponse.ok()).toBeTruthy()
     const exportJson = await exportResponse.json()
-    expect(exportJson.export_version).toBe('3.0.0')
+    // Bumped to 4.0.0 in Sprint 4D (adds the generic nutrient-snapshot
+    // sections) — this diet-quality flow only asserts its own sections still
+    // exist, not the version number that a later sprint legitimately moved.
+    expect(exportJson.export_version).toBe('4.0.0')
     expect(exportJson.diet_quality_assessments.length).toBeGreaterThan(0)
     expect(exportJson.diet_quality_goals.length).toBeGreaterThan(0)
     expect(exportJson.diet_quality_check_ins.length).toBeGreaterThan(0)

@@ -1,5 +1,30 @@
 # Current Progress
 
+## Sprint 4 — Micronutrientes y referencias DRI — COMPLETED 2026-07-12
+
+Cliente consumidor del catálogo de 16 nutrientes y referencias DRI del
+backend. Detalle completo en `progress/sprint-4-micronutrients.md`.
+
+- Adapter `src/api/nutrients.ts` (generated-client-only), tercer tab
+  "Nutrientes" en Reportes, dashboard card, secciones de proveniencia en
+  detalle de alimento, formularios de alimento/receta con micronutrientes
+  opcionales (blank≠0), sin UL ni copy clínico en ningún componente.
+- `e2e/nutrients.spec.ts` nuevo (flujo usuario 25 pasos + flujo admin 9
+  pasos), sin llamadas reales a FDC, pasa de forma reproducible.
+- Bug real encontrado y corregido: `src/components/ui/Modal.tsx` no tenía
+  contenedor de scroll interno — un formulario alto (los 10 campos nuevos)
+  podía dejar el botón de envío fuera del viewport sin forma de alcanzarlo.
+- 3 bugs de E2E preexistentes corregidos al validar la suite completa
+  (versión de export desactualizada en diet-quality.spec.ts, colisión de
+  locator en recipes-diary.spec.ts por una nueva caption sr-only de 4G,
+  premisa de "DB vacía" desactualizada en admin.spec.ts desde 4E).
+- Suites verdes: lint, typecheck, 98/98 tests, build, gen, contract:check,
+  test:e2e (28/32 — 4 fallas preexistentes por throttle de login, no
+  relacionadas a este sprint, documentadas en docs/verification.md).
+- Riesgo conocido documentado (no corregido, decisión de alcance): el
+  formulario admin de alimentos no acepta micronutrientes porque el backend
+  no extendió ese endpoint en Sprint 4.
+
 ## Fase 10 (frontend integration plan) — COMPLETED 2026-07-10
 
 Contract-first closure across `fitness-backend` (owner) and `fitness-frontend`

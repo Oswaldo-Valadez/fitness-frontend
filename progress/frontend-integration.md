@@ -790,3 +790,39 @@ the way (both with reproduction tests before the fix, per the established
 pattern): `revokeConsent` had no way to resolve consent IDs from the
 frontend (closed with a new, justified `revokeAllConsents` endpoint), and
 `updateMeal` rejected partial payloads despite its documented contract.
+
+## Sprint 4 (fases 4A/4F/4G/4H) — closed
+
+Micronutrientes y referencias DRI, consumidas puramente vía el cliente
+generado. Detalle completo por fase en
+`progress/sprint-4-micronutrients.md`; resumen aquí solo de lo relevante a
+esta integración continua.
+
+- 4A: no code, solo verificación de baseline verde.
+- 4F: `openapi/api-docs.json` re-vendorizado desde el backend commit 364a01f
+  (byte-idéntico verificado por diff); Orval regenerado (~60 modelos nuevos,
+  nueva carpeta `nutrients/`); 3 breaks de TypeScript reales corregidos
+  (contrato de `FdcImportSummary.mapped/pending`, `MyFoodFormModal` enviando
+  el alias legacy en vez del campo canónico, fixture de dashboard
+  desactualizada).
+- 4G: adapter, tab de reportes, páginas de reporte/detalle, dashboard card,
+  secciones de detalle de alimento, formulario de alimento con
+  micronutrientes opcionales, editor/detalle de receta. Bug real corregido
+  antes del primer test run: `NutrientCoverageBadge` recibía un
+  `items_total: 0` hardcodeado en la página de reportes de periodo, lo que
+  siempre mostraba "Sin elementos registrados" en vez del porcentaje real.
+- 4H: `e2e/nutrients.spec.ts` (flujo usuario + admin, sin FDC real). Bug de
+  producto real corregido: `src/components/ui/Modal.tsx` sin scroll interno
+  dejaba el botón de envío inalcanzable en formularios altos (el de
+  micronutrientes, con 10 campos nuevos, fue el primero en exponerlo). Tres
+  bugs preexistentes de E2E corregidos al validar la suite completa contra
+  el estado real del backend post-Sprint-4 (versión de export
+  desactualizada, colisión de locator por una caption sr-only nueva de 4G,
+  premisa de "DB vacía" que dejó de ser cierta desde el seeder de 4E).
+  Riesgo de throttle de login documentado (no es una regresión de 4H, mismo
+  tipo de flakiness ya señalado desde Sprint 3) — ver
+  `docs/verification.md`.
+- Gap de alcance documentado, no corregido: el formulario admin de
+  alimentos no acepta micronutrientes porque
+  `AdminCreateFoodBody`/`AdminUpdateFoodBody` no fueron extendidos por el
+  backend en Sprint 4.

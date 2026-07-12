@@ -57,3 +57,25 @@
   check-in → pausa/reactivación → dashboard card → export 3.0.0 →
   revocación de consentimiento (mutaciones 409, lecturas OK) →
   re-aceptación.
+
+## Sprint 4
+
+- Component tests (`npm run test`): `NutrientReportPage.test.tsx`,
+  `NutrientDetailPage.test.tsx`, `MicronutrientsCard.test.tsx`,
+  `FoodDetailPage.test.tsx`, `MyFoodFormModal.test.tsx`,
+  `RecipeEditorPage.test.tsx`, `RecipeDetailPage.test.tsx`, using MSW
+  handlers in `src/test/handlers/nutrients.ts`.
+- E2E (`npm run test:e2e`, backend servido y seedeado): `e2e/nutrients.spec.ts`
+  cubre flujo de usuario (detalle de alimento completo/parcial, alta de
+  alimento propio con calcio+hierro=0 y vitamina D en blanco, receta mixta
+  con estado parcial, diario, dashboard card, reportes de 30 días, detalle
+  de nutriente con gráfica/tabla, referencia por rango con perfil sin
+  divulgar, export 4.0.0, revocación/reaceptación de consentimiento) y
+  flujo admin (mapeos FDC de sistema bloqueados, 422 en intento de mapeo
+  incompatible, sin exposición de API key). Nunca llama a FDC real; requiere
+  el `DemoFoodSeeder` extendido del backend.
+- Riesgo conocido (no es una tarea de código pendiente): `e2e/nutrients.spec.ts`
+  agrega 2 logins más a una suite Playwright serial ya larga, contra un
+  throttle de login del backend de 10 req/min. Esto puede causar timeouts
+  en specs no relacionados que corren más tarde en la misma ejecución —
+  mismo tipo de riesgo de flakiness ya señalado para Sprint 3.
