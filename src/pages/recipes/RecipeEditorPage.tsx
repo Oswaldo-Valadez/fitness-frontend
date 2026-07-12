@@ -3,8 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Plus, Search, Trash2 } from 'lucide-react'
 import { foodsApi } from '@/api/foods'
 import { recipesApi } from '@/api/recipes'
-import type { Food, RecipeIngredientInput, RecipePreview } from '@/api/generated/model'
+import type { Food, FoodNutrientProvenance, RecipeIngredientInput, RecipePreview } from '@/api/generated/model'
 import { getFoodMacros } from '@/lib/nutrients'
+import { MINERAL_CODES, VITAMIN_CODES } from '@/lib/nutrientReport'
 import NutrientValue from '@/components/nutrition/NutrientValue'
 import PageSpinner from '@/components/ui/PageSpinner'
 import Button from '@/components/ui/Button'
@@ -12,11 +13,25 @@ import Card, { CardHeader } from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { useToast } from '@/components/ui/toast'
 
+const EXTENDED_MICRONUTRIENT_CODES = [...MINERAL_CODES.filter((c) => c !== 'sodium_mg'), ...VITAMIN_CODES]
+
 interface IngredientRow {
   key: string
-  food: { id?: number; name: string }
+  food: { id?: number; name: string; nutrients?: FoodNutrientProvenance[] }
   quantity: number
   portionId: number | null
+}
+
+/**
+ * Availability preview only — this reads each selected food's own nutrient
+ * provenance rows (already loaded with the food) to describe which of the 10
+ * extended micronutrients are known/unknown for that ingredient. It never
+ * computes authoritative recipe totals for extended nutrients client-side;
+ * that stays server-side in the (macro-only, for now) preview endpoint.
+ */
+function micronutrientAvailability(nutrients: FoodNutrientProvenance[] = []): { known: number; total: number } {
+  const known = EXTENDED_MICRONUTRIENT_CODES.filter((code) => nutrients.some((n) => n.code === code)).length
+  return { known, total: EXTENDED_MICRONUTRIENT_CODES.length }
 }
 
 export default function RecipeEditorPage() {
@@ -76,7 +91,10 @@ export default function RecipeEditorPage() {
   }, [query])
 
   const addIngredient = (food: Food) => {
-    setIngredients((prev) => [...prev, { key: `${food.id}-${Date.now()}`, food, quantity: 100, portionId: null }])
+    setIngredients((prev) => [
+      ...prev,
+      { key: `${food.id}-${Date.now()}`, food: { id: food.id, name: food.name, nutrients: food.nutrients }, quantity: 100, portionId: null },
+    ])
     setQuery('')
     setResults([])
   }
@@ -209,27 +227,36 @@ export default function RecipeEditorPage() {
 
         {ingredients.length > 0 && (
           <ul className="space-y-2">
-            {ingredients.map((row) => (
-              <li key={row.key} className="flex items-center gap-2 rounded-lg bg-surface-muted p-2.5">
-                <span className="min-w-0 flex-1 truncate text-sm text-foreground">{row.food.name}</span>
-                <input
-                  type="number"
-                  min={0.1}
-                  value={row.quantity}
-                  onChange={(e) => updateQuantity(row.key, Number(e.target.value))}
-                  className="h-9 w-20 rounded-lg border border-border bg-surface text-center text-sm text-foreground"
-                  aria-label={`Cantidad de ${row.food.name}`}
-                />
-                <span className="text-xs text-muted">g</span>
-                <button
-                  onClick={() => removeIngredient(row.key)}
-                  aria-label={`Quitar ${row.food.name}`}
-                  className="cursor-pointer rounded p-1.5 text-muted hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </li>
-            ))}
+            {ingredients.map((row) => {
+              const availability = micronutrientAvailability(row.food.nutrients)
+              return (
+                <li key={row.key} className="space-y-1 rounded-lg bg-surface-muted p-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="min-w-0 flex-1 truncate text-sm text-foreground">{row.food.name}</span>
+                    <input
+                      type="number"
+                      min={0.1}
+                      value={row.quantity}
+                      onChange={(e) => updateQuantity(row.key, Number(e.target.value))}
+                      className="h-9 w-20 rounded-lg border border-border bg-surface text-center text-sm text-foreground"
+                      aria-label={`Cantidad de ${row.food.name}`}
+                    />
+                    <span className="text-xs text-muted">g</span>
+                    <button
+                      onClick={() => removeIngredient(row.key)}
+                      aria-label={`Quitar ${row.food.name}`}
+                      className="cursor-pointer rounded p-1.5 text-muted hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted">
+                    Micronutrientes conocidos: {availability.known}/{availability.total}
+                    {availability.known < availability.total && ' — puede subestimar el total de la receta'}
+                  </p>
+                </li>
+              )
+            })}
           </ul>
         )}
 

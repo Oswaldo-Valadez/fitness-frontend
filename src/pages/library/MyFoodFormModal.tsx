@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { myFoodsApi } from '@/api/myFoods'
 import type { Food } from '@/api/generated/model'
 import { nutrientAmountOrNull } from '@/lib/nutrients'
+import { OPTIONAL_MICRONUTRIENT_FIELDS } from '@/lib/nutrientReport'
 import Modal from '@/components/ui/Modal'
 import Input from '@/components/ui/Input'
 import SegmentedControl from '@/components/ui/SegmentedControl'
@@ -30,7 +32,11 @@ interface FormState {
   serving_amount: string
   serving_unit: string
   serving_weight_g: string
+  /** The 10 optional Sprint 4 micronutrients, code -> raw input string. Blank means unknown, never 0. */
+  micronutrients: Record<string, string>
 }
+
+const EMPTY_MICRONUTRIENTS: Record<string, string> = Object.fromEntries(OPTIONAL_MICRONUTRIENT_FIELDS.map((f) => [f.code, '']))
 
 const EMPTY: FormState = {
   name: '',
@@ -48,6 +54,7 @@ const EMPTY: FormState = {
   serving_amount: '',
   serving_unit: '',
   serving_weight_g: '',
+  micronutrients: EMPTY_MICRONUTRIENTS,
 }
 
 /** Empty string means "unknown" (not sent / null) — never coerced to 0. */
@@ -77,6 +84,12 @@ export default function MyFoodFormModal({ open, onClose, onSaved, food }: Props)
       const fat = nutrientAmountOrNull(food, 'fat_g')
       const fiber = nutrientAmountOrNull(food, 'fiber_g')
       const sodium = nutrientAmountOrNull(food, 'sodium_mg')
+      const micronutrients = Object.fromEntries(
+        OPTIONAL_MICRONUTRIENT_FIELDS.map(({ code }) => {
+          const amount = nutrientAmountOrNull(food, code)
+          return [code, amount !== null ? String(amount) : '']
+        }),
+      )
       return {
         ...EMPTY,
         name: food.name ?? '',
@@ -88,14 +101,18 @@ export default function MyFoodFormModal({ open, onClose, onSaved, food }: Props)
         fat_g: fat !== null ? String(fat) : '',
         fiber_g: fiber !== null ? String(fiber) : '',
         sodium_mg: sodium !== null ? String(sodium) : '',
+        micronutrients,
       }
     })
   }, [open, food])
 
   const set =
-    <K extends keyof FormState>(k: K) =>
+    <K extends keyof Omit<FormState, 'micronutrients'>>(k: K) =>
     (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }))
+
+  const setMicronutrient = (code: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, micronutrients: { ...f.micronutrients, [code]: e.target.value } }))
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -115,6 +132,7 @@ export default function MyFoodFormModal({ open, onClose, onSaved, food }: Props)
           fat_g: numberOrNull(form.fat_g),
           fiber_g: numberOrNull(form.fiber_g),
           sodium_mg: numberOrNull(form.sodium_mg),
+          ...Object.fromEntries(OPTIONAL_MICRONUTRIENT_FIELDS.map(({ code }) => [code, numberOrNull(form.micronutrients[code])])),
         },
         ...(form.input_mode === 'per_serving'
           ? {
@@ -201,6 +219,32 @@ export default function MyFoodFormModal({ open, onClose, onSaved, food }: Props)
           <Input id="my-food-fiber" label="Fibra (g)" type="number" step={0.1} value={form.fiber_g} onChange={set('fiber_g')} />
           <Input id="my-food-sodium" label="Sodio (mg)" type="number" step={0.1} value={form.sodium_mg} onChange={set('sodium_mg')} />
         </div>
+
+        <details className="group rounded-lg border border-border">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-sm font-medium text-foreground">
+            Micronutrientes opcionales
+            <ChevronDown className="h-4 w-4 text-muted transition-transform group-open:rotate-180" aria-hidden="true" />
+          </summary>
+          <div className="space-y-3 border-t border-border p-3">
+            <p className="text-xs text-muted">
+              Deja vacío un campo si no lo conoces — se guardará como <em>desconocido</em>, no como cero. Puedes capturar <code>0</code> cuando el alimento
+              realmente no contiene el nutriente.
+            </p>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              {OPTIONAL_MICRONUTRIENT_FIELDS.map(({ code, label, unit, step }) => (
+                <Input
+                  key={code}
+                  id={`my-food-${code}`}
+                  label={`${label} (${unit})`}
+                  type="number"
+                  step={step}
+                  value={form.micronutrients[code] ?? ''}
+                  onChange={setMicronutrient(code)}
+                />
+              ))}
+            </div>
+          </div>
+        </details>
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 

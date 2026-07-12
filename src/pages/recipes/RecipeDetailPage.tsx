@@ -3,8 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Archive, ArchiveRestore, ArrowLeft, Pencil, Star, Trash2 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { recipesApi } from '@/api/recipes'
-import type { Recipe } from '@/api/generated/model'
+import type { NutrientStatus, NutrientTotals, Recipe } from '@/api/generated/model'
 import NutrientValue from '@/components/nutrition/NutrientValue'
+import { toDisplayStatus } from '@/lib/nutrientReport'
 import PageSpinner from '@/components/ui/PageSpinner'
 import Button from '@/components/ui/Button'
 import Card, { CardHeader } from '@/components/ui/Card'
@@ -136,6 +137,8 @@ export default function RecipeDetailPage() {
         </Button>
       </Card>
 
+      <NutrientBreakdownTable recipe={recipe} />
+
       <Card className="space-y-3">
         <CardHeader title="Ingredientes" />
         <ul className="divide-y divide-border">
@@ -167,5 +170,86 @@ export default function RecipeDetailPage() {
         confirmLabel="Eliminar"
       />
     </div>
+  )
+}
+
+type NutrientRow = { code: keyof NutrientTotals; label: string; unit: string; decimals: number; category: 'Energía' | 'Macronutrientes' | 'Otros' }
+
+const BREAKDOWN_ROWS: NutrientRow[] = [
+  { code: 'energy_kcal', label: 'Energía', unit: ' kcal', decimals: 0, category: 'Energía' },
+  { code: 'protein_g', label: 'Proteína', unit: ' g', decimals: 1, category: 'Macronutrientes' },
+  { code: 'carbohydrate_g', label: 'Carbohidratos', unit: ' g', decimals: 1, category: 'Macronutrientes' },
+  { code: 'fat_g', label: 'Grasa total', unit: ' g', decimals: 1, category: 'Macronutrientes' },
+  { code: 'fiber_g', label: 'Fibra', unit: ' g', decimals: 1, category: 'Otros' },
+  { code: 'sodium_mg', label: 'Sodio', unit: ' mg', decimals: 0, category: 'Otros' },
+]
+
+/**
+ * Grouped Por receta / Por 100g / Por porción / Status table. No reference
+ * comparison here — the spec forbids it in recipe detail; comparisons only
+ * appear in the personal nutrient report/detail pages. Limited to the six
+ * codes the recipe contract (NutrientTotals/NutrientStatus) currently
+ * exposes — the recipe endpoints have not been extended to the ten new
+ * micronutrients in the vendored OpenAPI contract yet.
+ */
+function NutrientBreakdownTable({ recipe }: { recipe: Recipe }) {
+  const categories = ['Energía', 'Macronutrientes', 'Otros'] as const
+
+  return (
+    <Card padding="none" className="overflow-hidden">
+      <div className="p-4 pb-0 sm:p-5 sm:pb-0">
+        <CardHeader title="Desglose de nutrientes" />
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <caption className="sr-only">Desglose de nutrientes de {recipe.name}</caption>
+          <thead className="bg-surface-muted text-left text-xs font-medium uppercase text-muted">
+            <tr>
+              <th className="px-4 py-2.5">Nutriente</th>
+              <th className="px-4 py-2.5 text-right">Por receta</th>
+              <th className="px-4 py-2.5 text-right">Por 100 g</th>
+              <th className="px-4 py-2.5 text-right">Por {recipe.serving_name ?? 'porción'}</th>
+              <th className="px-4 py-2.5 text-right">Estado</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {categories.map((category) => (
+              <RowsForCategory key={category} category={category} recipe={recipe} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  )
+}
+
+function RowsForCategory({ category, recipe }: { category: NutrientRow['category']; recipe: Recipe }) {
+  const rows = BREAKDOWN_ROWS.filter((r) => r.category === category)
+  return (
+    <>
+      <tr>
+        <th colSpan={5} scope="rowgroup" className="bg-surface-muted/50 px-4 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-muted">
+          {category}
+        </th>
+      </tr>
+      {rows.map((row) => {
+        const rowStatus = toDisplayStatus((recipe.nutrient_status as NutrientStatus | null)?.[row.code as keyof NutrientStatus])
+        return (
+          <tr key={row.code}>
+            <td className="px-4 py-2.5 text-foreground">{row.label}</td>
+            <td className="tabular-nums px-4 py-2.5 text-right">
+              <NutrientValue value={recipe.totals?.[row.code]} status={rowStatus} unit={row.unit} decimals={row.decimals} />
+            </td>
+            <td className="tabular-nums px-4 py-2.5 text-right">
+              <NutrientValue value={recipe.per_100g?.[row.code]} status={rowStatus} unit={row.unit} decimals={row.decimals} />
+            </td>
+            <td className="tabular-nums px-4 py-2.5 text-right">
+              <NutrientValue value={recipe.per_serving?.[row.code]} status={rowStatus} unit={row.unit} decimals={row.decimals} />
+            </td>
+            <td className="px-4 py-2.5 text-right text-xs text-muted capitalize">{rowStatus}</td>
+          </tr>
+        )
+      })}
+    </>
   )
 }

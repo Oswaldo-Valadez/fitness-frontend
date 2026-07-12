@@ -5,7 +5,8 @@ import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
 import { clsx } from 'clsx'
 import { foodsApi } from '@/api/foods'
 import { getFoodMacros } from '@/lib/nutrients'
-import type { Food, FoodPortion } from '@/api/generated/model'
+import { MINERAL_CODES, QUALITY_STATUS_LABELS, VITAMIN_CODES } from '@/lib/nutrientReport'
+import type { Food, FoodNutrientProvenance, FoodPortion } from '@/api/generated/model'
 import NutrientValue from '@/components/nutrition/NutrientValue'
 import PageSpinner from '@/components/ui/PageSpinner'
 import Button from '@/components/ui/Button'
@@ -23,6 +24,33 @@ const ROW = (label: string, value: React.ReactNode, accentClass?: string) => (
     <span className="font-medium text-foreground">{value}</span>
   </div>
 )
+
+/**
+ * Vitamins/minerals section, per 100g, sourced directly from the food's
+ * dynamic nutrient rows (never from a fixed-macro helper). A missing row for
+ * a tracked code renders as "Sin dato" — it is never filled in as zero.
+ */
+function MicronutrientSection({ title, codes, nutrients }: { title: string; codes: readonly string[]; nutrients: FoodNutrientProvenance[] }) {
+  const byCode = new Map(nutrients.map((n) => [n.code, n]))
+
+  return (
+    <div className="mt-4">
+      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{title} · por 100 g</p>
+      {codes.map((code) => {
+        const row = byCode.get(code)
+        return (
+          <div key={code} className="flex items-center justify-between gap-2 border-b border-border py-2 text-sm last:border-0">
+            <span className="text-muted">{row?.name ?? code}</span>
+            <div className="flex items-center gap-2 text-right">
+              <NutrientValue value={row ? row.amount_per_100g : null} decimals={2} unit={row?.unit ? ` ${row.unit}` : ''} />
+              {row?.quality_status && <span className="text-[10px] text-muted">{QUALITY_STATUS_LABELS[row.quality_status] ?? row.quality_status}</span>}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function FoodDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -60,8 +88,6 @@ export default function FoodDetailPage() {
   const carbs = macros.carbohydrate_g !== null ? macros.carbohydrate_g * factor : null
   const fat = macros.fat_g !== null ? macros.fat_g * factor : null
   const kcal = macros.energy_kcal !== null ? macros.energy_kcal * factor : null
-  const fiber = macros.fiber_g !== null ? macros.fiber_g * factor : null
-  const sodium = macros.sodium_mg !== null ? macros.sodium_mg * factor : null
 
   // Never build a pie slice from an unknown macro — an incomplete chart is
   // more misleading than no chart at all.
@@ -306,16 +332,21 @@ export default function FoodDetailPage() {
         </div>
 
         <div className="mt-4">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
-            Información nutricional · {selectedPortion ? `${portionCount} ${selectedPortion.unit_label}` : `${grams}g`}
-          </p>
-          {ROW('Energía', <NutrientValue value={kcal} decimals={1} unit=" kcal" />)}
-          {ROW('Proteína', <NutrientValue value={protein} decimals={2} unit=" g" />, 'bg-protein')}
-          {ROW('Carbohidratos', <NutrientValue value={carbs} decimals={2} unit=" g" />, 'bg-carbs')}
-          {ROW('Grasa total', <NutrientValue value={fat} decimals={2} unit=" g" />, 'bg-fat')}
-          {fiber !== null && ROW('Fibra', <NutrientValue value={fiber} decimals={2} unit=" g" />)}
-          {sodium !== null && ROW('Sodio', <NutrientValue value={sodium} decimals={1} unit=" mg" />)}
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">Macronutrientes y energía · por 100 g</p>
+          {ROW('Energía', <NutrientValue value={macros.energy_kcal} decimals={1} unit=" kcal" />)}
+          {ROW('Proteína', <NutrientValue value={macros.protein_g} decimals={2} unit=" g" />, 'bg-protein')}
+          {ROW('Carbohidratos', <NutrientValue value={macros.carbohydrate_g} decimals={2} unit=" g" />, 'bg-carbs')}
+          {ROW('Grasa total', <NutrientValue value={macros.fat_g} decimals={2} unit=" g" />, 'bg-fat')}
         </div>
+
+        <div className="mt-4">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">Fibra y sodio · por 100 g</p>
+          {ROW('Fibra', <NutrientValue value={macros.fiber_g} decimals={2} unit=" g" />)}
+          {ROW('Sodio', <NutrientValue value={macros.sodium_mg} decimals={1} unit=" mg" />)}
+        </div>
+
+        <MicronutrientSection title="Vitaminas" codes={VITAMIN_CODES} nutrients={food.nutrients} />
+        <MicronutrientSection title="Minerales" codes={MINERAL_CODES.filter((c) => c !== 'sodium_mg')} nutrients={food.nutrients} />
 
         <Button className="mt-6 w-full" size="lg" onClick={goToDiary}>
           Agregar al diario

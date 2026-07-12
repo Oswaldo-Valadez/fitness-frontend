@@ -1,3 +1,45 @@
+Current phase: 4G — Frontend nutrient reports UI, food/recipe micronutrient forms (DONE)
+Status: All 4G UI built and gates green — adapter, reports tab + report/detail pages, dashboard card, food detail/forms, recipe editor/detail, 9 new test files.
+Backend SHA: 364a01f (unchanged since 4F — 4G is frontend-only)
+Contract SHA: unchanged since 4F (no `npm run gen` run in 4G; consumed the client vendored in 4F as-is)
+New (4G):
+- `src/api/nutrients.ts` — thin adapter, 5 methods over `getNutrients()`.
+- `src/components/nutrition/`: NutrientCoverageBadge, NutrientReferenceLabel, NutrientComparisonText, NutrientQualityBreakdown, NutrientReferenceExplanation, NutrientDataLimitations.
+- Third "Nutrientes" tab in `ReportsLayout.tsx`; routes `/reports/nutrients` (nested, tab visible) and `/reports/nutrients/:code` (top-level sibling, same pattern as quality-assessment detail).
+- `NutrientReportPage.tsx` / `NutrientDetailPage.tsx`: period/category/status filters (no deficient/exceso filter), exact spec partial-card copy, sodium AI+CDRR with CDRR primary, no UL anywhere, special-nutrient copy (sodium/potassium/iron/vitamin D/folato), range references rendered as text only (never a midpoint), null-breaking Recharts line + mandatory accessible table.
+- `MicronutrientsCard.tsx` on the dashboard (own fetch, `DietQualityCard` pattern) — complete/partial/no-data counts, no "worst nutrients" ranking.
+- `FoodDetailPage.tsx`: 4 per-100g sections (Macros/energía, Fibra y sodio, Vitaminas, Minerales) sourced from `Food.nutrients` provenance rows, with quality-status label per row; missing rows render "Sin dato", never 0.
+- `MyFoodFormModal.tsx`: collapsible "Micronutrientes opcionales" `<details>` section, 10 fields, blank→`null`/`0`→`0` verified by test.
+- `RecipeEditorPage.tsx`: per-ingredient micronutrient availability (client-derived from each selected `Food.nutrients`, informational only) with partial-coverage warning; preview totals still come only from the server `recipesApi.preview()` call, never recomputed client-side.
+- `RecipeDetailPage.tsx`: grouped Por receta/Por 100g/Por porción/Estado table (Energía/Macronutrientes/Otros), no reference comparison shown (per spec).
+Decisions (4G):
+- Admin food create/update (`AdminCreateFoodBody`/`AdminUpdateFoodBody` in the vendored OpenAPI) was **not** extended with `nutrients`/`nutrition_basis` during backend Sprint 4 — confirmed by reading `openapi/api-docs.json` directly (`/admin/foods` POST/PUT still only has the 6 legacy fields). Per AGENTS.md ("no inventar contratos"), the admin food form was left untouched rather than fabricating a client-side nutrients map the backend can't accept. **Risk/follow-up for 4H or a backend phase**: either extend `AdminStoreFoodRequest`/`AdminUpdateFoodRequest` + regenerate the contract, or explicitly document that admin-created foods cannot carry the 10 new micronutrients and must go through FDC import or a follow-up edit as a private food.
+- `RecipePreview`/`Recipe.totals`/`per_100g`/`per_serving` remain typed as `NutrientTotals` (6 legacy fields only) in the vendored contract — the recipe breakdown table and editor preview are therefore limited to those 6 codes; the 10 new micronutrients are not shown per-recipe, only ingredient-level availability (a count, not amounts).
+- `PeriodNutrientIntakeCoverage`/`NutrientDetailResponseCoverage` are untyped `{[key:string]:unknown}` bags in the generated client; added a `coverageNumber()` helper in `src/lib/nutrientReport.ts` to read `nutrient_data_coverage_pct`/`diary_coverage_pct` safely.
+- Found and fixed a real bug during self-review (before first test run): `NutrientCoverageBadge` was invoked in `NutrientReportPage.tsx` with a hardcoded `items_total: 0`, which would have always rendered "Sin elementos registrados" instead of the real period coverage percentage. Refactored the badge to accept either a full `NutrientCoverage` (daily/detail) or a plain `coveragePct` number (period, which has no item-level counts) — covered by a new test asserting the exact spec example ("Datos conocidos en 68 % de los elementos").
+Changed (4G):
+- `src/api/nutrients.ts` (new), `src/lib/nutrientReport.ts` (new)
+- `src/components/nutrition/{NutrientCoverageBadge,NutrientReferenceLabel,NutrientComparisonText,NutrientQualityBreakdown,NutrientReferenceExplanation,NutrientDataLimitations}.tsx` (new)
+- `src/pages/reports/{NutrientReportPage,NutrientDetailPage}.tsx` (new), `ReportsLayout.tsx` (third tab)
+- `src/router/index.tsx` (2 new routes)
+- `src/pages/dashboard/{MicronutrientsCard.tsx (new), DashboardPage.tsx}`
+- `src/pages/foods/FoodDetailPage.tsx`, `src/pages/library/MyFoodFormModal.tsx`
+- `src/pages/recipes/{RecipeEditorPage,RecipeDetailPage}.tsx`
+- `src/test/handlers/nutrients.ts` (new) + `index.ts`
+- 9 new test files: NutrientReportPage, NutrientDetailPage, MicronutrientsCard, FoodDetailPage, MyFoodFormModal, RecipeEditorPage, RecipeDetailPage (all `.test.tsx`)
+Passed (4G):
+- npm run lint: clean (1 pre-existing unrelated warning in toast.tsx)
+- npm run typecheck: clean
+- npm run test -- --run: 98/98 passed (17 files) — 53 pre-existing + 45 new; no existing test weakened
+- npm run build: passed
+Remaining for 4H:
+- e2e/nutrients.spec.ts (user + admin flows), demo fixtures, backfill rehearsal — none of this was in 4G scope.
+- Admin food micronutrients contract gap (see Decisions above) — needs a backend decision before any admin-form UI work.
+- Recipe-level micronutrient totals (beyond ingredient availability counts) are not shown anywhere; if 4H or a later phase wants that, it requires extending `RecipePreview`/`Recipe.totals` server-side first.
+Spec source: fitness-backend/specs/nutrients/feature.{spec,bdd,test-cases}.md (authoritative).
+
+---
+
 Current phase: 4F — OpenAPI contract vendored and Orval regenerated (DONE; no UI built yet)
 Status: openapi/api-docs.json updated from backend commit 364a01f (byte-identical, verified via diff), Orval client regenerated (76 files changed: 1 removed model, ~60 new nutrient-schema models + a new `nutrients/` client folder), all gates green
 Backend SHA: 364a01f (Sprint 4F backend commit — schema formalization, no path/operationId changes)

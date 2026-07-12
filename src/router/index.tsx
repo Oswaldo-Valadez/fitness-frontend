@@ -46,6 +46,8 @@ const ReportsPage = lazy(() => import('@/pages/reports/ReportsPage'))
 const DietQualityPage = lazy(() => import('@/pages/quality/DietQualityPage'))
 const DietQualityAssessmentPage = lazy(() => import('@/pages/quality/DietQualityAssessmentPage'))
 const DietQualityAssessmentDetailPage = lazy(() => import('@/pages/quality/DietQualityAssessmentDetailPage'))
+const NutrientReportPage = lazy(() => import('@/pages/reports/NutrientReportPage'))
+const NutrientDetailPage = lazy(() => import('@/pages/reports/NutrientDetailPage'))
 
 // Admin
 const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'))
@@ -110,10 +112,12 @@ export const router = createBrowserRouter([
             children: [
               { index: true, element: wrap(ReportsPage) },
               { path: 'quality', element: wrap(DietQualityPage) },
+              { path: 'nutrients', element: wrap(NutrientReportPage) },
             ],
           },
           { path: '/reports/quality/assessment', element: wrap(DietQualityAssessmentPage) },
           { path: '/reports/quality/assessments/:id', element: wrap(DietQualityAssessmentDetailPage) },
+          { path: '/reports/nutrients/:code', element: wrap(NutrientDetailPage) },
           { path: '/profile', element: wrap(ProfilePage) },
           { path: '/account', element: wrap(AccountPage) },
         ],
