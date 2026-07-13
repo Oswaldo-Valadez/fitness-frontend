@@ -13,6 +13,7 @@ import NutrientValue from '@/components/nutrition/NutrientValue'
 import { useToast } from '@/components/ui/toast'
 import WeightTrendCard from '@/components/weight/WeightTrendCard'
 import DietQualityCard from './DietQualityCard'
+import HydrationCard from './HydrationCard'
 import MicronutrientsCard from './MicronutrientsCard'
 import MacroBar from './MacroBar'
 import MealGroup, { type MealGroupItem } from './MealGroup'
@@ -133,6 +134,8 @@ export default function DashboardPage() {
       <WeightTrendCard />
 
       <DietQualityCard />
+
+      <HydrationCard />
 
       <MicronutrientsCard />
 

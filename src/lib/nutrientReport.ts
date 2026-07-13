@@ -131,7 +131,13 @@ export function coverageNumber(bag: { [key: string]: unknown } | undefined, key:
 export const MINERAL_CODES = ['calcium_mg', 'iron_mg', 'magnesium_mg', 'potassium_mg', 'sodium_mg', 'zinc_mg'] as const
 export const VITAMIN_CODES = ['vitamin_a_rae_mcg', 'vitamin_c_mg', 'vitamin_d_mcg', 'vitamin_b12_mcg', 'folate_dfe_mcg'] as const
 
-/** The 10 optional micronutrient codes introduced in Sprint 4, in display order for forms. */
+/**
+ * The optional micronutrient codes beyond the six legacy fields, in display
+ * order for forms: the 10 introduced in Sprint 4 plus water_ml (Sprint 5).
+ * water_ml here is the food's own water content (used to estimate dietary
+ * water in the diary) — distinct from the manual plain-water entries under
+ * /diary/water, which never touch this catalog.
+ */
 export const OPTIONAL_MICRONUTRIENT_FIELDS: { code: string; label: string; unit: string; step: number }[] = [
   { code: 'calcium_mg', label: 'Calcio', unit: 'mg', step: 0.1 },
   { code: 'iron_mg', label: 'Hierro', unit: 'mg', step: 0.01 },
@@ -143,6 +149,7 @@ export const OPTIONAL_MICRONUTRIENT_FIELDS: { code: string; label: string; unit:
   { code: 'vitamin_d_mcg', label: 'Vitamina D', unit: 'mcg', step: 0.1 },
   { code: 'vitamin_b12_mcg', label: 'Vitamina B12', unit: 'mcg', step: 0.01 },
   { code: 'folate_dfe_mcg', label: 'Folato', unit: 'mcg DFE', step: 0.1 },
+  { code: 'water_ml', label: 'Agua (del alimento)', unit: 'ml', step: 0.1 },
 ]
 
 export const QUALITY_STATUS_LABELS: Record<string, string> = {

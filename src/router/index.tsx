@@ -28,7 +28,9 @@ const OnboardingPage = lazy(() => import('@/pages/onboarding/OnboardingPage'))
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'))
 const FoodsPage = lazy(() => import('@/pages/foods/FoodsPage'))
 const FoodDetailPage = lazy(() => import('@/pages/foods/FoodDetailPage'))
+const DiaryLayout = lazy(() => import('@/pages/diary/DiaryLayout'))
 const DiaryPage = lazy(() => import('@/pages/diary/DiaryPage'))
+const HydrationPage = lazy(() => import('@/pages/diary/HydrationPage'))
 const ProfilePage = lazy(() => import('@/pages/profile/ProfilePage'))
 const AccountPage = lazy(() => import('@/pages/account/AccountPage'))
 
@@ -48,6 +50,7 @@ const DietQualityAssessmentPage = lazy(() => import('@/pages/quality/DietQuality
 const DietQualityAssessmentDetailPage = lazy(() => import('@/pages/quality/DietQualityAssessmentDetailPage'))
 const NutrientReportPage = lazy(() => import('@/pages/reports/NutrientReportPage'))
 const NutrientDetailPage = lazy(() => import('@/pages/reports/NutrientDetailPage'))
+const HydrationReportPage = lazy(() => import('@/pages/reports/HydrationReportPage'))
 
 // Admin
 const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'))
@@ -105,7 +108,14 @@ export const router = createBrowserRouter([
           { path: '/recipes/new', element: wrap(RecipeEditorPage) },
           { path: '/recipes/:id', element: wrap(RecipeDetailPage) },
           { path: '/recipes/:id/edit', element: wrap(RecipeEditorPage) },
-          { path: '/diary', element: wrap(DiaryPage) },
+          {
+            path: '/diary',
+            element: wrap(DiaryLayout),
+            children: [
+              { index: true, element: wrap(DiaryPage) },
+              { path: 'water', element: wrap(HydrationPage) },
+            ],
+          },
           {
             path: '/reports',
             element: wrap(ReportsLayout),
@@ -113,6 +123,7 @@ export const router = createBrowserRouter([
               { index: true, element: wrap(ReportsPage) },
               { path: 'quality', element: wrap(DietQualityPage) },
               { path: 'nutrients', element: wrap(NutrientReportPage) },
+              { path: 'hydration', element: wrap(HydrationReportPage) },
             ],
           },
           { path: '/reports/quality/assessment', element: wrap(DietQualityAssessmentPage) },
