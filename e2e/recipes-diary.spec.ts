@@ -1,9 +1,8 @@
 import { expect, test } from '@playwright/test'
-import { DEMO_EMAIL, DEMO_PASSWORD, apiRequest, login } from './helpers'
+import { apiRequest } from './helpers'
 
 test.describe('recipes and diary registration', () => {
   test('create a recipe, then register it into the diary by servings', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/recipes/new')
 
     const recipeName = `Guiso E2E ${Date.now()}`
@@ -31,8 +30,10 @@ test.describe('recipes and diary registration', () => {
   })
 
   test('register a food into the diary by portion (not raw grams)', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
-
+    // apiRequest() reads document.cookie via page.evaluate — needs a real
+    // page loaded first (storageState alone leaves the page on about:blank,
+    // where cookie access throws a SecurityError).
+    await page.goto('/dashboard')
     const search = await apiRequest(page, 'GET', '/api/foods?q=Leche entera')
     const { data } = search.json as { data: { id: number }[] }
     const foodId = data[0].id
@@ -61,7 +62,6 @@ test.describe('recipes and diary registration', () => {
   })
 
   test('editing a meal name and notes persists after reload (Fase 11D)', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/diary')
     await page.fill('#food-query', 'Manzana fresca')
     await page

@@ -2,9 +2,18 @@ import { expect, test } from '@playwright/test'
 import { DEMO_EMAIL, DEMO_PASSWORD, apiRequest, login } from './helpers'
 
 test.describe('auth + consent revoke/reaccept', () => {
-  test('login lands on dashboard', async ({ page }) => {
+  test('login redirects a fully onboarded user straight to the dashboard', async ({ page }) => {
     await login(page, DEMO_EMAIL, DEMO_PASSWORD)
-    await expect(page.locator('nav').first()).toBeVisible()
+    await expect(page.locator('text=Diario alimenticio').or(page.locator('nav')).first()).toBeVisible()
+  })
+
+  // Moved from admin.spec.ts (Sprint 5G): admin.spec.ts now runs under a
+  // pre-authenticated ADMIN storageState project, so a test needing a
+  // genuinely non-admin session belongs here with the other real-login tests.
+  test('a regular user is redirected away from /admin/foods', async ({ page }) => {
+    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
+    await page.goto('/admin/foods')
+    await page.waitForURL(/\/dashboard/)
   })
 
   test('a revoked consent blocks the next mutation with 409, and reaccepting through /onboarding clears it', async ({ page }) => {

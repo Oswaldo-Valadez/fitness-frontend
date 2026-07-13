@@ -1,25 +1,16 @@
 import { type Page, expect, test } from '@playwright/test'
 
-const DEMO_EMAIL = 'demo@fitness.local'
-const DEMO_PASSWORD = 'Password123!'
-
 /**
  * Sprint 3 end-to-end flow against a real, seeded backend (no external
  * services). Requires DatabaseSeeder (DietQualityDemoSeeder) so the demo user
  * has two historical assessments and two active goals (vegetables + fish);
  * the legumes focus stays free for this flow to claim.
  *
- * Serial: later steps depend on the state created by earlier ones.
+ * Serial: later steps depend on the state created by earlier ones. Runs
+ * under the "user" Playwright project (pre-authenticated storageState,
+ * Sprint 5G) — no login() call needed.
  */
 test.describe.configure({ mode: 'serial' })
-
-async function login(page: Page) {
-  await page.goto('/login')
-  await page.fill('input[type="email"]', DEMO_EMAIL)
-  await page.fill('input[type="password"]', DEMO_PASSWORD)
-  await page.click('button[type="submit"]')
-  await page.waitForURL(/\/dashboard/)
-}
 
 /** Sanctum SPA: mutating API calls need the XSRF cookie echoed as a header. */
 async function apiHeaders(page: Page) {
@@ -36,8 +27,6 @@ async function apiHeaders(page: Page) {
 
 test.describe('diet quality module', () => {
   test('full assessment → goal → check-in → consent flow', async ({ page }) => {
-    await login(page)
-
     // 2–3. Reports → Calidad de dieta tab → historical assessment visible
     await page.goto('/reports')
     await page.getByRole('tab', { name: 'Calidad de dieta' }).click()

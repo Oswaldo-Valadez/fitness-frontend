@@ -1,9 +1,6 @@
 import { expect, test } from '@playwright/test'
-import { DEMO_EMAIL, DEMO_PASSWORD, login } from './helpers'
-
 test.describe('templates, copy meal, weight, reports, exports', () => {
   test('save a meal as a template, then apply it back into the diary', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/diary')
 
     await page.fill('#food-query', 'Manzana fresca')
@@ -25,7 +22,6 @@ test.describe('templates, copy meal, weight, reports, exports', () => {
   })
 
   test('copy a meal to another date', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/diary')
 
     await page.fill('#food-query', 'Frijoles negros')
@@ -44,7 +40,6 @@ test.describe('templates, copy meal, weight, reports, exports', () => {
   })
 
   test("register today's weight from the profile page", async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/profile')
 
     await page.getByRole('button', { name: 'Registrar' }).click()
@@ -54,7 +49,6 @@ test.describe('templates, copy meal, weight, reports, exports', () => {
   })
 
   test('the reports page shows coverage and both JSON/CSV exports trigger a download', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/reports')
 
     await expect(page.getByText('Cobertura')).toBeVisible()
@@ -67,7 +61,6 @@ test.describe('templates, copy meal, weight, reports, exports', () => {
   })
 
   test('account data export triggers a download', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/account')
 
     const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Descargar mis datos' }).click()])

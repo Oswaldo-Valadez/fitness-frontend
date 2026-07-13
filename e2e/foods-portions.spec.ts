@@ -1,9 +1,8 @@
 import { expect, test } from '@playwright/test'
-import { DEMO_EMAIL, DEMO_PASSWORD, apiRequest, login } from './helpers'
+import { apiRequest } from './helpers'
 
 test.describe('private foods, portions, favorites, recents', () => {
   test('creating a private food with a real zero renders "0", not "Sin dato"', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/library/my-foods')
 
     await page.getByRole('button', { name: 'Nuevo' }).click()
@@ -18,7 +17,6 @@ test.describe('private foods, portions, favorites, recents', () => {
   })
 
   test('creating a private food with an unknown nutrient renders "Sin dato", never 0', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/library/my-foods')
 
     await page.getByRole('button', { name: 'Nuevo' }).click()
@@ -32,8 +30,10 @@ test.describe('private foods, portions, favorites, recents', () => {
   })
 
   test('creating, editing, and deleting a food portion from the food detail page (Fase 11A)', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
-
+    // apiRequest() reads document.cookie via page.evaluate — needs a real
+    // page loaded first (storageState alone leaves the page on about:blank,
+    // where cookie access throws a SecurityError).
+    await page.goto('/dashboard')
     const search = await apiRequest(page, 'GET', '/api/foods?q=Arroz blanco cocido')
     const { data } = search.json as { data: { id: number }[] }
     const foodId = data[0].id
@@ -70,7 +70,6 @@ test.describe('private foods, portions, favorites, recents', () => {
   })
 
   test('favoriting a food in the catalog persists across navigation', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/library/foods')
     await page.fill('#food-search', 'Pechuga')
     await page.waitForTimeout(400)
@@ -89,7 +88,6 @@ test.describe('private foods, portions, favorites, recents', () => {
   })
 
   test('a recently logged food appears as a quick pick', async ({ page }) => {
-    await login(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.goto('/diary')
 
     await page.fill('#food-query', 'Manzana fresca')
